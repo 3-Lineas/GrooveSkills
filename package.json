@@ -1,6 +1,6 @@
 {
   "name": "@3lineas/grooveskills",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Multi-agent CLI to install opinionated AI coding skills and architectural standards (Hono, React, Next.js, and more)",
   "type": "module",
   "bin": {

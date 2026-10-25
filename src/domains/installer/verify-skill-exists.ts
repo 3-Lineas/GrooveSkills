@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { lstatSync } from "node:fs";
 import { join } from "node:path";
 import type { AgentId } from "@/types/agent.types";
 
@@ -17,8 +17,12 @@ export function verifySkillExists(
   for (const agent of agents) {
     const relativePathResolver = AGENT_DESTINATION_MAP[agent];
     const destination = join(targetPath, relativePathResolver(skillDirectoryName));
-    if (existsSync(destination)) {
+
+    try {
+      lstatSync(destination);
       return true;
+    } catch {
+      // Path does not exist
     }
   }
 

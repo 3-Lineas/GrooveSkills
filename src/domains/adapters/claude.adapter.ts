@@ -1,5 +1,7 @@
-import { cpSync, mkdirSync, existsSync } from "node:fs";
+import { mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { getGlobalSkillsDir } from "@/domains/global-store/global-paths";
+import { createOrReplaceSymlink } from "@/domains/adapters/link-helper";
 import type { AgentAdapter } from "@/domains/adapters/adapter.interface";
 import type { SkillMetadata } from "@/types/skill.types";
 
@@ -11,15 +13,17 @@ export class ClaudeAdapter implements AgentAdapter {
   async installSkill(
     targetPath: string,
     skill: SkillMetadata,
-    skillSourceDir: string
+    _skillSourceDir: string
   ): Promise<string[]> {
-    const destination = join(targetPath, this.targetRelativeDir, skill.directoryName);
-
-    if (!existsSync(destination)) {
-      mkdirSync(destination, { recursive: true });
+    const parentDir = join(targetPath, this.targetRelativeDir);
+    if (!existsSync(parentDir)) {
+      mkdirSync(parentDir, { recursive: true });
     }
 
-    cpSync(skillSourceDir, destination, { recursive: true });
+    const destination = join(parentDir, skill.directoryName);
+    const globalSkillDir = join(getGlobalSkillsDir(), skill.directoryName);
+
+    createOrReplaceSymlink(globalSkillDir, destination, "dir");
 
     return [destination];
   }

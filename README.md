@@ -15,6 +15,7 @@
   - **Cursor IDE**: `.cursor/rules/<skill-name>.mdc` (auto-adapted to Cursor rules format)
   - **Gemini Code Assist**: `.gemini/skills/<skill-name>/`
 - **✨ Interactive & Friendly CLI**: Clean terminal experience built with `@clack/prompts` and courteous, persuasive feedback.
+- **🔗 Centralized Global Store & Symlinks**: Skills are synced globally to `~/.grooveskills/` and linked into local projects via symlinks. Updates to global skills instantly reflect across all your projects with zero file duplication.
 - **🛡️ Battle-tested Architectural Standards**:
   - **Universal Best Practices**: Multi-language clean code (TypeScript, PHP, Dart, Rust, etc.), early returns, zero barrel files, strict typing, <200 lines per file.
   - **Hono API Architecture**: Independent routes by domain, isolated Actions layer, database queries exclusively inside Actions, strict Valibot validation, and Cloudflare/Hono RPC.
