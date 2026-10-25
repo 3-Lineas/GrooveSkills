@@ -1,5 +1,5 @@
 {
-  "name": "grooveskills",
+  "name": "@3lineas/grooveskills",
   "version": "1.0.0",
   "description": "Multi-agent CLI to install opinionated AI coding skills and architectural standards (Hono, React, Next.js, and more)",
   "type": "module",
@@ -12,6 +12,9 @@
     "dev": "tsup --watch",
     "check-types": "tsc --noEmit",
     "prepublishOnly": "pnpm run check-types && pnpm run build"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "repository": {
     "type": "git",

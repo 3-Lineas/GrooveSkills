@@ -7,7 +7,7 @@
 
 ## 🌟 Features
 
-- **⚡ Zero Configuration (`npx grooveskills`)**: Run inside any project root to inspect the environment and synchronize AI skills instantly.
+- **⚡ Zero Configuration (`npx @3lineas/grooveskills`)**: Run inside any project root to inspect the environment and synchronize AI skills instantly.
 - **🎯 Smart Stack Detection**: Automatically inspects `package.json` dependencies and pre-selects matching skills (e.g. Hono, Valibot, React, Next.js).
 - **🤖 Multi-Agent Compatibility**:
   - **Antigravity**: `.agents/skills/<skill-name>/`
@@ -28,7 +28,7 @@
 Run directly in the root of any project:
 
 ```bash
-npx grooveskills
+npx @3lineas/grooveskills
 ```
 
 GrooveSkills will automatically:
@@ -45,10 +45,10 @@ Install specific skills for targeted agents without interactive prompts:
 
 ```bash
 # Install specific skills for selected agents
-npx grooveskills --skills best-practices hono --agents antigravity claude
+npx @3lineas/grooveskills --skills best-practices hono --agents antigravity claude
 
 # Automatically confirm overwrite of existing skills
-npx grooveskills --skills best-practices hono --agents antigravity claude cursor gemini --yes
+npx @3lineas/grooveskills --skills best-practices hono --agents antigravity claude cursor gemini --yes
 ```
 
 #### CLI Options
