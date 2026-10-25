@@ -70,6 +70,9 @@ npx @3lineas/grooveskills --skills best-practices hono --agents antigravity clau
 | :--- | :--- | :--- | :--- |
 | `best-practices` | **Universal Best Practices** | Multi-language clean code, early returns, no barrel files, strict typing, <200 lines. | **Always suggested by default** (Any language/file) |
 | `hono` | **Hono Architecture (Valibot)** | Enterprise Hono standard: Valibot validation, Actions layer, RPC bindings, AppError. | Detected `hono`, `@hono/valibot-validator`, etc. |
+| `react-core` | **React Core Fundamentals** | Opinionated React fundamentals: function components, JSX, immutable state, core hooks, lists, and controlled inputs. | Detected `react`, `react-dom` |
+| `react-advanced` | **React 19 Advanced & Compiler Architecture** | React 19 platform features: React Compiler 1.0, concurrent rendering, `use()`, Actions, virtualization, and RSC boundaries. | Detected `react`, `react-dom` |
+| `react-create-page` | **React Page & View Architecture** | Declarative page coordinators, domain hooks, isolated API actions, Valibot + Formisch forms, and atomic co-location. | Detected `react`, `react-dom` |
 
 ---
 
