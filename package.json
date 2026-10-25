@@ -1,0 +1,48 @@
+{
+  "name": "grooveskills",
+  "version": "1.0.0",
+  "description": "Multi-agent CLI to install opinionated AI coding skills and architectural standards (Hono, React, Next.js, and more)",
+  "type": "module",
+  "bin": {
+    "grooveskills": "./dist/cli.js"
+  },
+  "main": "./dist/main.js",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "check-types": "tsc --noEmit",
+    "prepublishOnly": "pnpm run check-types && pnpm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/3-Lineas/GrooveSkills.git"
+  },
+  "keywords": [
+    "skills",
+    "agents",
+    "antigravity",
+    "claude",
+    "cursor",
+    "gemini",
+    "hono",
+    "valibot"
+  ],
+  "author": "3-Lineas",
+  "license": "MIT",
+  "dependencies": {
+    "@clack/prompts": "^0.9.1",
+    "commander": "^13.1.0",
+    "picocolors": "^1.1.1",
+    "valibot": "^1.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  },
+  "files": [
+    "dist",
+    "skills",
+    "README.md"
+  ]
+}
