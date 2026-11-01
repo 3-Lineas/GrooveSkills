@@ -9,7 +9,12 @@ export function detectProjectContext(targetPath: string): ProjectContext {
   const detectedAgents = detectAgents(targetPath);
   const { dependencies, exists } = detectDependencies(targetPath);
 
-  const suggestedSkillIds: string[] = ["best-practices"];
+  const suggestedSkillIds: string[] = [
+    "best-practices",
+    "ux-writing",
+    "error-handling-logging",
+    "clean-architecture-ddd",
+  ];
 
   for (const skill of SKILL_CATALOG) {
     if (skill.dependencies.length === 0) {

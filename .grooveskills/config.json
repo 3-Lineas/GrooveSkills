@@ -1,6 +1,7 @@
 {
   "version": 1,
   "harness": true,
+  "language": "es",
   "agents": [
     "antigravity",
     "claude",
@@ -9,7 +10,15 @@
   ],
   "skills": [
     "best-practices",
-    "groove-harness"
+    "groove-harness",
+    "ux-writing",
+    "error-handling-logging",
+    "clean-architecture-ddd",
+    "typescript-clean",
+    "valibot-validation",
+    "testing-vitest",
+    "rust-clean",
+    "python-clean"
   ],
-  "updatedAt": "2026-11-01T17:10:29.047Z"
+  "updatedAt": "2026-11-01T19:34:44.289Z"
 }

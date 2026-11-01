@@ -2,6 +2,7 @@
 import { Command } from "commander";
 import { runGrooveSkills } from "@/main";
 import type { AgentId } from "@/types/agent.types";
+import type { ProjectLanguage } from "@/types/harness.types";
 
 const program = new Command();
 
@@ -14,13 +15,21 @@ program
   .option("-y, --yes", "Automatically confirm overwrite of existing skills", false)
   .option("--harness", "Initialize or update GrooveSkills project harness in .grooveskills/")
   .option("--no-harness", "Skip harness initialization")
-  .action(async (options: { skills?: string[]; agents?: string[]; yes?: boolean; harness?: boolean }) => {
+  .option("-l, --language <lang>", "Project user copy language (es, en, pt, it, fr)", "es")
+  .action(async (options: {
+    skills?: string[];
+    agents?: string[];
+    yes?: boolean;
+    harness?: boolean;
+    language?: string;
+  }) => {
     try {
       await runGrooveSkills({
         skills: options.skills,
         agents: options.agents as AgentId[] | undefined,
         yes: options.yes,
         harness: options.harness,
+        language: (options.language as ProjectLanguage) || "es",
       });
     } catch (error) {
       console.error("An unexpected error occurred while running GrooveSkills:", error);

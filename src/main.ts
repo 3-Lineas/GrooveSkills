@@ -2,12 +2,14 @@ import { detectProjectContext } from "@/domains/detector/project-detector";
 import { runInteractiveUi } from "@/domains/ui/ui-orchestrator";
 import { installSkills } from "@/domains/installer/install-orchestrator";
 import type { AgentId } from "@/types/agent.types";
+import type { ProjectLanguage } from "@/types/harness.types";
 
 export interface CliOptions {
   skills?: string[];
   agents?: AgentId[];
   yes?: boolean;
   harness?: boolean;
+  language?: ProjectLanguage;
 }
 
 export async function runGrooveSkills(options: CliOptions = {}): Promise<void> {
@@ -26,6 +28,7 @@ export async function runGrooveSkills(options: CliOptions = {}): Promise<void> {
       forceOverwrite: Boolean(options.yes),
       enableHarness: options.harness,
       detectedDependencies: context.detectedDependencies,
+      language: options.language,
     });
     return;
   }

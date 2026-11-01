@@ -4,12 +4,51 @@ import { renderBanner } from "@/domains/ui/banners";
 import { promptSkills } from "@/domains/ui/prompt-skills";
 import { promptAgents } from "@/domains/ui/prompt-agents";
 import { promptHarness } from "@/domains/ui/prompt-harness";
+import { promptLanguage } from "@/domains/ui/prompt-language";
 import { promptConfirmOverwrite } from "@/domains/ui/prompt-confirm-overwrite";
 import { verifySkillExists } from "@/domains/installer/verify-skill-exists";
 import { installSkills } from "@/domains/installer/install-orchestrator";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
 import type { ProjectContext } from "@/types/context.types";
 import type { AgentId } from "@/types/agent.types";
+import type { ProjectLanguage } from "@/types/harness.types";
+
+async function resolveLanguageSelection(harnessEnabled: boolean): Promise<ProjectLanguage> {
+  if (!harnessEnabled) {
+    return "es";
+  }
+
+  const langChoice = await promptLanguage("es");
+  if (p.isCancel(langChoice)) {
+    p.cancel("Installation cancelled. Have a wonderful day!");
+    process.exit(0);
+  }
+
+  return langChoice as ProjectLanguage;
+}
+
+async function resolveOverwriteConfirmation(
+  targetPath: string,
+  selectedSkills: string[],
+  selectedAgents: AgentId[]
+): Promise<boolean> {
+  const anyExists = selectedSkills.some((skillId) => {
+    const meta = SKILL_CATALOG.find((s) => s.id === skillId);
+    return meta ? verifySkillExists(targetPath, meta.directoryName, selectedAgents) : false;
+  });
+
+  if (!anyExists) {
+    return true;
+  }
+
+  const confirm = await promptConfirmOverwrite();
+  if (p.isCancel(confirm) || !confirm) {
+    p.cancel("Installation stopped to protect existing skills.");
+    process.exit(0);
+  }
+
+  return Boolean(confirm);
+}
 
 export async function runInteractiveUi(context: ProjectContext): Promise<void> {
   console.log(renderBanner());
@@ -41,20 +80,13 @@ export async function runInteractiveUi(context: ProjectContext): Promise<void> {
     process.exit(0);
   }
 
-  let forceOverwrite = true;
-  const anyExists = (selectedSkills as string[]).some((skillId) => {
-    const meta = SKILL_CATALOG.find((s) => s.id === skillId);
-    return meta ? verifySkillExists(context.targetPath, meta.directoryName, selectedAgents as AgentId[]) : false;
-  });
-
-  if (anyExists) {
-    const confirm = await promptConfirmOverwrite();
-    if (p.isCancel(confirm) || !confirm) {
-      p.cancel("Installation stopped to protect existing skills.");
-      process.exit(0);
-    }
-    forceOverwrite = Boolean(confirm);
-  }
+  const harnessEnabled = Boolean(harnessChoice);
+  const selectedLanguage = await resolveLanguageSelection(harnessEnabled);
+  const forceOverwrite = await resolveOverwriteConfirmation(
+    context.targetPath,
+    selectedSkills as string[],
+    selectedAgents as AgentId[]
+  );
 
   const s = p.spinner();
   s.start("Installing and adapting skills across your configured AI agents...");
@@ -64,14 +96,15 @@ export async function runInteractiveUi(context: ProjectContext): Promise<void> {
     selectedSkillIds: selectedSkills as string[],
     selectedAgents: selectedAgents as AgentId[],
     forceOverwrite,
-    enableHarness: Boolean(harnessChoice),
+    enableHarness: harnessEnabled,
     detectedDependencies: context.detectedDependencies,
+    language: selectedLanguage,
   });
 
   s.stop(pc.green("All skills and harness have been successfully configured!"));
 
   const harnessStatus = result.harnessInitialized
-    ? pc.green("Initialized in .grooveskills/")
+    ? pc.green(`Initialized in .grooveskills/ (Language: ${selectedLanguage})`)
     : pc.dim("Skipped");
 
   p.note(

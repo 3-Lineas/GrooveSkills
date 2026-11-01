@@ -57,6 +57,7 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
       selectedAgents: options.selectedAgents,
       selectedSkillIds: skillsToInstall,
       detectedDependencies: options.detectedDependencies || [],
+      language: options.language,
     });
     createdFiles.push(...harnessFiles);
     harnessInitialized = true;
@@ -66,7 +67,8 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
     options.targetPath,
     skillsToInstall,
     options.selectedAgents,
-    Boolean(options.enableHarness)
+    Boolean(options.enableHarness),
+    options.language
   );
   createdFiles.push(configPath);
 
@@ -75,5 +77,6 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
     configuredAgents: options.selectedAgents,
     createdFiles,
     harnessInitialized,
+    language: options.language,
   };
 }

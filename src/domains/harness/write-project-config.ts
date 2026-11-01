@@ -1,43 +1,60 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { getProjectConfigPath } from "@/domains/project-store/project-paths";
-import type { GrooveSkillsConfig } from "@/types/harness.types";
+import type { GrooveSkillsConfig, ProjectLanguage } from "@/types/harness.types";
 import type { AgentId } from "@/types/agent.types";
+
+interface ParsedConfigState {
+  skills: string[];
+  agents: AgentId[];
+  harness: boolean;
+  language?: ProjectLanguage;
+}
+
+function readExistingConfig(configPath: string): ParsedConfigState {
+  const fallback: ParsedConfigState = {
+    skills: [],
+    agents: [],
+    harness: false,
+  };
+
+  if (!existsSync(configPath)) {
+    return fallback;
+  }
+
+  try {
+    const raw = readFileSync(configPath, "utf-8");
+    const parsed = JSON.parse(raw) as Partial<GrooveSkillsConfig>;
+
+    return {
+      skills: Array.isArray(parsed.skills) ? parsed.skills : [],
+      agents: Array.isArray(parsed.agents) ? parsed.agents : [],
+      harness: typeof parsed.harness === "boolean" ? parsed.harness : false,
+      language: typeof parsed.language === "string" ? (parsed.language as ProjectLanguage) : undefined,
+    };
+  } catch {
+    return fallback;
+  }
+}
 
 export function writeProjectConfig(
   targetPath: string,
   newSkills: string[],
   newAgents: AgentId[],
-  harnessEnabled: boolean
+  harnessEnabled: boolean,
+  language?: ProjectLanguage
 ): string {
   const configPath = getProjectConfigPath(targetPath);
+  const existing = readExistingConfig(configPath);
 
-  let existingSkills: string[] = [];
-  let existingAgents: AgentId[] = [];
-  let existingHarness = false;
-
-  if (existsSync(configPath)) {
-    try {
-      const parsed = JSON.parse(readFileSync(configPath, "utf-8")) as Partial<GrooveSkillsConfig>;
-      if (Array.isArray(parsed.skills)) {
-        existingSkills = parsed.skills;
-      }
-      if (Array.isArray(parsed.agents)) {
-        existingAgents = parsed.agents;
-      }
-      if (typeof parsed.harness === "boolean") {
-        existingHarness = parsed.harness;
-      }
-    } catch {
-      // If parsing fails, fall back to initial state
-    }
-  }
-
-  const mergedSkills = Array.from(new Set([...existingSkills, ...newSkills]));
-  const mergedAgents = Array.from(new Set([...existingAgents, ...newAgents]));
+  const mergedSkills = Array.from(new Set([...existing.skills, ...newSkills]));
+  const mergedAgents = Array.from(new Set([...existing.agents, ...newAgents]));
+  const resolvedLanguage = language ?? existing.language ?? "es";
+  const isHarnessActive = existing.harness || harnessEnabled;
 
   const config: GrooveSkillsConfig = {
     version: 1,
-    harness: existingHarness || harnessEnabled,
+    harness: isHarnessActive,
+    ...(isHarnessActive ? { language: resolvedLanguage } : {}),
     agents: mergedAgents,
     skills: mergedSkills,
     updatedAt: new Date().toISOString(),

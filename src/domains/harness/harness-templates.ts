@@ -1,7 +1,15 @@
-export function buildContextTemplate(detectedDependencies: string[]): string {
+import type { ProjectLanguage } from "@/types/harness.types";
+import { SUPPORTED_LANGUAGES } from "@/domains/harness/harness-languages";
+
+export function buildContextTemplate(
+  detectedDependencies: string[],
+  language: ProjectLanguage = "es"
+): string {
   const depsFormatted = detectedDependencies.length > 0
     ? detectedDependencies.map((d) => `- \`${d}\``).join("\n")
     : "- (No external dependencies detected)";
+
+  const langConfig = SUPPORTED_LANGUAGES[language];
 
   return `# Project Context & Architecture
 
@@ -15,22 +23,28 @@ ${depsFormatted}
 - Maintain direct imports with path aliases; avoid barrel files.
 - Keep domain boundaries explicit and clean.
 
-## 3. Essential Commands
+## 3. Communication & User Copy Language
+- **Configured Language**: ${langConfig.nativeName} (\`${language}\`).
+- **Policy**: ${langConfig.instruction}
+
+## 4. Essential Commands
 - Build: Refer to \`package.json\` scripts.
 - Typecheck: Refer to TypeScript configuration.
 - Tests: Refer to test runner configuration.
 `;
 }
 
-export function buildDecisionsTemplate(): string {
+export function buildDecisionsTemplate(language: ProjectLanguage = "es"): string {
   const now = new Date().toISOString().split("T")[0];
+  const langConfig = SUPPORTED_LANGUAGES[language];
+
   return `# Architecture Decision Records (ADR)
 
 An append-only log of significant technical and architectural choices.
 
 | Date | Title | Decision | Reason & Consequences |
 | :--- | :--- | :--- | :--- |
-| ${now} | Adopt GrooveSkills Harness | Initialized \`.grooveskills/\` control plane | Clean, encapsulated agent memory and 3-lane execution flow |
+| ${now} | Adopt GrooveSkills Harness | Initialized \`.grooveskills/\` control plane | Clean, encapsulated agent memory, 3-lane flow, and ${langConfig.nativeName} copy standard |
 `;
 }
 
@@ -61,7 +75,9 @@ Describe what changes are being made and why they are necessary.
 `;
 }
 
-export function buildAgentHarnessBlock(): string {
+export function buildAgentHarnessBlock(language: ProjectLanguage = "es"): string {
+  const langConfig = SUPPORTED_LANGUAGES[language];
+
   return `<!-- grooveskills:harness:start -->
 # GrooveSkills Harness — Agent Rules & Memory
 
@@ -72,7 +88,11 @@ This project uses the **GrooveSkills Harness** located in \`.grooveskills/\`.
 - **Task**: Direct implementation. Record intent, scope, and checklist in \`.grooveskills/memory/tasks/<slug>.md\`. Only check off tasks with observed evidence under \`Evidence\`.
 - **Spec**: Ambiguous or high-impact architecture. Clarify and validate the spec in \`.grooveskills/memory/tasks/<slug>.md\` before writing code.
 
-## 2. Memory Locations
+## 2. User Communication Language (${langConfig.nativeName})
+- **Language**: \`${language}\` (${langConfig.nativeName}).
+- **Requirement**: ${langConfig.instruction}
+
+## 3. Memory Locations
 - Architecture context: \`.grooveskills/memory/context.md\`
 - Technical decisions (ADR): \`.grooveskills/memory/decisions.md\`
 - Active tasks & evidence: \`.grooveskills/memory/tasks/\`

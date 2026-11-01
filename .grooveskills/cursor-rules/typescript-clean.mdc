@@ -1,0 +1,112 @@
+---
+description: Advanced strict TypeScript, discriminated unions, satisfies, const generics, unknown over any, and zero unsafe casts
+globs: ["**/*"]
+alwaysApply: false
+---
+
+# TypeScript Clean Code Standards (TS 5.5+)
+
+Guidelines for writing safe, expressive, and strictly typed TypeScript with zero unsafe casts, exhaustive pattern matching, and modern language features.
+
+---
+
+## 1. Golden Rules (Non-negotiable)
+
+1. **Zero `any` and Zero Non-null Assertions (`!`)**:
+   - `any` disables the compiler and hides runtime bugs. Use `unknown` with narrowers or generics.
+   - Non-null assertion operator `!` assumes runtime state without proof. Use optional chaining `?.` or explicit guard clauses.
+
+2. **Discriminated Unions for Domain States**:
+   - Represent valid combinations of state using tagged unions (`type = "idle" | "loading" | "success" | "error"`).
+   - Never use "optional soup" where every field is `x?: string`.
+
+3. **Exhaustive Type Checking with `never`**:
+   - Every `switch` or conditional on a union must have an `assertNever(value)` exhaustive check in default branch.
+
+4. **Favor `satisfies` Over Type Annotations on Literals**:
+   - `satisfies` checks that a value adheres to a contract without widening or discarding specific literal types.
+
+5. **`const` Type Parameters (TS 5.0+)**:
+   - Use `<const T>` in generic helper functions to preserve literal types without requiring `as const` at call site.
+
+6. **Custom Type Guards & Inferred Type Predicates (TS 5.5+)**:
+   - Use type predicates (`x is TargetType`) or rely on TS 5.5 automatic type narrowing for array filters.
+
+7. **Avoid Unsafe `as` Type Assertions**:
+   - Never use `value as SomeType` to bypass the type checker. Validate with Valibot schema or custom type guard first.
+
+---
+
+## 2. Key Patterns
+
+### A. Discriminated Unions & Exhaustiveness
+
+```ts
+export type RequestState<T> =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "success"; data: T }
+  | { status: "error"; error: Error };
+
+export function assertNever(x: never): never {
+  throw new Error(`Unexpected value: ${JSON.stringify(x)}`);
+}
+
+export function renderStatus<T>(state: RequestState<T>): string {
+  switch (state.status) {
+    case "idle":
+      return "Ready to start.";
+    case "loading":
+      return "Loading data...";
+    case "success":
+      return "Data loaded successfully.";
+    case "error":
+      return state.error.message;
+    default:
+      return assertNever(state);
+  }
+}
+```
+
+### B. `satisfies` vs Widening Annotations
+
+```ts
+type RouteConfig = Record<string, { path: string; isProtected: boolean }>;
+
+// ✅ Preserves exact key literals and structure
+export const APP_ROUTES = {
+  HOME: { path: "/", isProtected: false },
+  DASHBOARD: { path: "/dashboard", isProtected: true },
+} satisfies RouteConfig;
+
+// APP_ROUTES.HOME.path is typed as "/" not string!
+```
+
+### C. Const Generic Parameters
+
+```ts
+export function createEnumSet<const T extends readonly string[]>(values: T): ReadonlySet<T[number]> {
+  return new Set(values);
+}
+
+// Inferred as ReadonlySet<"admin" | "editor" | "viewer">
+export const ROLES = createEnumSet(["admin", "editor", "viewer"]);
+```
+
+---
+
+## 3. Strict TSConfig Expectations
+
+Always enable:
+- `"strict": true`
+- `"noUncheckedIndexedAccess": true`
+- `"noImplicitOverride": true`
+- `"exactOptionalPropertyTypes": true` (where library ecosystem allows)
+
+---
+
+## 4. Sibling Skills
+
+- **`best-practices`**: Universal clean code rules and 200-line limit.
+- **`valibot-validation`**: Runtime validation inferred to static TS types.
+- Reference guide: `references/js-ts-antipatterns.md`.
