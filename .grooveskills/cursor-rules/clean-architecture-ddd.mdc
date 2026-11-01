@@ -1,5 +1,5 @@
 ---
-description: Domain-driven design, isolated single-purpose Actions, pure functions, immutability, zero barrel files, <200 lines
+description: Domain-driven design, isolated single-purpose Actions, pure functions, immutability, zero barrel files, <200 lines per file
 globs: ["**/*"]
 alwaysApply: false
 ---

@@ -4,9 +4,16 @@ export const SKILL_CATALOG: SkillMetadata[] = [
   {
     id: "groove-harness",
     name: "GrooveSkills Harness",
-    description: "Lightweight project harness, context memory, and 3-lane task execution (Answer, Task, Spec) for AI coding agents",
+    description: "Lightweight project harness, context memory, and ODD 3-lane task execution (Answer, Task, Spec) for AI coding agents",
     dependencies: [],
     directoryName: "groove-harness",
+  },
+  {
+    id: "odd-ai",
+    name: "Organic & Outcome-Driven Development (ODD)",
+    description: "7-step ODD protocol for AI agents: authorize, explore, classify, outcome hypotheses, and verifiable evidence receipts",
+    dependencies: [],
+    directoryName: "odd-ai",
   },
   {
     id: "best-practices",

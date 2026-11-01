@@ -26,6 +26,10 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
     skillsToInstall.push("groove-harness");
   }
 
+  if (options.enableHarness && !skillsToInstall.includes("odd-ai")) {
+    skillsToInstall.push("odd-ai");
+  }
+
   syncProjectStore(options.targetPath, skillsToInstall, options.selectedAgents);
 
   const projectSkillsDir = getProjectSkillsDir(options.targetPath);

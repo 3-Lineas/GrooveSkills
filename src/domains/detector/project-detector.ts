@@ -10,6 +10,7 @@ export function detectProjectContext(targetPath: string): ProjectContext {
   const { dependencies, exists } = detectDependencies(targetPath);
 
   const suggestedSkillIds: string[] = [
+    "odd-ai",
     "best-practices",
     "ux-writing",
     "error-handling-logging",
