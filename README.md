@@ -1,7 +1,7 @@
 # GrooveSkills 🚀
 
 > **Multi-Agent AI Skills & Architectural Standards Installer**  
-> Empower your AI coding pairs (Antigravity, Claude Code, Cursor, Gemini) with your team's real-world architectural habits, clean code patterns, and non-negotiables.
+> Empower your AI coding pairs (Antigravity, Claude Code, Cursor, Gemini) with your team's real-world architectural habits, clean code patterns, and an encapsulated project control plane.
 
 ---
 
@@ -9,16 +9,48 @@
 
 - **⚡ Zero Configuration (`npx @3lineas/grooveskills`)**: Run inside any project root to inspect the environment and synchronize AI skills instantly.
 - **🎯 Smart Stack Detection**: Automatically inspects `package.json` dependencies and pre-selects matching skills (e.g. Hono, Valibot, React, Next.js).
+- **🛡️ Encapsulated Project Harness (`.grooveskills/`)**:
+  - **Context & Architecture (`memory/context.md`)**: Instant architectural orientation for your AI agent.
+  - **Architecture Decision Records (`memory/decisions.md`)**: Clean, append-only log of technical choices and rationale.
+  - **Task & Evidence Tracking (`memory/tasks/`)**: Feature tasks tracked with real observed proof (tests, typecheck, builds) before completion.
+  - **3-Lane Execution Discipline**: Guides agents through *Answer* (read-only), *Task* (direct implementation), and *Spec* (complex architecture review).
+- **🔗 Local Project Store & Relative Symlinks**:
+  - All installed skills and generated Cursor `.mdc` rules are stored directly inside `<project>/.grooveskills/`.
+  - Agent directories (`.agents`, `.claude`, `.cursor`, `.gemini`) use **relative symlinks** (`../../.grooveskills/...`), making the repository **100% portable across teams and git checkouts**.
 - **🤖 Multi-Agent Compatibility**:
   - **Antigravity**: `.agents/skills/<skill-name>/`
   - **Claude Code**: `.claude/skills/<skill-name>/`
-  - **Cursor IDE**: `.cursor/rules/<skill-name>.mdc` (auto-adapted to Cursor rules format)
+  - **Cursor IDE**: `.cursor/rules/<skill-name>.mdc` (auto-adapted from markdown to Cursor `.mdc`)
   - **Gemini Code Assist**: `.gemini/skills/<skill-name>/`
-- **✨ Interactive & Friendly CLI**: Clean terminal experience built with `@clack/prompts` and courteous, persuasive feedback.
-- **🔗 Centralized Global Store & Symlinks**: Skills are synced globally to `~/.grooveskills/` and linked into local projects via symlinks. Updates to global skills instantly reflect across all your projects with zero file duplication.
-- **🛡️ Battle-tested Architectural Standards**:
-  - **Universal Best Practices**: Multi-language clean code (TypeScript, PHP, Dart, Rust, etc.), early returns, zero barrel files, strict typing, <200 lines per file.
-  - **Hono API Architecture**: Independent routes by domain, isolated Actions layer, database queries exclusively inside Actions, strict Valibot validation, and Cloudflare/Hono RPC.
+- **✨ Interactive & Friendly CLI**: Clean terminal wizard built with `@clack/prompts` offering interactive skill selection, agent targeting, and harness initialization.
+
+---
+
+## 📂 Project Architecture
+
+When GrooveSkills is initialized in a repository, it keeps all state cleanly encapsulated inside `.grooveskills/` without cluttering the project root:
+
+```text
+my-project/
+├── .grooveskills/
+│   ├── config.json                  # Project skills & agents manifest
+│   ├── skills/                      # Local copy of selected skills
+│   │   ├── best-practices/
+│   │   └── groove-harness/
+│   ├── cursor-rules/                # Local .mdc rules for Cursor IDE
+│   │   ├── best-practices.mdc
+│   │   └── groove-harness.mdc
+│   └── memory/                      # Active project memory
+│       ├── context.md               # Stack, conventions & key commands
+│       ├── decisions.md             # Architecture Decision Records (ADR)
+│       └── tasks/
+│           └── _template.md         # Template for feature intent & evidence
+├── .agents/skills/*                 # Relative symlinks -> ../../.grooveskills/skills/*
+├── .claude/skills/*                 # Relative symlinks -> ../../.grooveskills/skills/*
+├── .gemini/skills/*                 # Relative symlinks -> ../../.grooveskills/skills/*
+├── .cursor/rules/*.mdc              # Relative symlinks -> ../../.grooveskills/cursor-rules/*.mdc
+└── AGENTS.md / CLAUDE.md            # Minimal harness pointer block <!-- grooveskills:harness -->
+```
 
 ---
 
@@ -34,33 +66,38 @@ npx @3lineas/grooveskills
 
 GrooveSkills will automatically:
 1. Detect any active AI agent folders (`.agents`, `.claude`, `.cursor`, `.gemini`).
-2. Scan your project dependencies (`package.json`) and pre-select the recommended skills.
-3. Guide you through an interactive multi-select menu.
-4. Install and configure the skills for all chosen AI agents.
+2. Scan your project dependencies (`package.json`) and pre-select recommended skills.
+3. Prompt whether you want to initialize the **GrooveSkills Harness** in `.grooveskills/`.
+4. Install skills, generate agent configurations, and link everything via portable relative symlinks.
 
 ---
 
 ### 2. Direct / Automated Mode (CI / Scripting)
 
-Install specific skills for targeted agents without interactive prompts:
+Install specific skills or the harness directly without interactive prompts:
 
 ```bash
-# Install specific skills for selected agents
-npx @3lineas/grooveskills --skills best-practices hono --agents antigravity claude
+# Install skills and initialize the project harness for selected agents
+npx @3lineas/grooveskills --skills best-practices hono --agents antigravity claude --harness -y
 
-# Automatically confirm overwrite of existing skills
-npx @3lineas/grooveskills --skills best-practices hono --agents antigravity claude cursor gemini --yes
+# Initialize only the harness across all supported agents
+npx @3lineas/grooveskills --harness --agents antigravity claude cursor gemini -y
+
+# Skip harness initialization when installing skills
+npx @3lineas/grooveskills --skills react-core --agents cursor --no-harness -y
 ```
 
 #### CLI Options
 
 | Flag | Description | Example |
 | :--- | :--- | :--- |
-| `-s, --skills` | Space-separated list of skill IDs to install | `--skills best-practices hono` |
-| `-a, --agents` | Target AI agents (`antigravity`, `claude`, `cursor`, `gemini`) | `--agents antigravity cursor` |
-| `-y, --yes` | Automatically overwrite existing skills | `--yes` |
+| `-s, --skills <skills...>` | Specific skill IDs to install | `--skills best-practices hono` |
+| `-a, --agents <agents...>` | Target AI agents (`antigravity`, `claude`, `cursor`, `gemini`) | `--agents antigravity cursor` |
+| `--harness` | Initialize or update GrooveSkills project harness in `.grooveskills/` | `--harness` |
+| `--no-harness` | Explicitly skip harness initialization | `--no-harness` |
+| `-y, --yes` | Automatically overwrite existing skills | `-y` |
 | `-h, --help` | Display command help and options | `--help` |
-| `-V, --version` | Display the installed version of GrooveSkills | `--version` |
+| `-V, --version` | Display installed version | `--version` |
 
 ---
 
@@ -68,6 +105,7 @@ npx @3lineas/grooveskills --skills best-practices hono --agents antigravity clau
 
 | Skill ID | Name | Description | Suggested When |
 | :--- | :--- | :--- | :--- |
+| `groove-harness` | **GrooveSkills Harness** | Lightweight project control plane, context memory, and 3-lane task execution (Answer, Task, Spec). | Installed automatically with `--harness` or manually. |
 | `best-practices` | **Universal Best Practices** | Multi-language clean code, early returns, no barrel files, strict typing, <200 lines. | **Always suggested by default** (Any language/file) |
 | `hono` | **Hono Architecture (Valibot)** | Enterprise Hono standard: Valibot validation, Actions layer, RPC bindings, AppError. | Detected `hono`, `@hono/valibot-validator`, etc. |
 | `react-core` | **React Core Fundamentals** | Opinionated React fundamentals: function components, JSX, immutable state, core hooks, lists, and controlled inputs. | Detected `react`, `react-dom` |
