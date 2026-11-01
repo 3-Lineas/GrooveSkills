@@ -1,8 +1,5 @@
-import { mkdirSync, existsSync } from "node:fs";
-import { join } from "node:path";
-import { getProjectCursorRulesDir } from "@/domains/project-store/project-paths";
-import { createOrReplaceSymlink } from "@/domains/adapters/link-helper";
 import type { AgentAdapter } from "@/domains/adapters/adapter.interface";
+import { writeCursorRuleReference } from "@/domains/adapters/skill-reference-builder";
 import type { SkillMetadata } from "@/types/skill.types";
 
 export class CursorAdapter implements AgentAdapter {
@@ -15,17 +12,7 @@ export class CursorAdapter implements AgentAdapter {
     skill: SkillMetadata,
     _skillSourceDir: string
   ): Promise<string[]> {
-    const rulesDir = join(targetPath, this.targetRelativeDir);
-    if (!existsSync(rulesDir)) {
-      mkdirSync(rulesDir, { recursive: true });
-    }
-
-    const filename = `${skill.id}.mdc`;
-    const destination = join(rulesDir, filename);
-    const projectRuleFile = join(getProjectCursorRulesDir(targetPath), filename);
-
-    createOrReplaceSymlink(projectRuleFile, destination, "file");
-
-    return [destination];
+    const file = writeCursorRuleReference(targetPath, this.targetRelativeDir, skill);
+    return [file];
   }
 }

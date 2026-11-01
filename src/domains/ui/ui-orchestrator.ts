@@ -3,7 +3,6 @@ import pc from "picocolors";
 import { renderBanner } from "@/domains/ui/banners";
 import { promptSkills } from "@/domains/ui/prompt-skills";
 import { promptAgents } from "@/domains/ui/prompt-agents";
-import { promptHarness } from "@/domains/ui/prompt-harness";
 import { promptLanguage } from "@/domains/ui/prompt-language";
 import { promptConfirmOverwrite } from "@/domains/ui/prompt-confirm-overwrite";
 import { verifySkillExists } from "@/domains/installer/verify-skill-exists";
@@ -13,12 +12,15 @@ import type { ProjectContext } from "@/types/context.types";
 import type { AgentId } from "@/types/agent.types";
 import type { ProjectLanguage } from "@/types/harness.types";
 
-async function resolveLanguageSelection(harnessEnabled: boolean): Promise<ProjectLanguage> {
-  if (!harnessEnabled) {
-    return "es";
+async function resolveLanguageSelection(
+  harnessExists: boolean,
+  configuredLanguage?: ProjectLanguage
+): Promise<ProjectLanguage> {
+  if (harnessExists) {
+    return configuredLanguage ?? "es";
   }
 
-  const langChoice = await promptLanguage("es");
+  const langChoice = await promptLanguage(configuredLanguage ?? "es");
   if (p.isCancel(langChoice)) {
     p.cancel("Installation cancelled. Have a wonderful day!");
     process.exit(0);
@@ -55,9 +57,14 @@ export async function runInteractiveUi(context: ProjectContext): Promise<void> {
   p.intro(pc.magenta("Welcome to GrooveSkills! Let's tailor your AI agents with clean architectural standards."));
 
   if (context.detectedDependencies.length > 0) {
+    const harnessInfo = context.harnessExists
+      ? pc.green(`Active (.grooveskills/memory, lang: ${context.configuredLanguage ?? "es"})`)
+      : pc.cyan("Will be initialized");
+
     p.note(
       `Detected dependencies: ${context.detectedDependencies.map((d) => pc.bold(d)).join(", ")}\n` +
-      `Active AI folders: ${context.detectedAgents.map((a) => pc.green(a)).join(", ") || "None (will be created)"}`,
+      `Active AI folders: ${context.detectedAgents.map((a) => pc.green(a)).join(", ") || "None (will be created)"}\n` +
+      `GrooveSkills Harness: ${harnessInfo}`,
       "Project Environment"
     );
   }
@@ -74,14 +81,11 @@ export async function runInteractiveUi(context: ProjectContext): Promise<void> {
     process.exit(0);
   }
 
-  const harnessChoice = await promptHarness(context.harnessExists);
-  if (p.isCancel(harnessChoice)) {
-    p.cancel("Installation cancelled. Have a wonderful day!");
-    process.exit(0);
-  }
+  const selectedLanguage = await resolveLanguageSelection(
+    context.harnessExists,
+    context.configuredLanguage
+  );
 
-  const harnessEnabled = Boolean(harnessChoice);
-  const selectedLanguage = await resolveLanguageSelection(harnessEnabled);
   const forceOverwrite = await resolveOverwriteConfirmation(
     context.targetPath,
     selectedSkills as string[],
@@ -96,7 +100,7 @@ export async function runInteractiveUi(context: ProjectContext): Promise<void> {
     selectedSkillIds: selectedSkills as string[],
     selectedAgents: selectedAgents as AgentId[],
     forceOverwrite,
-    enableHarness: harnessEnabled,
+    enableHarness: true,
     detectedDependencies: context.detectedDependencies,
     language: selectedLanguage,
   });
@@ -105,7 +109,7 @@ export async function runInteractiveUi(context: ProjectContext): Promise<void> {
 
   const harnessStatus = result.harnessInitialized
     ? pc.green(`Initialized in .grooveskills/ (Language: ${selectedLanguage})`)
-    : pc.dim("Skipped");
+    : pc.cyan(`Preserved in .grooveskills/ (Language: ${selectedLanguage})`);
 
   p.note(
     `Configured skills: ${result.installedSkills.map((s) => pc.bold(s)).join(", ")}\n` +

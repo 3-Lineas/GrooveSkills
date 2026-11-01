@@ -1,1 +1,14 @@
-../../.grooveskills/cursor-rules/odd-ai.mdc
+---
+description: Organic & Outcome-Driven Development (ODD) protocol for AI agents: 7-step organic lifecycle, outcome hypotheses, and verifiable receipts.
+globs: ["**/*"]
+alwaysApply: false
+---
+
+# Organic & Outcome-Driven Development (ODD) — Rule Reference
+
+Canonical rule specification stored in `.grooveskills/`.
+
+- **Specification**: `.grooveskills/skills/odd-ai/SKILL.md`
+- **References & Templates**: `.grooveskills/skills/odd-ai/`
+
+> **Instruction**: Read `.grooveskills/skills/odd-ai/SKILL.md` before executing tasks matching this rule.

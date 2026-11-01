@@ -67,7 +67,7 @@ Through the built-in `odd-ai` and `groove-harness` skills, GrooveSkills guides y
 Select your preferred language (**Español, English, Português, Italiano, or Français**) during setup so every validation message, toast, and agent interaction remains warm, persuasive, and professional.
 
 ### 5. Clean & 100% Portable Repository Layout
-All assets reside in `.grooveskills/` and connect to agent directories via **relative symlinks** (`../../.grooveskills/...`), making the environment instantly portable upon `git clone`.
+All canonical skills and project memory reside in `.grooveskills/`. Agent directories (`.agents/`, `.claude/`, `.gemini/`, `.cursor/`) contain **lightweight reference files** that preserve original trigger metadata and instruct each AI agent to consult the canonical specification in `.grooveskills/skills/<skill>/SKILL.md`.
 
 ---
 
@@ -80,11 +80,11 @@ npx @3lineas/grooveskills
 
 ### Non-Interactive Mode (CI & Scripting)
 ```bash
-# Install skills and initialize harness in Spanish for Claude and Antigravity
-npx @3lineas/grooveskills --skills odd-ai best-practices hono --agents antigravity claude --harness -l es -y
+# Install skills and configure harness in Spanish for Claude and Antigravity
+npx @3lineas/grooveskills --skills odd-ai best-practices hono --agents antigravity claude -l es -y
 
-# Initialize harness across all supported AI assistants
-npx @3lineas/grooveskills --harness --agents antigravity claude cursor gemini -l es -y
+# Configure harness and skills across all supported AI assistants
+npx @3lineas/grooveskills --agents antigravity claude cursor gemini -l es -y
 ```
 
 ### CLI Options Reference
@@ -93,10 +93,9 @@ npx @3lineas/grooveskills --harness --agents antigravity claude cursor gemini -l
 | :--- | :--- | :--- |
 | `-s, --skills <skills...>` | Space-separated list of skill IDs to install | `--skills odd-ai best-practices` |
 | `-a, --agents <agents...>` | Target AI assistants (`antigravity`, `claude`, `cursor`, `gemini`) | `--agents antigravity cursor` |
-| `--harness` | Initialize or update the GrooveSkills Harness in `.grooveskills/` | `--harness` |
-| `--no-harness` | Install selected skills without initializing the project harness | `--no-harness` |
+| `--harness` | Initialize or update GrooveSkills project harness in `.grooveskills/` | `--harness` |
 | `-l, --language <lang>` | Set the language for user-facing copy (`es`, `en`, `pt`, `it`, `fr`) | `-l es` |
-| `-y, --yes` | Automatically confirm updating existing skill links | `-y` |
+| `-y, --yes` | Automatically confirm updating existing skills | `-y` |
 
 ---
 
@@ -106,15 +105,15 @@ npx @3lineas/grooveskills --harness --agents antigravity claude cursor gemini -l
 my-project/
 ├── .grooveskills/
 │   ├── config.json                  # Manifest of active skills, agents, language & harness state
-│   ├── skills/                      # Self-contained copy of installed skills
-│   ├── cursor-rules/                # Generated .mdc rules (when Cursor IDE is selected)
-│   └── memory/                      # Persistent project memory (when Harness is enabled)
+│   ├── skills/                      # Canonical single source of truth for installed skills
+│   └── memory/                      # Persistent project memory (Harness control plane)
 │       ├── context.md               # Stack overview, conventions & essential commands
 │       ├── decisions.md             # Architecture Decision Records (ADR)
 │       └── tasks/                   # Tasks with Outcome Hypotheses & Evidence receipts
-├── .agents/skills/*                 # Relative symlinks -> ../../.grooveskills/skills/*
-├── .claude/skills/*                 # Relative symlinks -> ../../.grooveskills/skills/*
-├── .cursor/rules/*.mdc              # Relative symlinks -> ../../.grooveskills/cursor-rules/*.mdc
+├── .agents/skills/<skill>/SKILL.md  # Lightweight reference pointer -> .grooveskills/skills/<skill>/SKILL.md
+├── .claude/skills/<skill>/SKILL.md  # Lightweight reference pointer -> .grooveskills/skills/<skill>/SKILL.md
+├── .gemini/skills/<skill>/SKILL.md  # Lightweight reference pointer -> .grooveskills/skills/<skill>/SKILL.md
+├── .cursor/rules/<skill>.mdc        # Lightweight reference rule -> .grooveskills/skills/<skill>/SKILL.md
 └── AGENTS.md / CLAUDE.md            # Concise harness pointer <!-- grooveskills:harness -->
 ```
 

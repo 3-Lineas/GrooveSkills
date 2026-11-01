@@ -1,4 +1,5 @@
 import type { AgentId } from "@/types/agent.types";
+import type { ProjectLanguage } from "@/types/harness.types";
 
 export interface ProjectContext {
   targetPath: string;
@@ -7,4 +8,5 @@ export interface ProjectContext {
   detectedAgents: AgentId[];
   packageJsonExists: boolean;
   harnessExists: boolean;
+  configuredLanguage?: ProjectLanguage;
 }

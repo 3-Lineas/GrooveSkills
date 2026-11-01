@@ -8,10 +8,6 @@ export function getProjectSkillsDir(targetPath: string): string {
   return join(getProjectStoreDir(targetPath), "skills");
 }
 
-export function getProjectCursorRulesDir(targetPath: string): string {
-  return join(getProjectStoreDir(targetPath), "cursor-rules");
-}
-
 export function getProjectMemoryDir(targetPath: string): string {
   return join(getProjectStoreDir(targetPath), "memory");
 }

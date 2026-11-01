@@ -1,1 +1,14 @@
-../../.grooveskills/cursor-rules/error-handling-logging.mdc
+---
+description: Deterministic error handling with custom AppError, Result/ActionResponse contracts, and structured logging. TRIGGER when designing error boundaries, writing try/catch blocks, handling I/O or network failures, creating domain exceptions, or configuring application loggers.
+globs: ["**/*"]
+alwaysApply: false
+---
+
+# Error Handling & Structured Logging — Rule Reference
+
+Canonical rule specification stored in `.grooveskills/`.
+
+- **Specification**: `.grooveskills/skills/error-handling-logging/SKILL.md`
+- **References & Templates**: `.grooveskills/skills/error-handling-logging/`
+
+> **Instruction**: Read `.grooveskills/skills/error-handling-logging/SKILL.md` before executing tasks matching this rule.

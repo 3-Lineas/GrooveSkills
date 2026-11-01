@@ -1,8 +1,5 @@
-import { mkdirSync, existsSync } from "node:fs";
-import { join } from "node:path";
-import { getProjectSkillsDir } from "@/domains/project-store/project-paths";
-import { createOrReplaceSymlink } from "@/domains/adapters/link-helper";
 import type { AgentAdapter } from "@/domains/adapters/adapter.interface";
+import { writeAgentSkillReference } from "@/domains/adapters/skill-reference-builder";
 import type { SkillMetadata } from "@/types/skill.types";
 
 export class AntigravityAdapter implements AgentAdapter {
@@ -15,16 +12,7 @@ export class AntigravityAdapter implements AgentAdapter {
     skill: SkillMetadata,
     _skillSourceDir: string
   ): Promise<string[]> {
-    const parentDir = join(targetPath, this.targetRelativeDir);
-    if (!existsSync(parentDir)) {
-      mkdirSync(parentDir, { recursive: true });
-    }
-
-    const destination = join(parentDir, skill.directoryName);
-    const projectSkillDir = join(getProjectSkillsDir(targetPath), skill.directoryName);
-
-    createOrReplaceSymlink(projectSkillDir, destination, "dir");
-
-    return [destination];
+    const file = writeAgentSkillReference(targetPath, this.targetRelativeDir, skill);
+    return [file];
   }
 }

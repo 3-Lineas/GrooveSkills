@@ -21,14 +21,15 @@ export async function runGrooveSkills(options: CliOptions = {}): Promise<void> {
   const isDirectHarness = Boolean(options.harness) && hasAgents;
 
   if ((hasSkills && hasAgents) || isDirectHarness) {
+    const language = options.language ?? context.configuredLanguage ?? "es";
     await installSkills({
       targetPath,
       selectedSkillIds: options.skills || [],
       selectedAgents: options.agents || [],
       forceOverwrite: Boolean(options.yes),
-      enableHarness: options.harness,
+      enableHarness: true,
       detectedDependencies: context.detectedDependencies,
-      language: options.language,
+      language,
     });
     return;
   }

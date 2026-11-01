@@ -1,9 +1,25 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { detectAgents } from "@/domains/detector/detect-agents";
 import { detectDependencies } from "@/domains/detector/detect-dependencies";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
 import type { ProjectContext } from "@/types/context.types";
+import type { GrooveSkillsConfig, ProjectLanguage } from "@/types/harness.types";
+
+function readConfiguredLanguage(targetPath: string): ProjectLanguage | undefined {
+  const configPath = join(targetPath, ".grooveskills", "config.json");
+  if (!existsSync(configPath)) {
+    return undefined;
+  }
+
+  try {
+    const raw = readFileSync(configPath, "utf-8");
+    const parsed = JSON.parse(raw) as Partial<GrooveSkillsConfig>;
+    return typeof parsed.language === "string" ? (parsed.language as ProjectLanguage) : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 export function detectProjectContext(targetPath: string): ProjectContext {
   const detectedAgents = detectAgents(targetPath);
@@ -28,6 +44,7 @@ export function detectProjectContext(targetPath: string): ProjectContext {
   }
 
   const harnessExists = existsSync(join(targetPath, ".grooveskills", "memory", "context.md"));
+  const configuredLanguage = readConfiguredLanguage(targetPath);
 
   return {
     targetPath,
@@ -36,5 +53,6 @@ export function detectProjectContext(targetPath: string): ProjectContext {
     detectedAgents,
     packageJsonExists: exists,
     harnessExists,
+    configuredLanguage,
   };
 }

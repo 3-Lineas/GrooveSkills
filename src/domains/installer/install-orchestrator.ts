@@ -22,11 +22,11 @@ const ADAPTER_REGISTRY: Record<AgentId, AgentAdapter> = {
 export async function installSkills(options: InstallOptions): Promise<InstallResult> {
   const skillsToInstall = [...options.selectedSkillIds];
 
-  if (options.enableHarness && !skillsToInstall.includes("groove-harness")) {
+  if (!skillsToInstall.includes("groove-harness")) {
     skillsToInstall.push("groove-harness");
   }
 
-  if (options.enableHarness && !skillsToInstall.includes("odd-ai")) {
+  if (!skillsToInstall.includes("odd-ai")) {
     skillsToInstall.push("odd-ai");
   }
 
@@ -54,24 +54,20 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
     }
   }
 
-  let harnessInitialized = false;
-  if (options.enableHarness) {
-    const harnessFiles = installHarness({
-      targetPath: options.targetPath,
-      selectedAgents: options.selectedAgents,
-      selectedSkillIds: skillsToInstall,
-      detectedDependencies: options.detectedDependencies || [],
-      language: options.language,
-    });
-    createdFiles.push(...harnessFiles);
-    harnessInitialized = true;
-  }
+  const harnessFiles = installHarness({
+    targetPath: options.targetPath,
+    selectedAgents: options.selectedAgents,
+    selectedSkillIds: skillsToInstall,
+    detectedDependencies: options.detectedDependencies || [],
+    language: options.language,
+  });
+  createdFiles.push(...harnessFiles);
 
   const configPath = writeProjectConfig(
     options.targetPath,
     skillsToInstall,
     options.selectedAgents,
-    Boolean(options.enableHarness),
+    true,
     options.language
   );
   createdFiles.push(configPath);
@@ -80,7 +76,7 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
     installedSkills: skillsToInstall,
     configuredAgents: options.selectedAgents,
     createdFiles,
-    harnessInitialized,
+    harnessInitialized: true,
     language: options.language,
   };
 }

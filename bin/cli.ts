@@ -14,8 +14,7 @@ program
   .option("-a, --agents <agents...>", "Target AI agents (antigravity claude cursor gemini)")
   .option("-y, --yes", "Automatically confirm overwrite of existing skills", false)
   .option("--harness", "Initialize or update GrooveSkills project harness in .grooveskills/")
-  .option("--no-harness", "Skip harness initialization")
-  .option("-l, --language <lang>", "Project user copy language (es, en, pt, it, fr)", "es")
+  .option("-l, --language <lang>", "Project user copy language (es, en, pt, it, fr)")
   .action(async (options: {
     skills?: string[];
     agents?: string[];
@@ -29,7 +28,7 @@ program
         agents: options.agents as AgentId[] | undefined,
         yes: options.yes,
         harness: options.harness,
-        language: (options.language as ProjectLanguage) || "es",
+        language: options.language as ProjectLanguage | undefined,
       });
     } catch (error) {
       console.error("An unexpected error occurred while running GrooveSkills:", error);
