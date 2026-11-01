@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { detectAgents } from "@/domains/detector/detect-agents";
 import { detectDependencies } from "@/domains/detector/detect-dependencies";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
@@ -19,11 +21,14 @@ export function detectProjectContext(targetPath: string): ProjectContext {
     }
   }
 
+  const harnessExists = existsSync(join(targetPath, ".grooveskills", "memory", "context.md"));
+
   return {
     targetPath,
     detectedDependencies: dependencies,
     suggestedSkillIds,
     detectedAgents,
     packageJsonExists: exists,
+    harnessExists,
   };
 }

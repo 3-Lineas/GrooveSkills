@@ -1,4 +1,5 @@
 import { lstatSync, unlinkSync, rmSync, symlinkSync } from "node:fs";
+import { dirname, relative } from "node:path";
 
 function removeExistingLinkPath(path: string): void {
   try {
@@ -21,6 +22,9 @@ export function createOrReplaceSymlink(
   type: "dir" | "file"
 ): void {
   removeExistingLinkPath(linkPath);
-  symlinkSync(target, linkPath, type);
-}
 
+  const linkDir = dirname(linkPath);
+  const relativeTarget = relative(linkDir, target);
+
+  symlinkSync(relativeTarget, linkPath, type);
+}

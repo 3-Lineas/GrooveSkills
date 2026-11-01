@@ -6,4 +6,5 @@ export interface ProjectContext {
   suggestedSkillIds: string[];
   detectedAgents: AgentId[];
   packageJsonExists: boolean;
+  harnessExists: boolean;
 }

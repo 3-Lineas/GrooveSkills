@@ -1,6 +1,6 @@
 import { mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { getGlobalCursorRulesDir } from "@/domains/global-store/global-paths";
+import { getProjectCursorRulesDir } from "@/domains/project-store/project-paths";
 import { createOrReplaceSymlink } from "@/domains/adapters/link-helper";
 import type { AgentAdapter } from "@/domains/adapters/adapter.interface";
 import type { SkillMetadata } from "@/types/skill.types";
@@ -22,9 +22,9 @@ export class CursorAdapter implements AgentAdapter {
 
     const filename = `${skill.id}.mdc`;
     const destination = join(rulesDir, filename);
-    const globalRuleFile = join(getGlobalCursorRulesDir(), filename);
+    const projectRuleFile = join(getProjectCursorRulesDir(targetPath), filename);
 
-    createOrReplaceSymlink(globalRuleFile, destination, "file");
+    createOrReplaceSymlink(projectRuleFile, destination, "file");
 
     return [destination];
   }

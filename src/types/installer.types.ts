@@ -5,10 +5,13 @@ export interface InstallOptions {
   selectedSkillIds: string[];
   selectedAgents: AgentId[];
   forceOverwrite: boolean;
+  enableHarness?: boolean;
+  detectedDependencies?: string[];
 }
 
 export interface InstallResult {
   installedSkills: string[];
   configuredAgents: AgentId[];
   createdFiles: string[];
+  harnessInitialized: boolean;
 }

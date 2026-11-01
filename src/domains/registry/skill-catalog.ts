@@ -2,6 +2,13 @@ import type { SkillMetadata } from "@/types/skill.types";
 
 export const SKILL_CATALOG: SkillMetadata[] = [
   {
+    id: "groove-harness",
+    name: "GrooveSkills Harness",
+    description: "Lightweight project harness, context memory, and 3-lane task execution (Answer, Task, Spec) for AI coding agents",
+    dependencies: [],
+    directoryName: "groove-harness",
+  },
+  {
     id: "best-practices",
     name: "Universal Best Practices",
     description: "Multi-language clean code standards, early returns, no barrel files, strict typing, <200 lines",

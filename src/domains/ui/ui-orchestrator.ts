@@ -3,6 +3,7 @@ import pc from "picocolors";
 import { renderBanner } from "@/domains/ui/banners";
 import { promptSkills } from "@/domains/ui/prompt-skills";
 import { promptAgents } from "@/domains/ui/prompt-agents";
+import { promptHarness } from "@/domains/ui/prompt-harness";
 import { promptConfirmOverwrite } from "@/domains/ui/prompt-confirm-overwrite";
 import { verifySkillExists } from "@/domains/installer/verify-skill-exists";
 import { installSkills } from "@/domains/installer/install-orchestrator";
@@ -34,6 +35,12 @@ export async function runInteractiveUi(context: ProjectContext): Promise<void> {
     process.exit(0);
   }
 
+  const harnessChoice = await promptHarness(context.harnessExists);
+  if (p.isCancel(harnessChoice)) {
+    p.cancel("Installation cancelled. Have a wonderful day!");
+    process.exit(0);
+  }
+
   let forceOverwrite = true;
   const anyExists = (selectedSkills as string[]).some((skillId) => {
     const meta = SKILL_CATALOG.find((s) => s.id === skillId);
@@ -57,13 +64,20 @@ export async function runInteractiveUi(context: ProjectContext): Promise<void> {
     selectedSkillIds: selectedSkills as string[],
     selectedAgents: selectedAgents as AgentId[],
     forceOverwrite,
+    enableHarness: Boolean(harnessChoice),
+    detectedDependencies: context.detectedDependencies,
   });
 
-  s.stop(pc.green("All skills have been successfully installed and configured!"));
+  s.stop(pc.green("All skills and harness have been successfully configured!"));
+
+  const harnessStatus = result.harnessInitialized
+    ? pc.green("Initialized in .grooveskills/")
+    : pc.dim("Skipped");
 
   p.note(
     `Configured skills: ${result.installedSkills.map((s) => pc.bold(s)).join(", ")}\n` +
-    `Target agents: ${result.configuredAgents.map((a) => pc.cyan(a)).join(", ")}`,
+    `Target agents: ${result.configuredAgents.map((a) => pc.cyan(a)).join(", ")}\n` +
+    `GrooveSkills Harness: ${harnessStatus}`,
     "Installation Summary"
   );
 

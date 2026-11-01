@@ -3,8 +3,10 @@ import { AntigravityAdapter } from "@/domains/adapters/antigravity.adapter";
 import { ClaudeAdapter } from "@/domains/adapters/claude.adapter";
 import { CursorAdapter } from "@/domains/adapters/cursor.adapter";
 import { GeminiAdapter } from "@/domains/adapters/gemini.adapter";
-import { syncGlobalStore } from "@/domains/global-store/sync-global-store";
-import { getGlobalSkillsDir } from "@/domains/global-store/global-paths";
+import { syncProjectStore } from "@/domains/project-store/sync-project-store";
+import { getProjectSkillsDir } from "@/domains/project-store/project-paths";
+import { installHarness } from "@/domains/harness/install-harness";
+import { writeProjectConfig } from "@/domains/harness/write-project-config";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
 import type { AgentAdapter } from "@/domains/adapters/adapter.interface";
 import type { InstallOptions, InstallResult } from "@/types/installer.types";
@@ -18,18 +20,24 @@ const ADAPTER_REGISTRY: Record<AgentId, AgentAdapter> = {
 };
 
 export async function installSkills(options: InstallOptions): Promise<InstallResult> {
-  syncGlobalStore();
+  const skillsToInstall = [...options.selectedSkillIds];
 
-  const globalSkillsDir = getGlobalSkillsDir();
+  if (options.enableHarness && !skillsToInstall.includes("groove-harness")) {
+    skillsToInstall.push("groove-harness");
+  }
+
+  syncProjectStore(options.targetPath, skillsToInstall, options.selectedAgents);
+
+  const projectSkillsDir = getProjectSkillsDir(options.targetPath);
   const createdFiles: string[] = [];
 
-  for (const skillId of options.selectedSkillIds) {
+  for (const skillId of skillsToInstall) {
     const skill = SKILL_CATALOG.find((item) => item.id === skillId);
     if (!skill) {
       continue;
     }
 
-    const skillSourceDir = join(globalSkillsDir, skill.directoryName);
+    const skillSourceDir = join(projectSkillsDir, skill.directoryName);
 
     for (const agentId of options.selectedAgents) {
       const adapter = ADAPTER_REGISTRY[agentId];
@@ -42,9 +50,30 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
     }
   }
 
+  let harnessInitialized = false;
+  if (options.enableHarness) {
+    const harnessFiles = installHarness({
+      targetPath: options.targetPath,
+      selectedAgents: options.selectedAgents,
+      selectedSkillIds: skillsToInstall,
+      detectedDependencies: options.detectedDependencies || [],
+    });
+    createdFiles.push(...harnessFiles);
+    harnessInitialized = true;
+  }
+
+  const configPath = writeProjectConfig(
+    options.targetPath,
+    skillsToInstall,
+    options.selectedAgents,
+    Boolean(options.enableHarness)
+  );
+  createdFiles.push(configPath);
+
   return {
-    installedSkills: options.selectedSkillIds,
+    installedSkills: skillsToInstall,
     configuredAgents: options.selectedAgents,
     createdFiles,
+    harnessInitialized,
   };
 }

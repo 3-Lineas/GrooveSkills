@@ -1,6 +1,6 @@
 import { mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { getGlobalSkillsDir } from "@/domains/global-store/global-paths";
+import { getProjectSkillsDir } from "@/domains/project-store/project-paths";
 import { createOrReplaceSymlink } from "@/domains/adapters/link-helper";
 import type { AgentAdapter } from "@/domains/adapters/adapter.interface";
 import type { SkillMetadata } from "@/types/skill.types";
@@ -21,9 +21,9 @@ export class AntigravityAdapter implements AgentAdapter {
     }
 
     const destination = join(parentDir, skill.directoryName);
-    const globalSkillDir = join(getGlobalSkillsDir(), skill.directoryName);
+    const projectSkillDir = join(getProjectSkillsDir(targetPath), skill.directoryName);
 
-    createOrReplaceSymlink(globalSkillDir, destination, "dir");
+    createOrReplaceSymlink(projectSkillDir, destination, "dir");
 
     return [destination];
   }

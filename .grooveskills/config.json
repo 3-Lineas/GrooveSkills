@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "harness": true,
+  "agents": [
+    "antigravity",
+    "claude",
+    "cursor",
+    "gemini"
+  ],
+  "skills": [
+    "best-practices",
+    "groove-harness"
+  ],
+  "updatedAt": "2026-11-01T17:10:29.047Z"
+}
