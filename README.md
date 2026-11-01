@@ -42,14 +42,26 @@ Enabling the harness creates an encapsulated knowledge plane and configures `AGE
 - **`decisions.md`**: An append-only Architecture Decision Record (ADR) log.
 - **`tasks/<slug>.md`**: Feature records tracking outcome hypotheses and verification receipts.
 
-### 3. Organic & Outcome-Driven (ODD) 3-Lane Workflow
-Through `groove-harness` and `odd-ai`, agents follow an organic 7-step lifecycle across 3 distinct execution lanes:
+### 3. Organic & Outcome-Driven Development (ODD) & 3-Lane Workflow
+Through the built-in `odd-ai` and `groove-harness` skills, GrooveSkills guides your AI assistant with a hybrid **Organic & Outcome-Driven Development (ODD)** methodology:
+- **Organic Adaptability**: Exploration, documentation, and planning scale proportionally to the complexity of each request—keeping minor tweaks nimble while giving major features solid structure.
+- **Outcome Accountability**: Instead of stopping as soon as code is generated (*Output-Driven*), the assistant defines a testable **Outcome Hypothesis** and verifies it with empirical proof (*Outcome-Driven*).
+
+#### The 7-Step ODD Lifecycle
+1. **Authorize (Permission Gate)**: Evaluates whether your prompt authorizes code modifications. Questions, audits, and reviews remain strictly **read-only**.
+2. **Explore Proportionately**: Consults `.grooveskills/memory/context.md` and inspects only the files relevant to the active domain, preserving your token budget and context window.
+3. **Resolve Uncertainty Early**: Answers technical unknowns by reading the codebase and asks concise, thoughtful questions only when product or design decisions are open.
+4. **Classify Semantic Scope**: Routes the request into one of three execution lanes based on architectural impact and reversibility rather than line counts.
+5. **Track Before First Write & Outcome Hypothesis**: Before editing source files on non-trivial tasks, records the plan and a formal hypothesis in `.grooveskills/memory/tasks/<slug>.md`:
+   > *"By delivering `[Output / Technical Change]`, `[Outcome / Verifiable Behavior]` will occur, proven by `[Evidence / Test / Build Command]`."*
+6. **Execute Proportionate Clean Code**: Writes clean, modular code following strict typing (zero `any`), guard clauses (zero nested `if`s), direct imports, and `<200` lines per file.
+7. **Verify Against Outcomes (Empirical Receipt)**: Runs deterministic checks (typecheck, test suite, linter, or build), logs the real output under `## Evidence`, and updates `## Next` for effortless session continuity.
 
 | Execution Lane | When It Activates | Agent Behavior |
 | :--- | :--- | :--- |
-| **Lane 1 — Answer** | Questions, code reviews, audits, or architectural inquiries. | **Read-only exploration.** Zero files modified. |
-| **Lane 2 — Task** | Well-defined features, refactors, or bugfixes. | **Outcome-driven implementation.** Formulates Outcome Hypothesis and verifies observed proof under `## Evidence`. |
-| **Lane 3 — Spec** | High-impact or multi-domain architectural changes. | **Collaborative design.** Drafts specification in `memory/tasks/<slug>.md` and aligns before writing code. |
+| **Lane 1 — Answer** | Questions, code reviews, audits, or architectural inquiries. | **Read-only exploration.** Inspects context and answers clearly with zero files modified. |
+| **Lane 2 — Task** | Well-defined features, refactors, or bugfixes. | **Outcome-driven implementation.** Declares an Outcome Hypothesis in `memory/tasks/<slug>.md` and checks off items only after verifying empirical proof under `## Evidence`. |
+| **Lane 3 — Spec** | High-impact or multi-domain architectural changes. | **Collaborative design.** Drafts a specification and Outcome Hypothesis in `memory/tasks/<slug>.md` and aligns with you before writing implementation code. |
 
 ### 4. Multilingual, Empathetic UX Communication
 Select your preferred language (**Español, English, Português, Italiano, or Français**) during setup so every validation message, toast, and agent interaction remains warm, persuasive, and professional.
