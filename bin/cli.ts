@@ -8,7 +8,7 @@ const program = new Command();
 program
   .name("grooveskills")
   .description("Multi-agent AI skills and architecture standards installer")
-  .version("1.1.1")
+  .version(__VERSION__)
   .option("-s, --skills <skills...>", "Specific skill IDs to install (e.g. best-practices hono groove-harness)")
   .option("-a, --agents <agents...>", "Target AI agents (antigravity claude cursor gemini)")
   .option("-y, --yes", "Automatically confirm overwrite of existing skills", false)
