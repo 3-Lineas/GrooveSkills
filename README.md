@@ -22,25 +22,25 @@ AI coding assistants perform at their highest potential when they share your tea
 
 | Layer | Purpose | Key Benefit |
 | :--- | :--- | :--- |
-| **1. Curated Architectural Skills** | Battle-tested engineering standards covering Clean Code, TypeScript 5.5+, Valibot, Hono RPC, React 19, Vitest, and UX Writing. | Your AI assistant writes clean, modular, strictly typed code matching your conventions. |
-| **2. Encapsulated Project Harness (`.grooveskills/`)** | Lightweight memory and an Organic & Outcome-Driven (ODD) 3-lane workflow stored inside your repository. | Every session starts oriented on your stack, ADR records, outcome hypotheses, and verified checklists. |
+| **1. Core Project Harness (`.grooveskills/`)** | Built-in project onboarding, persistent memory, and an Organic & Outcome-Driven (ODD) 3-lane workflow installed automatically. | Every session starts oriented on your stack, real scripts, ADR records, outcome hypotheses, and verified checklists. |
+| **2. Curated Architectural Skills** | Battle-tested engineering standards covering Clean Code, TypeScript 5.5+, Rust, Python, Valibot, Hono RPC, React 19, Vitest, and UX Writing. | Your AI assistant writes clean, modular, strictly typed code matching your team's conventions. |
 
 ---
 
 ## 🎯 How It Works
 
-### 1. Smart Stack Detection & Multi-Agent Adaptation
-GrooveSkills inspects dependencies (`hono`, `react`, `valibot`, `typescript`, `vitest`, `rust`, `python`) and pre-selects recommended skills, linking them automatically:
+### 1. Automatic Project Onboarding & Persistent Memory (`.grooveskills/memory/`)
+The **GrooveSkills Harness** is installed automatically as the foundation of your project—never an optional checkbox:
+- **First-Time Setup (Automatic Onboarding)**: Scans your repository (package manager, real `package.json` scripts, `tsconfig.json` path aliases, and `src/` modules), asks for your preferred communication language, and populates `.grooveskills/memory/context.md`, `decisions.md`, `tasks/00-onboarding.md`, `AGENTS.md`, and `CLAUDE.md`.
+- **Subsequent Runs (Smart Skill Updates)**: Detects your existing harness, preserves your memory and language settings untouched, and **only updates the skills you select**.
+- **Re-Onboarding on Demand (`init`)**: Run `npx @3lineas/grooveskills init` anytime to re-scan your project stack and refresh the onboarding context.
+
+### 2. Smart Stack Detection & Lightweight Agent References
+GrooveSkills inspects your project manifests (`package.json`, `Cargo.toml`, `pyproject.toml`) to pre-select recommended skills. All canonical skill files live in `.grooveskills/skills/<skill>/`, while agent folders receive **lightweight reference files** (~13 lines) that preserve trigger metadata without duplicating trees in your IDE:
 - **Antigravity**: `.agents/skills/<skill>/SKILL.md`
 - **Claude Code**: `.claude/skills/<skill>/SKILL.md`
 - **Gemini Code Assist**: `.gemini/skills/<skill>/SKILL.md`
 - **Cursor IDE**: `.cursor/rules/<skill>.mdc`
-
-### 2. Persistent Project Memory (`.grooveskills/memory/`)
-Enabling the harness creates an encapsulated knowledge plane and configures `AGENTS.md` and `CLAUDE.md`:
-- **`context.md`**: Summarizes your stack, conventions, and essential commands.
-- **`decisions.md`**: An append-only Architecture Decision Record (ADR) log.
-- **`tasks/<slug>.md`**: Feature records tracking outcome hypotheses and verification receipts.
 
 ### 3. Organic & Outcome-Driven Development (ODD) & 3-Lane Workflow
 Through the built-in `odd-ai` and `groove-harness` skills, GrooveSkills guides your AI assistant with a hybrid **Organic & Outcome-Driven Development (ODD)** methodology:
@@ -64,36 +64,38 @@ Through the built-in `odd-ai` and `groove-harness` skills, GrooveSkills guides y
 | **Lane 3 — Spec** | High-impact or multi-domain architectural changes. | **Collaborative design.** Drafts a specification and Outcome Hypothesis in `memory/tasks/<slug>.md` and aligns with you before writing implementation code. |
 
 ### 4. Multilingual, Empathetic UX Communication
-Select your preferred language (**Español, English, Português, Italiano, or Français**) during setup so every validation message, toast, and agent interaction remains warm, persuasive, and professional.
-
-### 5. Clean & 100% Portable Repository Layout
-All canonical skills and project memory reside in `.grooveskills/`. Agent directories (`.agents/`, `.claude/`, `.gemini/`, `.cursor/`) contain **lightweight reference files** that preserve original trigger metadata and instruct each AI agent to consult the canonical specification in `.grooveskills/skills/<skill>/SKILL.md`.
+Select your preferred language (**Español, English, Português, Italiano, or Français**) during onboarding so every validation message, toast, and agent interaction remains warm, persuasive, and professional.
 
 ---
 
 ## 🚀 Quick Start
 
-### Interactive Wizard (Recommended)
+### Interactive Wizard (Install or Update Skills)
 ```bash
 npx @3lineas/grooveskills
 ```
 
+### Force Full Project Re-Onboarding (`init`)
+```bash
+npx @3lineas/grooveskills init
+```
+
 ### Non-Interactive Mode (CI & Scripting)
 ```bash
-# Install skills and configure harness in Spanish for Claude and Antigravity
+# Install skills and initialize harness in Spanish for Claude and Antigravity
 npx @3lineas/grooveskills --skills odd-ai best-practices hono --agents antigravity claude -l es -y
 
-# Configure harness and skills across all supported AI assistants
-npx @3lineas/grooveskills --agents antigravity claude cursor gemini -l es -y
+# Re-run full project onboarding non-interactively across all AI assistants
+npx @3lineas/grooveskills init --agents antigravity claude cursor gemini -l es -y
 ```
 
 ### CLI Options Reference
 
-| Flag | Description | Example |
+| Command / Flag | Description | Example |
 | :--- | :--- | :--- |
+| `init` | Force re-run of project onboarding, stack scan & memory context | `npx @3lineas/grooveskills init` |
 | `-s, --skills <skills...>` | Space-separated list of skill IDs to install | `--skills odd-ai best-practices` |
 | `-a, --agents <agents...>` | Target AI assistants (`antigravity`, `claude`, `cursor`, `gemini`) | `--agents antigravity cursor` |
-| `--harness` | Initialize or update GrooveSkills project harness in `.grooveskills/` | `--harness` |
 | `-l, --language <lang>` | Set the language for user-facing copy (`es`, `en`, `pt`, `it`, `fr`) | `-l es` |
 | `-y, --yes` | Automatically confirm updating existing skills | `-y` |
 
@@ -106,10 +108,10 @@ my-project/
 ├── .grooveskills/
 │   ├── config.json                  # Manifest of active skills, agents, language & harness state
 │   ├── skills/                      # Canonical single source of truth for installed skills
-│   └── memory/                      # Persistent project memory (Harness control plane)
-│       ├── context.md               # Stack overview, conventions & essential commands
+│   └── memory/                      # Persistent project memory (Core Harness control plane)
+│       ├── context.md               # Auto-scanned stack, scripts, aliases & architecture map
 │       ├── decisions.md             # Architecture Decision Records (ADR)
-│       └── tasks/                   # Tasks with Outcome Hypotheses & Evidence receipts
+│       └── tasks/                   # 00-onboarding.md & tasks with Outcome Hypotheses
 ├── .agents/skills/<skill>/SKILL.md  # Lightweight reference pointer -> .grooveskills/skills/<skill>/SKILL.md
 ├── .claude/skills/<skill>/SKILL.md  # Lightweight reference pointer -> .grooveskills/skills/<skill>/SKILL.md
 ├── .gemini/skills/<skill>/SKILL.md  # Lightweight reference pointer -> .grooveskills/skills/<skill>/SKILL.md
@@ -123,8 +125,8 @@ my-project/
 
 | Skill ID | Name | Architectural Focus | Auto-Selection Rule |
 | :--- | :--- | :--- | :--- |
-| `groove-harness` | **GrooveSkills Harness** | ODD 3-lane workflow (Answer, Task, Spec), ADR logging, and task checklists in `.grooveskills/memory/`. | Included with `--harness` |
-| `odd-ai` | **Organic & Outcome-Driven (ODD)** | 7-step ODD protocol for AI agents: authorize, explore, classify, outcome hypotheses, and evidence receipts. | Included with `--harness` |
+| `groove-harness` | **GrooveSkills Harness** | ODD 3-lane workflow (Answer, Task, Spec), onboarding protocol, ADR logging, and `.grooveskills/memory/`. | **Core Harness (Always Installed)** |
+| `odd-ai` | **Organic & Outcome-Driven (ODD)** | 7-step ODD protocol for AI agents: authorize, explore, classify, outcome hypotheses, and evidence receipts. | **Default (Universal)** |
 | `best-practices` | **Universal Best Practices** | Multi-language clean code, strict typing (zero `any`), guard clauses, and `<200` lines per file. | **Default (Universal)** |
 | `ux-writing` | **UX Writing & Microcopy** | Warm, empathetic, conversion-oriented microcopy for validations, CTAs, toasts, and empty states. | **Default (Universal)** |
 | `error-handling-logging` | **Error Handling & Logging** | Predictable error flows with typed `AppError`, `ActionResponse` contracts, and structured logging. | **Default (Universal)** |

@@ -14,9 +14,10 @@ import type { ProjectLanguage } from "@/types/harness.types";
 
 async function resolveLanguageSelection(
   harnessExists: boolean,
-  configuredLanguage?: ProjectLanguage
+  configuredLanguage?: ProjectLanguage,
+  forceOnboarding?: boolean
 ): Promise<ProjectLanguage> {
-  if (harnessExists) {
+  if (harnessExists && !forceOnboarding) {
     return configuredLanguage ?? "es";
   }
 
@@ -52,12 +53,15 @@ async function resolveOverwriteConfirmation(
   return Boolean(confirm);
 }
 
-export async function runInteractiveUi(context: ProjectContext): Promise<void> {
+export async function runInteractiveUi(
+  context: ProjectContext,
+  forceOnboarding: boolean = false
+): Promise<void> {
   console.log(renderBanner());
   p.intro(pc.magenta("Welcome to GrooveSkills! Let's tailor your AI agents with clean architectural standards."));
 
   if (context.detectedDependencies.length > 0) {
-    const harnessInfo = context.harnessExists
+    const harnessInfo = context.harnessExists && !forceOnboarding
       ? pc.green(`Active (.grooveskills/memory, lang: ${context.configuredLanguage ?? "es"})`)
       : pc.cyan("Will be initialized");
 
@@ -83,7 +87,8 @@ export async function runInteractiveUi(context: ProjectContext): Promise<void> {
 
   const selectedLanguage = await resolveLanguageSelection(
     context.harnessExists,
-    context.configuredLanguage
+    context.configuredLanguage,
+    forceOnboarding
   );
 
   const forceOverwrite = await resolveOverwriteConfirmation(
@@ -103,6 +108,7 @@ export async function runInteractiveUi(context: ProjectContext): Promise<void> {
     enableHarness: true,
     detectedDependencies: context.detectedDependencies,
     language: selectedLanguage,
+    forceOnboarding,
   });
 
   s.stop(pc.green("All skills and harness have been successfully configured!"));

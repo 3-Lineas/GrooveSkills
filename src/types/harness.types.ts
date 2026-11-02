@@ -17,4 +17,5 @@ export interface HarnessInstallOptions {
   selectedSkillIds: string[];
   detectedDependencies: string[];
   language?: ProjectLanguage;
+  forceOnboarding?: boolean;
 }

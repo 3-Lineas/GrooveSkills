@@ -39,6 +39,7 @@ Every request is governed by the 7-step ODD protocol (*Authorize, Explore, Resol
 
 - **`.grooveskills/memory/context.md`**: Stores project stack, architectural patterns, conventions, and key commands. Read this when starting work on a domain; update it when new dependencies or architectural standards are introduced.
 - **`.grooveskills/memory/decisions.md`**: An append-only Architecture Decision Record (ADR). Log significant technical decisions (`Date`, `Context`, `Decision`, `Consequences`).
+- **`.grooveskills/memory/tasks/00-onboarding.md`**: Initial onboarding task. If `status: pending`, inspect project structure, commands, and verify `.grooveskills/memory/context.md`, then mark as `completed`.
 - **`.grooveskills/memory/tasks/`**: Individual feature records holding outcome hypotheses, checklists, and observed proof.
 
 ---

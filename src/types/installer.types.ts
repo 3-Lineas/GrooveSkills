@@ -9,6 +9,7 @@ export interface InstallOptions {
   enableHarness?: boolean;
   detectedDependencies?: string[];
   language?: ProjectLanguage;
+  forceOnboarding?: boolean;
 }
 
 export interface InstallResult {

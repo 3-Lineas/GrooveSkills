@@ -2,7 +2,8 @@ import * as p from "@clack/prompts";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
 
 export async function promptSkills(suggestedSkillIds: string[]): Promise<string[] | symbol> {
-  const options = SKILL_CATALOG.map((skill) => {
+  const selectableSkills = SKILL_CATALOG.filter((skill) => !skill.isCoreHarness);
+  const options = selectableSkills.map((skill) => {
     const isSuggested = suggestedSkillIds.includes(skill.id);
     return {
       value: skill.id,

@@ -60,6 +60,7 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
     selectedSkillIds: skillsToInstall,
     detectedDependencies: options.detectedDependencies || [],
     language: options.language,
+    forceOnboarding: options.forceOnboarding,
   });
   createdFiles.push(...harnessFiles);
 

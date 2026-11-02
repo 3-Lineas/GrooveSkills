@@ -4,4 +4,5 @@ export interface SkillMetadata {
   description: string;
   dependencies: string[];
   directoryName: string;
+  isCoreHarness?: boolean;
 }

@@ -10,6 +10,7 @@ export interface CliOptions {
   yes?: boolean;
   harness?: boolean;
   language?: ProjectLanguage;
+  forceOnboarding?: boolean;
 }
 
 export async function runGrooveSkills(options: CliOptions = {}): Promise<void> {
@@ -19,8 +20,9 @@ export async function runGrooveSkills(options: CliOptions = {}): Promise<void> {
   const hasSkills = options.skills && options.skills.length > 0;
   const hasAgents = options.agents && options.agents.length > 0;
   const isDirectHarness = Boolean(options.harness) && hasAgents;
+  const isDirectInit = Boolean(options.forceOnboarding) && hasAgents;
 
-  if ((hasSkills && hasAgents) || isDirectHarness) {
+  if ((hasSkills && hasAgents) || isDirectHarness || isDirectInit) {
     const language = options.language ?? context.configuredLanguage ?? "es";
     await installSkills({
       targetPath,
@@ -30,9 +32,10 @@ export async function runGrooveSkills(options: CliOptions = {}): Promise<void> {
       enableHarness: true,
       detectedDependencies: context.detectedDependencies,
       language,
+      forceOnboarding: options.forceOnboarding,
     });
     return;
   }
 
-  await runInteractiveUi(context);
+  await runInteractiveUi(context, Boolean(options.forceOnboarding));
 }
