@@ -3,6 +3,7 @@ import { userInfo } from "node:os";
 import * as prompts from "@clack/prompts";
 import picocolors from "picocolors";
 import { formatOwnerName } from "@/domains/fs/inspect-file-access";
+import { getTerminalWidth, wrapText } from "@/domains/ui/terminal-layout";
 import { InstallTransactionError } from "@/errors/install-transaction-error";
 import type { ReplacedFileNotice } from "@/domains/fs/install-transaction";
 
@@ -37,9 +38,11 @@ export function renderInstallFailure(error: InstallTransactionError): void {
     rollbackReport.removedDirs.length === 0 &&
     rollbackReport.failures.length === 0;
 
+  const safeMaxWidth = Math.max(getTerminalWidth(80) - 10, 50);
+
   const lines: string[] = [
-    `${picocolors.bold("Failed stage:")}  ${picocolors.yellow(stage)}`,
-    `${picocolors.bold("Cause:")}         ${picocolors.red(causeMessage)}`,
+    wrapText(`${picocolors.bold("Failed stage:")}  ${picocolors.yellow(stage)}`, safeMaxWidth),
+    wrapText(`${picocolors.bold("Cause:")}         ${picocolors.red(causeMessage)}`, safeMaxWidth),
   ];
 
   if (nothingTouched) {
@@ -55,13 +58,13 @@ export function renderInstallFailure(error: InstallTransactionError): void {
     if (!rollbackReport.isClean) {
       lines.push("", picocolors.red("Rollback was incomplete. These files may need manual review:"));
       for (const failure of rollbackReport.failures) {
-        lines.push(` • ${failure.path} (${failure.reason})`);
+        lines.push(wrapText(` • ${failure.path} (${failure.reason})`, safeMaxWidth));
       }
     }
   }
 
   if (suggestedFix) {
-    lines.push(`${picocolors.bold("Suggested fix:")} ${picocolors.green(suggestedFix)}`);
+    lines.push(wrapText(`${picocolors.bold("Suggested fix:")} ${picocolors.green(suggestedFix)}`, safeMaxWidth));
   }
 
   prompts.note(lines.join("\n"), "Installation Aborted");

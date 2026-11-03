@@ -10,6 +10,7 @@ import { installSkills } from "@/domains/installer/install-orchestrator";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
 import { formatOnboardingPrompt } from "@/domains/ui/render-onboarding-prompt";
 import { formatReplacedFileNotes, renderInstallFailure } from "@/domains/ui/render-install-report";
+import { getTerminalWidth, wrapText } from "@/domains/ui/terminal-layout";
 import { InstallTransactionError } from "@/errors/install-transaction-error";
 import type { ProjectContext } from "@/types/context.types";
 import type { AgentId } from "@/types/agent.types";
@@ -69,6 +70,8 @@ export async function runInteractiveUi(
     )
   );
 
+  const safeMaxWidth = Math.max(getTerminalWidth(80) - 10, 50);
+
   if (context.detectedDependencies.length > 0) {
     const harnessInfo =
       context.harnessExists && !forceOnboarding
@@ -84,12 +87,14 @@ export async function runInteractiveUi(
       context.detectedAgents.map((agentName) => picocolors.green(agentName)).join(", ") ||
       "None (will be created)";
 
-    prompts.note(
+    const environmentNote = wrapText(
       `Detected dependencies: ${formattedDependencies}\n` +
         `Active AI folders: ${formattedAgents}\n` +
         `GrooveSkills Harness: ${harnessInfo}`,
-      "Project Environment"
+      safeMaxWidth
     );
+
+    prompts.note(environmentNote, "Project Environment");
   }
 
   const selectedSkills = await promptSkills(context.suggestedSkillIds);
@@ -147,17 +152,19 @@ export async function runInteractiveUi(
       .join(", ");
 
     const summaryLines = [
-      `Configured skills: ${formattedInstalledSkills}`,
+      wrapText(`Configured skills: ${formattedInstalledSkills}`, safeMaxWidth),
       `Target agents: ${formattedConfiguredAgents}`,
       `GrooveSkills Harness: ${harnessStatus}`,
-      ...formatReplacedFileNotes(installResult.replacedFiles),
+      ...formatReplacedFileNotes(installResult.replacedFiles).map((note) =>
+        wrapText(note, safeMaxWidth)
+      ),
     ];
 
     prompts.note(summaryLines.join("\n"), "Installation Summary");
 
     if (installResult.harnessInitialized) {
       const promptRender = formatOnboardingPrompt(selectedLanguage);
-      prompts.note(picocolors.green(promptRender.prompt), promptRender.title);
+      console.log(promptRender.formattedOutput);
     }
 
     prompts.outro(
