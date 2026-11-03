@@ -39,10 +39,10 @@ function detectProjectName(targetPath: string): string {
   const pyprojectPath = join(targetPath, "pyproject.toml");
   if (existsSync(pyprojectPath)) {
     try {
-      const pyRaw = readFileSync(pyprojectPath, "utf-8");
-      const pyMatch = pyRaw.match(/name\s*=\s*"([^"]+)"/);
-      if (pyMatch?.[1]) {
-        return pyMatch[1];
+      const pyprojectRaw = readFileSync(pyprojectPath, "utf-8");
+      const nameMatch = pyprojectRaw.match(/name\s*=\s*"([^"]+)"/);
+      if (nameMatch?.[1]) {
+        return nameMatch[1];
       }
     } catch {
       // Fall through
@@ -77,7 +77,7 @@ function detectPackageManager(targetPath: string): string {
   return "npm";
 }
 
-function detectCommands(targetPath: string, pkgManager: string): Record<string, string> {
+function detectCommands(targetPath: string, packageManager: string): Record<string, string> {
   const packageJsonPath = join(targetPath, "package.json");
   if (!existsSync(packageJsonPath)) {
     return {};
@@ -89,7 +89,7 @@ function detectCommands(targetPath: string, pkgManager: string): Record<string, 
     const scripts = parsed.scripts ?? {};
     const commands: Record<string, string> = {};
 
-    const runner = pkgManager === "npm" ? "npm run" : pkgManager;
+    const runner = packageManager === "npm" ? "npm run" : packageManager;
 
     if (scripts.build) {
       commands.build = `${runner} build`;
@@ -134,9 +134,9 @@ function detectPathAliases(targetPath: string): Record<string, string> {
     const paths = parsed.compilerOptions?.paths ?? {};
     const aliases: Record<string, string> = {};
 
-    for (const [key, targets] of Object.entries(paths)) {
-      if (Array.isArray(targets) && typeof targets[0] === "string") {
-        aliases[key] = targets[0];
+    for (const [aliasKey, aliasTargets] of Object.entries(paths)) {
+      if (Array.isArray(aliasTargets) && typeof aliasTargets[0] === "string") {
+        aliases[aliasKey] = aliasTargets[0];
       }
     }
 

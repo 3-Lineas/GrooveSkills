@@ -1,4 +1,4 @@
-import * as p from "@clack/prompts";
+import * as prompts from "@clack/prompts";
 import type { AgentId } from "@/types/agent.types";
 
 export async function promptAgents(detectedAgents: AgentId[]): Promise<AgentId[] | symbol> {
@@ -11,7 +11,7 @@ export async function promptAgents(detectedAgents: AgentId[]): Promise<AgentId[]
 
   const initialValues: AgentId[] = detectedAgents.length > 0 ? detectedAgents : ["antigravity"];
 
-  const selected = await p.multiselect({
+  const selected = await prompts.multiselect({
     message: "Which AI agents should be configured?",
     options,
     initialValues,

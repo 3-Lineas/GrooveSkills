@@ -1,5 +1,6 @@
 import type { AgentId } from "@/types/agent.types";
 import type { ProjectLanguage } from "@/types/harness.types";
+import type { ReplacedFileNotice } from "@/domains/fs/install-transaction";
 
 export interface InstallOptions {
   targetPath: string;
@@ -18,4 +19,5 @@ export interface InstallResult {
   createdFiles: string[];
   harnessInitialized: boolean;
   language?: ProjectLanguage;
+  replacedFiles?: ReplacedFileNotice[];
 }

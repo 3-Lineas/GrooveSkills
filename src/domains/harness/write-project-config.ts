@@ -67,7 +67,10 @@ export function writeProjectConfig(
     updatedAt: new Date().toISOString(),
   };
 
-  safeWriteFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`);
+  const outcome = safeWriteFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`);
+  if (outcome.strategy === "replaced" && transaction) {
+    transaction.recordReplacedFile(configPath, outcome.previousOwnerUid);
+  }
 
   return configPath;
 }

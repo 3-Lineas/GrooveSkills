@@ -45,7 +45,9 @@ export function detectProjectContext(targetPath: string): ProjectContext {
     if (skill.dependencies.length === 0) {
       continue;
     }
-    const hasMatch = skill.dependencies.some((dep) => dependencies.includes(dep));
+    const hasMatch = skill.dependencies.some((dependencyName) =>
+      dependencies.includes(dependencyName)
+    );
     if (hasMatch && !suggestedSkillIds.includes(skill.id)) {
       suggestedSkillIds.push(skill.id);
     }

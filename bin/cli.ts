@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import pc from "picocolors";
+import picocolors from "picocolors";
 import { runGrooveSkills } from "@/main";
 import { InstallTransactionError } from "@/errors/install-transaction-error";
 import type { AgentId } from "@/types/agent.types";
@@ -38,23 +38,51 @@ program
     } catch (error) {
       if (error instanceof InstallTransactionError) {
         const { stage, causeError, rollbackReport, suggestedFix } = error;
-        const rawMsg = causeError instanceof Error ? causeError.message : String(causeError);
+        const causeMessage = causeError instanceof Error ? causeError.message : String(causeError);
+        const nothingTouched =
+          rollbackReport.restoredFiles.length === 0 &&
+          rollbackReport.removedFiles.length === 0 &&
+          rollbackReport.removedDirs.length === 0 &&
+          rollbackReport.failures.length === 0;
 
-        console.error(pc.red(`\n✖ La instalación se interrumpió en la fase: ${stage}`));
-        console.error(pc.red(`  Causa: ${rawMsg}`));
-        console.error(pc.yellow("\nReporte de Rollback automático:"));
-        console.error(` • Archivos restaurados a su estado previo: ${rollbackReport.restoredFiles.length}`);
-        console.error(` • Archivos temporales eliminados: ${rollbackReport.removedFiles.length}`);
-        console.error(` • Directorios vacíos eliminados: ${rollbackReport.removedDirs.length}`);
+        console.error(picocolors.red(`\n✖ Installation failed at stage: ${stage}`));
+        console.error(picocolors.red(`  Cause: ${causeMessage}`));
+
+        if (nothingTouched) {
+          console.error(picocolors.yellow("  Rollback: Nothing to roll back, no files were modified."));
+        } else {
+          console.error(picocolors.yellow("\nRollback summary:"));
+          console.error(` • Restored files: ${rollbackReport.restoredFiles.length}`);
+          console.error(` • Removed temporary files: ${rollbackReport.removedFiles.length}`);
+          console.error(` • Removed empty directories: ${rollbackReport.removedDirs.length}`);
+
+          if (!rollbackReport.isClean) {
+            console.error(
+              picocolors.red("\nRollback was incomplete. These files may need manual review:")
+            );
+            for (const failure of rollbackReport.failures) {
+              console.error(` • ${failure.path} (${failure.reason})`);
+            }
+          }
+        }
 
         if (suggestedFix) {
-          console.error(pc.green(`\nSolución sugerida:\n  ${suggestedFix}`));
+          console.error(picocolors.green(`\nSuggested fix:\n  ${suggestedFix}`));
         }
-        console.error(pc.dim("\nTu proyecto se preservó intacto.\n"));
+
+        if (rollbackReport.isClean) {
+          console.error(
+            picocolors.dim(
+              nothingTouched
+                ? "\nNo files were modified.\n"
+                : "\nYour project was restored to its previous state.\n"
+            )
+          );
+        }
         process.exit(1);
       }
 
-      console.error(pc.red("Ocurrió un error inesperado al ejecutar GrooveSkills:"), error);
+      console.error(picocolors.red("An unexpected error occurred while running GrooveSkills:"), error);
       process.exit(1);
     }
   });

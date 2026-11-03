@@ -1,5 +1,5 @@
-import * as p from "@clack/prompts";
-import pc from "picocolors";
+import * as prompts from "@clack/prompts";
+import picocolors from "picocolors";
 import { renderBanner } from "@/domains/ui/banners";
 import { promptSkills } from "@/domains/ui/prompt-skills";
 import { promptAgents } from "@/domains/ui/prompt-agents";
@@ -9,6 +9,7 @@ import { verifySkillExists } from "@/domains/installer/verify-skill-exists";
 import { installSkills } from "@/domains/installer/install-orchestrator";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
 import { formatOnboardingPrompt } from "@/domains/ui/render-onboarding-prompt";
+import { formatReplacedFileNotes, renderInstallFailure } from "@/domains/ui/render-install-report";
 import { InstallTransactionError } from "@/errors/install-transaction-error";
 import type { ProjectContext } from "@/types/context.types";
 import type { AgentId } from "@/types/agent.types";
@@ -23,13 +24,13 @@ async function resolveLanguageSelection(
     return configuredLanguage ?? "es";
   }
 
-  const langChoice = await promptLanguage(configuredLanguage ?? "es");
-  if (p.isCancel(langChoice)) {
-    p.cancel("Instalación cancelada. ¡Que tengas un excelente día!");
+  const languageSelection = await promptLanguage(configuredLanguage ?? "es");
+  if (prompts.isCancel(languageSelection)) {
+    prompts.cancel("Installation cancelled. Have a wonderful day!");
     process.exit(0);
   }
 
-  return langChoice as ProjectLanguage;
+  return languageSelection as ProjectLanguage;
 }
 
 async function resolveOverwriteConfirmation(
@@ -38,47 +39,23 @@ async function resolveOverwriteConfirmation(
   selectedAgents: AgentId[]
 ): Promise<boolean> {
   const anyExists = selectedSkills.some((skillId) => {
-    const meta = SKILL_CATALOG.find((s) => s.id === skillId);
-    return meta ? verifySkillExists(targetPath, meta.directoryName, selectedAgents) : false;
+    const skillMetadata = SKILL_CATALOG.find((skill) => skill.id === skillId);
+    return skillMetadata
+      ? verifySkillExists(targetPath, skillMetadata.directoryName, selectedAgents)
+      : false;
   });
 
   if (!anyExists) {
     return true;
   }
 
-  const confirm = await promptConfirmOverwrite();
-  if (p.isCancel(confirm) || !confirm) {
-    p.cancel("Instalación detenida para proteger las skills existentes.");
+  const overwriteConfirmed = await promptConfirmOverwrite();
+  if (prompts.isCancel(overwriteConfirmed) || !overwriteConfirmed) {
+    prompts.cancel("Installation stopped to protect existing skills.");
     process.exit(0);
   }
 
-  return Boolean(confirm);
-}
-
-function renderInstallFailure(error: InstallTransactionError): void {
-  const { stage, causeError, rollbackReport, suggestedFix } = error;
-  const rawMsg = causeError instanceof Error ? causeError.message : String(causeError);
-
-  const lines: string[] = [
-    `${pc.bold("Fase afectada:")} ${pc.yellow(stage)}`,
-    `${pc.bold("Causa:")} ${pc.red(rawMsg)}`,
-    "",
-    pc.bold("Reporte de Rollback automático:"),
-    ` • Archivos restaurados a su estado previo: ${pc.cyan(String(rollbackReport.restoredFiles.length))}`,
-    ` • Archivos temporales eliminados: ${pc.cyan(String(rollbackReport.removedFiles.length))}`,
-    ` • Directorios vacíos eliminados: ${pc.cyan(String(rollbackReport.removedDirs.length))}`,
-  ];
-
-  if (suggestedFix) {
-    lines.push(
-      "",
-      pc.bold("Solución recomendada:"),
-      ` Ejecuta en tu terminal: ${pc.green(suggestedFix)}`
-    );
-  }
-
-  p.note(lines.join("\n"), "Detalles de la interrupción y reversión");
-  p.outro(pc.yellow("Tu proyecto no sufrió alteraciones y se preservó intacto. Corrige la causa y vuelve a intentarlo cuando gustes."));
+  return Boolean(overwriteConfirmed);
 }
 
 export async function runInteractiveUi(
@@ -86,30 +63,44 @@ export async function runInteractiveUi(
   forceOnboarding: boolean = false
 ): Promise<void> {
   console.log(renderBanner());
-  p.intro(pc.magenta("¡Bienvenido a GrooveSkills! Configuremos tus agentes de IA con estándares limpios de arquitectura."));
+  prompts.intro(
+    picocolors.magenta(
+      "Welcome to GrooveSkills! Let's tailor your AI agents with clean architectural standards."
+    )
+  );
 
   if (context.detectedDependencies.length > 0) {
-    const harnessInfo = context.harnessExists && !forceOnboarding
-      ? pc.green(`Activo (.grooveskills/memory, idioma: ${context.configuredLanguage ?? "es"})`)
-      : pc.cyan("Será inicializado");
+    const harnessInfo =
+      context.harnessExists && !forceOnboarding
+        ? picocolors.green(
+            `Active (.grooveskills/memory, lang: ${context.configuredLanguage ?? "es"})`
+          )
+        : picocolors.cyan("Will be initialized");
 
-    p.note(
-      `Dependencias detectadas: ${context.detectedDependencies.map((d) => pc.bold(d)).join(", ")}\n` +
-      `Carpetas de IA activas: ${context.detectedAgents.map((a) => pc.green(a)).join(", ") || "Ninguna (se crearán)"}\n` +
-      `GrooveSkills Harness: ${harnessInfo}`,
-      "Entorno del Proyecto"
+    const formattedDependencies = context.detectedDependencies
+      .map((dependencyName) => picocolors.bold(dependencyName))
+      .join(", ");
+    const formattedAgents =
+      context.detectedAgents.map((agentName) => picocolors.green(agentName)).join(", ") ||
+      "None (will be created)";
+
+    prompts.note(
+      `Detected dependencies: ${formattedDependencies}\n` +
+        `Active AI folders: ${formattedAgents}\n` +
+        `GrooveSkills Harness: ${harnessInfo}`,
+      "Project Environment"
     );
   }
 
   const selectedSkills = await promptSkills(context.suggestedSkillIds);
-  if (p.isCancel(selectedSkills)) {
-    p.cancel("Instalación cancelada. ¡Que tengas un excelente día!");
+  if (prompts.isCancel(selectedSkills)) {
+    prompts.cancel("Installation cancelled. Have a wonderful day!");
     process.exit(0);
   }
 
   const selectedAgents = await promptAgents(context.detectedAgents);
-  if (p.isCancel(selectedAgents)) {
-    p.cancel("Instalación cancelada. ¡Que tengas un excelente día!");
+  if (prompts.isCancel(selectedAgents)) {
+    prompts.cancel("Installation cancelled. Have a wonderful day!");
     process.exit(0);
   }
 
@@ -125,11 +116,11 @@ export async function runInteractiveUi(
     selectedAgents as AgentId[]
   );
 
-  const s = p.spinner();
-  s.start("Instalando y adaptando skills para tus agentes de IA configurados...");
+  const installSpinner = prompts.spinner();
+  installSpinner.start("Installing and adapting skills across your configured AI agents...");
 
   try {
-    const result = await installSkills({
+    const installResult = await installSkills({
       targetPath: context.targetPath,
       selectedSkillIds: selectedSkills as string[],
       selectedAgents: selectedAgents as AgentId[],
@@ -140,30 +131,42 @@ export async function runInteractiveUi(
       forceOnboarding,
     });
 
-    s.stop(pc.green("¡Todas las skills y el harness fueron configurados exitosamente!"));
-
-    const harnessStatus = result.harnessInitialized
-      ? pc.green(`Inicializado en .grooveskills/ (Idioma: ${selectedLanguage})`)
-      : pc.cyan(`Preservado en .grooveskills/ (Idioma: ${selectedLanguage})`);
-
-    p.note(
-      `Skills configuradas: ${result.installedSkills.map((sk) => pc.bold(sk)).join(", ")}\n` +
-      `Agentes objetivo: ${result.configuredAgents.map((a) => pc.cyan(a)).join(", ")}\n` +
-      `GrooveSkills Harness: ${harnessStatus}`,
-      "Resumen de Instalación"
+    installSpinner.stop(
+      picocolors.green("All skills and harness have been successfully configured!")
     );
 
-    if (result.harnessInitialized) {
+    const harnessStatus = installResult.harnessInitialized
+      ? picocolors.green(`Initialized in .grooveskills/ (Language: ${selectedLanguage})`)
+      : picocolors.cyan(`Preserved in .grooveskills/ (Language: ${selectedLanguage})`);
+
+    const formattedInstalledSkills = installResult.installedSkills
+      .map((skillId) => picocolors.bold(skillId))
+      .join(", ");
+    const formattedConfiguredAgents = installResult.configuredAgents
+      .map((agentId) => picocolors.cyan(agentId))
+      .join(", ");
+
+    const summaryLines = [
+      `Configured skills: ${formattedInstalledSkills}`,
+      `Target agents: ${formattedConfiguredAgents}`,
+      `GrooveSkills Harness: ${harnessStatus}`,
+      ...formatReplacedFileNotes(installResult.replacedFiles),
+    ];
+
+    prompts.note(summaryLines.join("\n"), "Installation Summary");
+
+    if (installResult.harnessInitialized) {
       const promptRender = formatOnboardingPrompt(selectedLanguage);
-      p.note(
-        pc.green(promptRender.prompt),
-        promptRender.title
-      );
+      prompts.note(picocolors.green(promptRender.prompt), promptRender.title);
     }
 
-    p.outro(pc.green("¡Tus agentes de IA ahora están potenciados con los hábitos arquitectónicos de tu equipo! 🚀"));
+    prompts.outro(
+      picocolors.green(
+        "Your AI programming pair is now empowered with your team's architectural habits! 🚀"
+      )
+    );
   } catch (error) {
-    s.stop(pc.yellow("La instalación no pudo completarse."));
+    installSpinner.stop(picocolors.yellow("Installation could not be completed."));
 
     if (error instanceof InstallTransactionError) {
       renderInstallFailure(error);

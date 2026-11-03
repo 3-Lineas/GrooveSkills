@@ -20,7 +20,7 @@ export function resolveSkillsSourceRoot(): string {
 
   // 3. Search upward for the package root containing a skills directory
   let searchDir = currentDir;
-  for (let i = 0; i < 5; i++) {
+  for (let depth = 0; depth < 5; depth++) {
     const candidate = join(searchDir, "skills");
     if (existsSync(candidate)) {
       return candidate;

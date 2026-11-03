@@ -16,7 +16,7 @@ export class InstallTransactionError extends Error {
   constructor(options: InstallTransactionErrorOptions) {
     const rawMessage =
       options.cause instanceof Error ? options.cause.message : String(options.cause);
-    super(`Error durante la etapa '${options.stage}': ${rawMessage}`);
+    super(`Error during stage '${options.stage}': ${rawMessage}`);
     this.name = "InstallTransactionError";
     this.stage = options.stage;
     this.causeError = options.cause;

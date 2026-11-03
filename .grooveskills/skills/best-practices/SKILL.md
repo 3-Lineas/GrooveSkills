@@ -41,7 +41,12 @@ Universal guidelines applicable to **any programming language** and **any file**
    - Log errors with contextual metadata (`file`, `line`, `details`).
    - Propagate typed errors (`AppError`) up to the controller/router layer.
 
-8. **Polite, Persuasive, and Professional Communication**:
+8. **Descriptive Naming (Zero Cryptic or Single-Letter Identifiers)**:
+   - Single-character, two-character, or cryptic abbreviations for variables, parameters, properties, import aliases, and loop/callback iterators are strictly forbidden (e.g. `d`, `a`, `s`, `p`, `i`, `tx`, `cb`, `err`, `res`, `req`, `fn`).
+   - Every identifier must be fully descriptive and reflect its domain intent (e.g. `dependencyName`, `agentId`, `installSpinner`, `transaction`, `prompts`, `picocolors`, `request`, `response`, `caughtError`, `itemIndex`).
+   - This applies universally across all contexts: `.map()`, `.filter()`, `.reduce()`, loops (`for`, `while`), `catch` blocks, and module imports.
+
+9. **Polite, Persuasive, and Professional Communication**:
    - User-facing messages, validation feedback, and notifications must be courteous, engaging, solution-oriented, and professional in English.
    - Celebrate user milestones, guide them clearly through errors, and encourage action.
 
@@ -50,26 +55,26 @@ Universal guidelines applicable to **any programming language** and **any file**
 ## 2. Guard Clauses Example
 
 ```ts
-// ✅ CORRECT (Early return / Guard clause):
-export function processTransaction(tx: Transaction): Receipt {
-  if (!tx.isValid) {
+// ✅ CORRECT (Early return / Guard clause & descriptive identifiers):
+export function processTransaction(activeTransaction: Transaction): Receipt {
+  if (!activeTransaction.isValid) {
     throw new AppError({
       message: "Please provide a valid transaction to continue.",
       statusCode: 400,
     });
   }
 
-  if (tx.isExpired) {
+  if (activeTransaction.isExpired) {
     throw new AppError({
       message: "Your payment session has timed out. Please initiate a new request.",
       statusCode: 410,
     });
   }
 
-  return executePayment(tx);
+  return executePayment(activeTransaction);
 }
 
-// ❌ FORBIDDEN (Nested ifs):
+// ❌ FORBIDDEN (Nested ifs & cryptic abbreviation 'tx'):
 export function processTransaction(tx: Transaction) {
   if (tx.isValid) {
     if (!tx.isExpired) {

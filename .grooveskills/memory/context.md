@@ -13,6 +13,7 @@ This file provides AI agents with instant architectural orientation for this pro
 ## 2. Directory Structure & Domain Architecture
 - Follow single-responsibility per file (<200 lines) and guard clauses (zero nested `if`s).
 - Maintain direct imports with path aliases (`@/...`); avoid barrel files (`index.ts`).
+- Enforce strict descriptive naming: zero single- or two-character abbreviations (`d`, `a`, `s`, `p`, `tx`, `err`, `res`, etc.). Every identifier must reflect its explicit domain intent.
 
 ### Path Aliases
 - `@/*` -> `./src/*`

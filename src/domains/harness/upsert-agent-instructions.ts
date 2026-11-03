@@ -9,6 +9,17 @@ import type { ProjectLanguage } from "@/types/harness.types";
 const START_MARKER = "<!-- grooveskills:harness:start -->";
 const END_MARKER = "<!-- grooveskills:harness:end -->";
 
+function writeWithTransaction(
+  filePath: string,
+  content: string,
+  transaction?: InstallTransaction
+): void {
+  const outcome = safeWriteFileSync(filePath, content);
+  if (outcome.strategy === "replaced" && transaction) {
+    transaction.recordReplacedFile(filePath, outcome.previousOwnerUid);
+  }
+}
+
 function applyHarnessBlock(
   filePath: string,
   language: ProjectLanguage = "es",
@@ -21,7 +32,7 @@ function applyHarnessBlock(
   const block = buildAgentHarnessBlock(language);
 
   if (!existsSync(filePath)) {
-    safeWriteFileSync(filePath, `${block}\n`);
+    writeWithTransaction(filePath, `${block}\n`, transaction);
     return;
   }
 
@@ -30,12 +41,12 @@ function applyHarnessBlock(
   if (existingContent.includes(START_MARKER) && existingContent.includes(END_MARKER)) {
     const regex = new RegExp(`${START_MARKER}[\\s\\S]*?${END_MARKER}`, "g");
     const updated = existingContent.replace(regex, block);
-    safeWriteFileSync(filePath, updated);
+    writeWithTransaction(filePath, updated, transaction);
     return;
   }
 
   const separator = existingContent.endsWith("\n") ? "\n" : "\n\n";
-  safeWriteFileSync(filePath, `${existingContent}${separator}${block}\n`);
+  writeWithTransaction(filePath, `${existingContent}${separator}${block}\n`, transaction);
 }
 
 export function upsertAgentInstructions(

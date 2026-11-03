@@ -1,4 +1,4 @@
-import pc from "picocolors";
+import picocolors from "picocolors";
 import { SUPPORTED_LANGUAGES } from "@/domains/harness/harness-languages";
 import type { ProjectLanguage } from "@/types/harness.types";
 
@@ -11,16 +11,16 @@ export interface OnboardingPromptRender {
 export function formatOnboardingPrompt(
   language: ProjectLanguage = "es"
 ): OnboardingPromptRender {
-  const langConfig = SUPPORTED_LANGUAGES[language] ?? SUPPORTED_LANGUAGES.es;
-  const title = langConfig.onboardingPromptTitle;
-  const prompt = langConfig.onboardingPrompt;
+  const languageConfig = SUPPORTED_LANGUAGES[language] ?? SUPPORTED_LANGUAGES.es;
+  const title = languageConfig.onboardingPromptTitle;
+  const prompt = languageConfig.onboardingPrompt;
 
-  const separator = pc.cyan("─".repeat(60));
+  const separator = picocolors.cyan("─".repeat(60));
   const formattedOutput = [
     separator,
-    pc.bold(pc.yellow(title)),
+    picocolors.bold(picocolors.yellow(title)),
     "",
-    pc.green(prompt),
+    picocolors.green(prompt),
     separator,
   ].join("\n");
 

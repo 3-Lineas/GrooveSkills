@@ -1,15 +1,28 @@
 import { existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { safeWriteFileSync } from "@/domains/fs/safe-file-writer";
 
+export interface RollbackFailure {
+  path: string;
+  reason: string;
+}
+
+export interface ReplacedFileNotice {
+  filePath: string;
+  previousOwnerUid: number | null;
+}
+
 export interface RollbackReport {
   restoredFiles: string[];
   removedFiles: string[];
   removedDirs: string[];
+  failures: RollbackFailure[];
+  isClean: boolean;
 }
 
 export class InstallTransaction {
   private originalFiles = new Map<string, string | null>();
   private createdDirs: string[] = [];
+  private replacedFiles: ReplacedFileNotice[] = [];
 
   recordBeforeWrite(filePath: string): void {
     if (this.originalFiles.has(filePath)) {
@@ -32,10 +45,21 @@ export class InstallTransaction {
     }
   }
 
+  recordReplacedFile(filePath: string, previousOwnerUid: number | null): void {
+    if (!this.replacedFiles.some((item) => item.filePath === filePath)) {
+      this.replacedFiles.push({ filePath, previousOwnerUid });
+    }
+  }
+
+  getReplacedFiles(): ReplacedFileNotice[] {
+    return [...this.replacedFiles];
+  }
+
   rollback(): RollbackReport {
     const restoredFiles: string[] = [];
     const removedFiles: string[] = [];
     const removedDirs: string[] = [];
+    const failures: RollbackFailure[] = [];
 
     for (const [filePath, content] of this.originalFiles.entries()) {
       try {
@@ -44,27 +68,49 @@ export class InstallTransaction {
             rmSync(filePath, { force: true });
             removedFiles.push(filePath);
           }
-        } else {
-          safeWriteFileSync(filePath, content);
-          restoredFiles.push(filePath);
+          continue;
         }
-      } catch {
-        // Ignorar fallos individuales para maximizar la restauración del resto
+
+        if (existsSync(filePath)) {
+          try {
+            const currentContent = readFileSync(filePath, "utf-8");
+            if (currentContent === content) {
+              continue;
+            }
+          } catch {
+            // Proceed to restore if current content cannot be read
+          }
+        }
+
+        safeWriteFileSync(filePath, content);
+        restoredFiles.push(filePath);
+      } catch (error: unknown) {
+        const reason = error instanceof Error ? error.message : String(error);
+        failures.push({ path: filePath, reason });
       }
     }
 
-    const sortedDirs = [...this.createdDirs].sort((a, b) => b.length - a.length);
-    for (const dir of sortedDirs) {
+    const sortedDirs = [...this.createdDirs].sort(
+      (firstDir, secondDir) => secondDir.length - firstDir.length
+    );
+    for (const directoryPath of sortedDirs) {
       try {
-        if (existsSync(dir) && readdirSync(dir).length === 0) {
-          rmSync(dir, { recursive: true, force: true });
-          removedDirs.push(dir);
+        if (existsSync(directoryPath) && readdirSync(directoryPath).length === 0) {
+          rmSync(directoryPath, { recursive: true, force: true });
+          removedDirs.push(directoryPath);
         }
-      } catch {
-        // Ignorar si no se puede eliminar
+      } catch (error: unknown) {
+        const reason = error instanceof Error ? error.message : String(error);
+        failures.push({ path: directoryPath, reason });
       }
     }
 
-    return { restoredFiles, removedFiles, removedDirs };
+    return {
+      restoredFiles,
+      removedFiles,
+      removedDirs,
+      failures,
+      isClean: failures.length === 0,
+    };
   }
 }

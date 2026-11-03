@@ -20,11 +20,11 @@ export function detectDependencies(targetPath: string): PackageJsonDetection {
         devDependencies?: Record<string, string>;
       };
 
-      for (const dep of Object.keys(parsed.dependencies ?? {})) {
-        detected.add(dep);
+      for (const dependencyName of Object.keys(parsed.dependencies ?? {})) {
+        detected.add(dependencyName);
       }
-      for (const dep of Object.keys(parsed.devDependencies ?? {})) {
-        detected.add(dep);
+      for (const dependencyName of Object.keys(parsed.devDependencies ?? {})) {
+        detected.add(dependencyName);
       }
     } catch {
       // Ignore JSON parse errors gracefully

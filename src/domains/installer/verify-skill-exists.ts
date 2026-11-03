@@ -2,11 +2,11 @@ import { lstatSync } from "node:fs";
 import { join } from "node:path";
 import type { AgentId } from "@/types/agent.types";
 
-const AGENT_DESTINATION_MAP: Record<AgentId, (dir: string) => string> = {
-  antigravity: (dir) => join(".agents", "skills", dir),
-  claude: (dir) => join(".claude", "skills", dir),
-  cursor: (dir) => join(".cursor", "rules", `${dir}.mdc`),
-  gemini: (dir) => join(".gemini", "skills", dir),
+const AGENT_DESTINATION_MAP: Record<AgentId, (directoryName: string) => string> = {
+  antigravity: (directoryName) => join(".agents", "skills", directoryName),
+  claude: (directoryName) => join(".claude", "skills", directoryName),
+  cursor: (directoryName) => join(".cursor", "rules", `${directoryName}.mdc`),
+  gemini: (directoryName) => join(".gemini", "skills", directoryName),
 };
 
 export function verifySkillExists(

@@ -1,4 +1,4 @@
-import * as p from "@clack/prompts";
+import * as prompts from "@clack/prompts";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
 
 export async function promptSkills(suggestedSkillIds: string[]): Promise<string[] | symbol> {
@@ -12,7 +12,7 @@ export async function promptSkills(suggestedSkillIds: string[]): Promise<string[
     };
   });
 
-  const selected = await p.multiselect({
+  const selected = await prompts.multiselect({
     message: "Which skills would you like to install in this project?",
     options,
     initialValues: suggestedSkillIds,

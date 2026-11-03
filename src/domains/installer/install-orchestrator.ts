@@ -9,6 +9,7 @@ import { installHarness } from "@/domains/harness/install-harness";
 import { writeProjectConfig } from "@/domains/harness/write-project-config";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
 import { InstallTransaction } from "@/domains/fs/install-transaction";
+import { runPreflightWriteCheck } from "@/domains/fs/preflight-write-check";
 import { InstallTransactionError } from "@/errors/install-transaction-error";
 import { FilePermissionError } from "@/errors/file-permission-error";
 import type { AgentAdapter } from "@/domains/adapters/adapter.interface";
@@ -26,10 +27,10 @@ function formatSuggestedFix(cause: unknown): string | undefined {
   if (cause instanceof FilePermissionError) {
     return cause.suggestedFixCommand;
   }
-  const err = cause as NodeJS.ErrnoException;
-  if (err?.code === "EACCES" || err?.code === "EPERM") {
-    if (err.path) {
-      return `chmod u+w "${err.path}"`;
+  const nodeError = cause as NodeJS.ErrnoException;
+  if (nodeError?.code === "EACCES" || nodeError?.code === "EPERM") {
+    if (nodeError.path) {
+      return `chmod u+w "${nodeError.path}"`;
     }
   }
   return undefined;
@@ -47,16 +48,22 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
     skillsToInstall.push("odd-ai");
   }
 
-  let currentStage = "Sincronización del almacén de skills (.grooveskills/skills)";
+  let currentStage = "Preflight check";
   try {
+    runPreflightWriteCheck({
+      targetPath: options.targetPath,
+      selectedAgents: options.selectedAgents,
+    });
+
+    currentStage = "Syncing skills store (.grooveskills/skills)";
     syncProjectStore(options.targetPath, skillsToInstall, options.selectedAgents, transaction);
 
     const projectSkillsDir = getProjectSkillsDir(options.targetPath);
     const createdFiles: string[] = [];
 
-    currentStage = "Configuración de referencias de agentes (.agents, .claude, etc.)";
+    currentStage = "Configuring agent references (.agents, .claude, etc.)";
     for (const skillId of skillsToInstall) {
-      const skill = SKILL_CATALOG.find((item) => item.id === skillId);
+      const skill = SKILL_CATALOG.find((catalogItem) => catalogItem.id === skillId);
       if (!skill) {
         continue;
       }
@@ -79,7 +86,7 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
       }
     }
 
-    currentStage = "Instalación del Groove Harness (contexto, decisiones, tareas e instrucciones)";
+    currentStage = "Installing Groove Harness (context, decisions, tasks, and instructions)";
     const harnessResult = installHarness({
       targetPath: options.targetPath,
       selectedAgents: options.selectedAgents,
@@ -91,7 +98,7 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
     });
     createdFiles.push(...harnessResult.createdFiles);
 
-    currentStage = "Persistencia de la configuración del proyecto (.grooveskills/config.json)";
+    currentStage = "Persisting project configuration (.grooveskills/config.json)";
     const configPath = writeProjectConfig(
       options.targetPath,
       skillsToInstall,
@@ -108,6 +115,7 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
       createdFiles,
       harnessInitialized: harnessResult.onboardingInitialized,
       language: options.language,
+      replacedFiles: transaction.getReplacedFiles(),
     };
   } catch (cause) {
     const rollbackReport = transaction.rollback();

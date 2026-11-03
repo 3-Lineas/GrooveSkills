@@ -7,60 +7,60 @@ export function buildContextTemplate(
   language: ProjectLanguage = "es",
   profile?: ProjectOnboardingProfile
 ): string {
-  const depsFormatted = detectedDependencies.length > 0
-    ? detectedDependencies.map((d) => `- \`${d}\``).join("\n")
-    : "- (No external dependencies detected)";
+  const dependenciesFormatted =
+    detectedDependencies.length > 0
+      ? detectedDependencies.map((dependencyName) => `- \`${dependencyName}\``).join("\n")
+      : "- (No external dependencies detected)";
 
-  const langConfig = SUPPORTED_LANGUAGES[language];
+  const languageConfig = SUPPORTED_LANGUAGES[language];
   const projectName = profile?.projectName ?? "Project";
-  const pkgManager = profile?.packageManager ?? "npm";
+  const packageManager = profile?.packageManager ?? "npm";
 
   const commandLines: string[] = [];
   if (profile?.commands) {
-    for (const [key, cmd] of Object.entries(profile.commands)) {
-      commandLines.push(`- **${key}**: \`${cmd}\``);
+    for (const [commandKey, commandValue] of Object.entries(profile.commands)) {
+      commandLines.push(`- **${commandKey}**: \`${commandValue}\``);
     }
   }
-  const commandsSection = commandLines.length > 0
-    ? commandLines.join("\n")
-    : `- Build: Refer to \`package.json\` scripts.\n- Typecheck: Refer to TypeScript configuration.\n- Tests: Refer to test runner configuration.`;
+  const commandsSection =
+    commandLines.length > 0
+      ? commandLines.join("\n")
+      : `- Build: Refer to \`package.json\` scripts.\n- Typecheck: Refer to TypeScript configuration.\n- Tests: Refer to test runner configuration.`;
 
   const aliasLines: string[] = [];
   if (profile?.pathAliases) {
-    for (const [alias, target] of Object.entries(profile.pathAliases)) {
-      aliasLines.push(`- \`${alias}\` -> \`${target}\``);
+    for (const [aliasPattern, aliasTarget] of Object.entries(profile.pathAliases)) {
+      aliasLines.push(`- \`${aliasPattern}\` -> \`${aliasTarget}\``);
     }
   }
-  const aliasesSection = aliasLines.length > 0
-    ? `\n### Path Aliases\n${aliasLines.join("\n")}\n`
-    : "";
+  const aliasesSection =
+    aliasLines.length > 0 ? `\n### Path Aliases\n${aliasLines.join("\n")}\n` : "";
 
-  const dirLines: string[] = [];
+  const directoryLines: string[] = [];
   if (profile?.sourceDirectories && profile.sourceDirectories.length > 0) {
-    for (const dir of profile.sourceDirectories) {
-      dirLines.push(`- \`${dir}/\``);
+    for (const directoryName of profile.sourceDirectories) {
+      directoryLines.push(`- \`${directoryName}/\``);
     }
   }
-  const dirsSection = dirLines.length > 0
-    ? `\n### Source Modules\n${dirLines.join("\n")}\n`
-    : "";
+  const directoriesSection =
+    directoryLines.length > 0 ? `\n### Source Modules\n${directoryLines.join("\n")}\n` : "";
 
   return `# Project Context & Architecture: ${projectName}
 
 This file provides AI agents with instant architectural orientation for this project.
 
 ## 1. Stack & Dependencies
-- **Package Manager**: \`${pkgManager}\`
-${depsFormatted}
+- **Package Manager**: \`${packageManager}\`
+${dependenciesFormatted}
 
 ## 2. Directory Structure Conventions
 - Follow single-responsibility per file (<200 lines).
 - Maintain direct imports with path aliases; avoid barrel files.
 - Keep domain boundaries explicit and clean.
-${aliasesSection}${dirsSection}
+${aliasesSection}${directoriesSection}
 ## 3. Communication & User Copy Language
-- **Configured Language**: ${langConfig.nativeName} (\`${language}\`).
-- **Policy**: ${langConfig.instruction}
+- **Configured Language**: ${languageConfig.nativeName} (\`${language}\`).
+- **Policy**: ${languageConfig.instruction}
 
 ## 4. Essential Commands
 ${commandsSection}
@@ -68,8 +68,8 @@ ${commandsSection}
 }
 
 export function buildDecisionsTemplate(language: ProjectLanguage = "es"): string {
-  const now = new Date().toISOString().split("T")[0];
-  const langConfig = SUPPORTED_LANGUAGES[language];
+  const currentDate = new Date().toISOString().split("T")[0];
+  const languageConfig = SUPPORTED_LANGUAGES[language];
 
   return `# Architecture Decision Records (ADR)
 
@@ -77,16 +77,16 @@ An append-only log of significant technical and architectural choices.
 
 | Date | Title | Decision | Reason & Consequences |
 | :--- | :--- | :--- | :--- |
-| ${now} | Adopt GrooveSkills Harness | Initialized \`.grooveskills/\` control plane with ODD | Clean, encapsulated agent memory, 3-lane ODD flow, and ${langConfig.nativeName} copy standard |
+| ${currentDate} | Adopt GrooveSkills Harness | Initialized \`.grooveskills/\` control plane with ODD | Clean, encapsulated agent memory, 3-lane ODD flow, and ${languageConfig.nativeName} copy standard |
 `;
 }
 
 export function buildOnboardingTaskTemplate(projectName: string = "Project"): string {
-  const now = new Date().toISOString().split("T")[0];
+  const currentDate = new Date().toISOString().split("T")[0];
 
   return `---
 status: pending
-createdAt: ${now}
+createdAt: ${currentDate}
 ---
 
 # 00 — Initial Project Onboarding & Architecture Exploration: ${projectName}
@@ -144,7 +144,7 @@ By [Output / Technical Change], [Outcome / Verifiable Behavior] will occur, prov
 }
 
 export function buildAgentHarnessBlock(language: ProjectLanguage = "es"): string {
-  const langConfig = SUPPORTED_LANGUAGES[language];
+  const languageConfig = SUPPORTED_LANGUAGES[language];
 
   return `<!-- grooveskills:harness:start -->
 # GrooveSkills Harness — Agent Rules & Memory
@@ -158,9 +158,9 @@ This project uses the **GrooveSkills Harness** located in \`.grooveskills/\`.
 - **Lane 2 (Task)**: Direct implementation. Declare Outcome Hypothesis and checklist in \`.grooveskills/memory/tasks/<slug>.md\`. Only check off tasks with observed evidence under \`Evidence\`.
 - **Lane 3 (Spec)**: Ambiguous or high-impact architecture. Clarify and validate the spec in \`.grooveskills/memory/tasks/<slug>.md\` before writing code.
 
-## 2. User Communication Language (${langConfig.nativeName})
-- **Language**: \`${language}\` (${langConfig.nativeName}).
-- **Requirement**: ${langConfig.instruction}
+## 2. User Communication Language (${languageConfig.nativeName})
+- **Language**: \`${language}\` (${languageConfig.nativeName}).
+- **Requirement**: ${languageConfig.instruction}
 
 ## 3. Memory Locations
 - Architecture context: \`.grooveskills/memory/context.md\`
