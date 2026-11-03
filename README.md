@@ -129,6 +129,7 @@ my-project/
 | `odd-ai` | **Organic & Outcome-Driven (ODD)** | 7-step ODD protocol for AI agents: authorize, explore, classify, outcome hypotheses, and evidence receipts. | **Default (Universal)** |
 | `best-practices` | **Universal Best Practices** | Multi-language clean code, strict typing (zero `any`), guard clauses, and `<200` lines per file. | **Default (Universal)** |
 | `ux-writing` | **UX Writing & Microcopy** | Warm, empathetic, conversion-oriented microcopy for validations, CTAs, toasts, and empty states. | **Default (Universal)** |
+| `docs-standards` | **Documentation & ADR Standards** | English documentation rule, relative POSIX links, resilient Mermaid diagrams, ADR lifecycle, and intent docstrings. | **Default (Universal)** |
 | `error-handling-logging` | **Error Handling & Logging** | Predictable error flows with typed `AppError`, `ActionResponse` contracts, and structured logging. | **Default (Universal)** |
 | `clean-architecture-ddd` | **Clean Architecture & DDD** | Domain-driven module boundaries, single-purpose Actions, pure functions, and immutable data models. | **Default (Universal)** |
 | `external-service-adapters` | **External Service Adapters & Wrappers** | Decoupled domain ports, vendor SDK wrappers, and swappable adapters for payment gateways, emails, and APIs. | **Default (Universal)** |

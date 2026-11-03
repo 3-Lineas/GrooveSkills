@@ -1,5 +1,7 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { getProjectConfigPath } from "@/domains/project-store/project-paths";
+import { safeWriteFileSync } from "@/domains/fs/safe-file-writer";
+import type { InstallTransaction } from "@/domains/fs/install-transaction";
 import type { GrooveSkillsConfig, ProjectLanguage } from "@/types/harness.types";
 import type { AgentId } from "@/types/agent.types";
 
@@ -41,9 +43,14 @@ export function writeProjectConfig(
   newSkills: string[],
   newAgents: AgentId[],
   harnessEnabled: boolean,
-  language?: ProjectLanguage
+  language?: ProjectLanguage,
+  transaction?: InstallTransaction
 ): string {
   const configPath = getProjectConfigPath(targetPath);
+  if (transaction) {
+    transaction.recordBeforeWrite(configPath);
+  }
+
   const existing = readExistingConfig(configPath);
 
   const mergedSkills = Array.from(new Set([...existing.skills, ...newSkills]));
@@ -60,7 +67,7 @@ export function writeProjectConfig(
     updatedAt: new Date().toISOString(),
   };
 
-  writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf-8");
+  safeWriteFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`);
 
   return configPath;
 }

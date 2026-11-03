@@ -18,6 +18,7 @@ export interface HarnessInstallOptions {
   detectedDependencies: string[];
   language?: ProjectLanguage;
   forceOnboarding?: boolean;
+  transaction?: import("@/domains/fs/install-transaction").InstallTransaction;
 }
 
 export interface HarnessInstallResult {

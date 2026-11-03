@@ -31,6 +31,13 @@ export const SKILL_CATALOG: SkillMetadata[] = [
     directoryName: "ux-writing",
   },
   {
+    id: "docs-standards",
+    name: "Documentation & ADR Standards",
+    description: "English documentation standard, relative POSIX links, resilient Mermaid diagrams, ADR lifecycle, and intent-focused docstrings",
+    dependencies: [],
+    directoryName: "docs-standards",
+  },
+  {
     id: "typescript-clean",
     name: "TypeScript Clean Code (TS 5.5+)",
     description: "Advanced strict TypeScript, discriminated unions, satisfies, const generics, unknown over any, and zero unsafe casts",

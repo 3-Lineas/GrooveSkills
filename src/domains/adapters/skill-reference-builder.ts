@@ -1,6 +1,8 @@
-import { existsSync, lstatSync, mkdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readFileSync, rmSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { getProjectSkillsDir } from "@/domains/project-store/project-paths";
+import { safeWriteFileSync } from "@/domains/fs/safe-file-writer";
+import type { InstallTransaction } from "@/domains/fs/install-transaction";
 import type { SkillMetadata } from "@/types/skill.types";
 
 function removeExistingPathSafely(path: string): void {
@@ -58,9 +60,17 @@ function extractSkillDescription(canonicalSkillMdPath: string, fallback: string)
 export function writeAgentSkillReference(
   targetPath: string,
   agentRelativeSkillsDir: string,
-  skill: SkillMetadata
+  skill: SkillMetadata,
+  transaction?: InstallTransaction
 ): string {
   const agentSkillFolder = join(targetPath, agentRelativeSkillsDir, skill.directoryName);
+  const targetFile = join(agentSkillFolder, "SKILL.md");
+  if (transaction) {
+    transaction.recordCreatedDir(join(targetPath, agentRelativeSkillsDir));
+    transaction.recordCreatedDir(agentSkillFolder);
+    transaction.recordBeforeWrite(targetFile);
+  }
+
   removeExistingPathSafely(agentSkillFolder);
 
   mkdirSync(agentSkillFolder, { recursive: true });
@@ -83,8 +93,7 @@ Canonical skill specification stored in \`.grooveskills/\`.
 > **Instruction**: Read \`.grooveskills/skills/${skill.directoryName}/SKILL.md\` before executing tasks matching this skill.
 `;
 
-  const targetFile = join(agentSkillFolder, "SKILL.md");
-  writeFileSync(targetFile, referenceContent, "utf-8");
+  safeWriteFileSync(targetFile, referenceContent);
 
   return targetFile;
 }
@@ -92,14 +101,19 @@ Canonical skill specification stored in \`.grooveskills/\`.
 export function writeCursorRuleReference(
   targetPath: string,
   cursorRelativeRulesDir: string,
-  skill: SkillMetadata
+  skill: SkillMetadata,
+  transaction?: InstallTransaction
 ): string {
   const rulesDir = join(targetPath, cursorRelativeRulesDir);
+  const targetFile = join(rulesDir, `${skill.id}.mdc`);
+  if (transaction) {
+    transaction.recordCreatedDir(rulesDir);
+    transaction.recordBeforeWrite(targetFile);
+  }
   if (!existsSync(rulesDir)) {
     mkdirSync(rulesDir, { recursive: true });
   }
 
-  const targetFile = join(rulesDir, `${skill.id}.mdc`);
   removeExistingPathSafely(targetFile);
 
   const canonicalSkillMd = join(getProjectSkillsDir(targetPath), skill.directoryName, "SKILL.md");
@@ -121,7 +135,7 @@ Canonical rule specification stored in \`.grooveskills/\`.
 > **Instruction**: Read \`.grooveskills/skills/${skill.directoryName}/SKILL.md\` before executing tasks matching this rule.
 `;
 
-  writeFileSync(targetFile, referenceContent, "utf-8");
+  safeWriteFileSync(targetFile, referenceContent);
 
   return targetFile;
 }

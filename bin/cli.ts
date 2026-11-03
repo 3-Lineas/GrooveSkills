@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { Command } from "commander";
+import pc from "picocolors";
 import { runGrooveSkills } from "@/main";
+import { InstallTransactionError } from "@/errors/install-transaction-error";
 import type { AgentId } from "@/types/agent.types";
 import type { ProjectLanguage } from "@/types/harness.types";
 
@@ -34,7 +36,25 @@ program
         forceOnboarding,
       });
     } catch (error) {
-      console.error("An unexpected error occurred while running GrooveSkills:", error);
+      if (error instanceof InstallTransactionError) {
+        const { stage, causeError, rollbackReport, suggestedFix } = error;
+        const rawMsg = causeError instanceof Error ? causeError.message : String(causeError);
+
+        console.error(pc.red(`\n✖ La instalación se interrumpió en la fase: ${stage}`));
+        console.error(pc.red(`  Causa: ${rawMsg}`));
+        console.error(pc.yellow("\nReporte de Rollback automático:"));
+        console.error(` • Archivos restaurados a su estado previo: ${rollbackReport.restoredFiles.length}`);
+        console.error(` • Archivos temporales eliminados: ${rollbackReport.removedFiles.length}`);
+        console.error(` • Directorios vacíos eliminados: ${rollbackReport.removedDirs.length}`);
+
+        if (suggestedFix) {
+          console.error(pc.green(`\nSolución sugerida:\n  ${suggestedFix}`));
+        }
+        console.error(pc.dim("\nTu proyecto se preservó intacto.\n"));
+        process.exit(1);
+      }
+
+      console.error(pc.red("Ocurrió un error inesperado al ejecutar GrooveSkills:"), error);
       process.exit(1);
     }
   });

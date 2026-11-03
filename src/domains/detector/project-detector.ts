@@ -29,6 +29,7 @@ export function detectProjectContext(targetPath: string): ProjectContext {
     "odd-ai",
     "best-practices",
     "ux-writing",
+    "docs-standards",
     "error-handling-logging",
     "clean-architecture-ddd",
     "external-service-adapters",

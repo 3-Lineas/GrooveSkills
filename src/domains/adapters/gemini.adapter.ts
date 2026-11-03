@@ -10,9 +10,10 @@ export class GeminiAdapter implements AgentAdapter {
   async installSkill(
     targetPath: string,
     skill: SkillMetadata,
-    _skillSourceDir: string
+    _skillSourceDir: string,
+    transaction?: import("@/domains/fs/install-transaction").InstallTransaction
   ): Promise<string[]> {
-    const file = writeAgentSkillReference(targetPath, this.targetRelativeDir, skill);
+    const file = writeAgentSkillReference(targetPath, this.targetRelativeDir, skill, transaction);
     return [file];
   }
 }

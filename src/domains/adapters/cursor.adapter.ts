@@ -10,9 +10,10 @@ export class CursorAdapter implements AgentAdapter {
   async installSkill(
     targetPath: string,
     skill: SkillMetadata,
-    _skillSourceDir: string
+    _skillSourceDir: string,
+    transaction?: import("@/domains/fs/install-transaction").InstallTransaction
   ): Promise<string[]> {
-    const file = writeCursorRuleReference(targetPath, this.targetRelativeDir, skill);
+    const file = writeCursorRuleReference(targetPath, this.targetRelativeDir, skill, transaction);
     return [file];
   }
 }

@@ -3,15 +3,21 @@ import { join } from "node:path";
 import { resolveSkillsSourceRoot } from "@/domains/installer/resolve-skills-source";
 import { getProjectSkillsDir } from "@/domains/project-store/project-paths";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
+import type { InstallTransaction } from "@/domains/fs/install-transaction";
 import type { AgentId } from "@/types/agent.types";
 
 export function syncProjectStore(
   targetPath: string,
   selectedSkillIds: string[],
-  _selectedAgents: AgentId[]
+  _selectedAgents: AgentId[],
+  transaction?: InstallTransaction
 ): void {
   const bundledSkillsDir = resolveSkillsSourceRoot();
   const projectSkillsDir = getProjectSkillsDir(targetPath);
+
+  if (transaction) {
+    transaction.recordCreatedDir(projectSkillsDir);
+  }
 
   if (!existsSync(projectSkillsDir)) {
     mkdirSync(projectSkillsDir, { recursive: true });
@@ -35,6 +41,10 @@ export function syncProjectStore(
 
     const sourceSkillDir = join(bundledSkillsDir, skill.directoryName);
     const destSkillDir = join(projectSkillsDir, skill.directoryName);
+
+    if (transaction) {
+      transaction.recordCreatedDir(destSkillDir);
+    }
 
     if (existsSync(sourceSkillDir)) {
       cpSync(sourceSkillDir, destSkillDir, { recursive: true });

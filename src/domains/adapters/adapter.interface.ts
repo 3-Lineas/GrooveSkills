@@ -5,5 +5,10 @@ export interface AgentAdapter {
   id: AgentId;
   name: string;
   targetRelativeDir: string;
-  installSkill(targetPath: string, skill: SkillMetadata, skillSourceDir: string): Promise<string[]>;
+  installSkill(
+    targetPath: string,
+    skill: SkillMetadata,
+    skillSourceDir: string,
+    transaction?: import("@/domains/fs/install-transaction").InstallTransaction
+  ): Promise<string[]>;
 }

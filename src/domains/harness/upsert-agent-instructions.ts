@@ -1,17 +1,27 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { buildAgentHarnessBlock } from "@/domains/harness/harness-templates";
+import { safeWriteFileSync } from "@/domains/fs/safe-file-writer";
+import type { InstallTransaction } from "@/domains/fs/install-transaction";
 import type { AgentId } from "@/types/agent.types";
 import type { ProjectLanguage } from "@/types/harness.types";
 
 const START_MARKER = "<!-- grooveskills:harness:start -->";
 const END_MARKER = "<!-- grooveskills:harness:end -->";
 
-function applyHarnessBlock(filePath: string, language: ProjectLanguage = "es"): void {
+function applyHarnessBlock(
+  filePath: string,
+  language: ProjectLanguage = "es",
+  transaction?: InstallTransaction
+): void {
+  if (transaction) {
+    transaction.recordBeforeWrite(filePath);
+  }
+
   const block = buildAgentHarnessBlock(language);
 
   if (!existsSync(filePath)) {
-    writeFileSync(filePath, `${block}\n`, "utf-8");
+    safeWriteFileSync(filePath, `${block}\n`);
     return;
   }
 
@@ -20,28 +30,29 @@ function applyHarnessBlock(filePath: string, language: ProjectLanguage = "es"): 
   if (existingContent.includes(START_MARKER) && existingContent.includes(END_MARKER)) {
     const regex = new RegExp(`${START_MARKER}[\\s\\S]*?${END_MARKER}`, "g");
     const updated = existingContent.replace(regex, block);
-    writeFileSync(filePath, updated, "utf-8");
+    safeWriteFileSync(filePath, updated);
     return;
   }
 
   const separator = existingContent.endsWith("\n") ? "\n" : "\n\n";
-  writeFileSync(filePath, `${existingContent}${separator}${block}\n`, "utf-8");
+  safeWriteFileSync(filePath, `${existingContent}${separator}${block}\n`);
 }
 
 export function upsertAgentInstructions(
   targetPath: string,
   selectedAgents: AgentId[],
-  language: ProjectLanguage = "es"
+  language: ProjectLanguage = "es",
+  transaction?: InstallTransaction
 ): string[] {
   const updatedFiles: string[] = [];
 
   const agentsMdPath = join(targetPath, "AGENTS.md");
-  applyHarnessBlock(agentsMdPath, language);
+  applyHarnessBlock(agentsMdPath, language, transaction);
   updatedFiles.push(agentsMdPath);
 
   if (selectedAgents.includes("claude")) {
     const claudeMdPath = join(targetPath, "CLAUDE.md");
-    applyHarnessBlock(claudeMdPath, language);
+    applyHarnessBlock(claudeMdPath, language, transaction);
     updatedFiles.push(claudeMdPath);
   }
 

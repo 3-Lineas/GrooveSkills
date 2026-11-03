@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import {
   getProjectMemoryDir,
@@ -12,6 +12,7 @@ import {
 } from "@/domains/harness/harness-templates";
 import { scanProjectOnboarding } from "@/domains/harness/scan-project-onboarding";
 import { upsertAgentInstructions } from "@/domains/harness/upsert-agent-instructions";
+import { safeWriteFileSync } from "@/domains/fs/safe-file-writer";
 import type {
   HarnessInstallOptions,
   HarnessInstallResult,
@@ -22,6 +23,12 @@ export function installHarness(options: HarnessInstallOptions): HarnessInstallRe
   const tasksDir = getProjectTasksDir(options.targetPath);
   const language = options.language ?? "es";
   const forceOnboarding = Boolean(options.forceOnboarding);
+  const tx = options.transaction;
+
+  if (tx) {
+    tx.recordCreatedDir(memoryDir);
+    tx.recordCreatedDir(tasksDir);
+  }
 
   if (!existsSync(tasksDir)) {
     mkdirSync(tasksDir, { recursive: true });
@@ -32,40 +39,52 @@ export function installHarness(options: HarnessInstallOptions): HarnessInstallRe
   const shouldWriteContext = !existsSync(contextPath) || forceOnboarding;
 
   if (shouldWriteContext) {
+    if (tx) {
+      tx.recordBeforeWrite(contextPath);
+    }
     const profile = scanProjectOnboarding(options.targetPath);
     const contextContent = buildContextTemplate(
       options.detectedDependencies,
       language,
       profile
     );
-    writeFileSync(contextPath, contextContent, "utf-8");
+    safeWriteFileSync(contextPath, contextContent);
     createdFiles.push(contextPath);
 
     const onboardingTaskPath = join(tasksDir, "00-onboarding.md");
-    writeFileSync(
+    if (tx) {
+      tx.recordBeforeWrite(onboardingTaskPath);
+    }
+    safeWriteFileSync(
       onboardingTaskPath,
-      buildOnboardingTaskTemplate(profile.projectName),
-      "utf-8"
+      buildOnboardingTaskTemplate(profile.projectName)
     );
     createdFiles.push(onboardingTaskPath);
   }
 
   const decisionsPath = join(memoryDir, "decisions.md");
   if (!existsSync(decisionsPath)) {
-    writeFileSync(decisionsPath, buildDecisionsTemplate(language), "utf-8");
+    if (tx) {
+      tx.recordBeforeWrite(decisionsPath);
+    }
+    safeWriteFileSync(decisionsPath, buildDecisionsTemplate(language));
     createdFiles.push(decisionsPath);
   }
 
   const templateTaskPath = join(tasksDir, "_template.md");
   if (!existsSync(templateTaskPath)) {
-    writeFileSync(templateTaskPath, buildTaskTemplate(), "utf-8");
+    if (tx) {
+      tx.recordBeforeWrite(templateTaskPath);
+    }
+    safeWriteFileSync(templateTaskPath, buildTaskTemplate());
     createdFiles.push(templateTaskPath);
   }
 
   const instructions = upsertAgentInstructions(
     options.targetPath,
     options.selectedAgents,
-    language
+    language,
+    tx
   );
   createdFiles.push(...instructions);
 
