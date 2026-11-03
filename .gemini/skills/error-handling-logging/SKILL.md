@@ -1,6 +1,6 @@
 ---
 name: error-handling-logging
-description: Deterministic error handling with custom AppError, Result/ActionResponse contracts, and structured logging. TRIGGER when designing error boundaries, writing try/catch blocks, handling I/O or network failures, creating domain exceptions, or configuring application loggers.
+description: Deterministic error handling with custom AppError, domain exception hierarchies, silent mode, Result/ActionResponse contracts, and structured logging. TRIGGER when designing error boundaries, writing try/catch blocks, handling I/O or network failures, creating domain exceptions, or configuring application loggers.
 ---
 
 # Error Handling & Structured Logging — Skill Reference

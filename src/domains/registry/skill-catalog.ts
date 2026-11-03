@@ -138,14 +138,21 @@ export const SKILL_CATALOG: SkillMetadata[] = [
   {
     id: "hono",
     name: "Hono Architecture (Valibot)",
-    description: "Enterprise Hono API standard with Valibot validation, isolated Actions layer, and RPC bindings",
+    description: "Enterprise Hono API standard with thin route handlers (createRouteHandler), Valibot validation, and isolated Actions",
     dependencies: ["hono", "@hono/valibot-validator", "@hono/standard-validator"],
     directoryName: "hono",
   },
   {
+    id: "workers-rpc-precision",
+    name: "Workers RPC & Precision Calculations",
+    description: "Cloudflare Workers native RPC (WorkerEntrypoint / Service<T>) and high-precision financial/date math (Decimal ROUND_HALF_UP)",
+    dependencies: ["@cloudflare/workers-types", "wrangler"],
+    directoryName: "workers-rpc-precision",
+  },
+  {
     id: "react-core",
     name: "React Core Fundamentals",
-    description: "Opinionated React fundamentals: function components, JSX, immutable state, core hooks, lists, and controlled inputs",
+    description: "Opinionated React fundamentals: no React.FC, pure components, immutable state, core hooks, lists, and form encapsulation",
     dependencies: ["react", "react-dom"],
     directoryName: "react-core",
   },

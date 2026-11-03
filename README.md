@@ -144,8 +144,9 @@ my-project/
 | `python-clean` | **Python Clean Code (Python 3.12+)** | Modern Python: guard clauses (no nested ifs), strict typing (zero `Any`), uv, Ruff, and Pyright. | `pyproject.toml` / `requirements.txt` |
 | `valibot-validation` | **Valibot Schema Validation** | Boundary validation with modular Valibot schemas (`* as v from "valibot"`) and courteous errors. | `valibot` in `package.json` |
 | `testing-vitest` | **Vitest Testing Standards** | Fast, deterministic test suites using Arrange-Act-Assert (AAA) and in-memory fakes. | `vitest` in `package.json` |
-| `hono` | **Hono Architecture (Valibot)** | Scalable Hono APIs with domain-split routes, isolated Actions, and end-to-end Hono RPC types. | `hono` in `package.json` |
-| `react-core` | **React Core Fundamentals** | Pure components, immutable state, clean hook composition, and controlled inputs. | `react` in `package.json` |
+| `hono` | **Hono Architecture (Valibot)** | Scalable Hono APIs with thin route handlers (`createRouteHandler`), Valibot validation, and isolated Actions. | `hono` in `package.json` |
+| `workers-rpc-precision` | **Workers RPC & Precision Calculations** | Cloudflare Workers native RPC (`WorkerEntrypoint` / `Service<T>`) and decimal arithmetic (`Decimal` + `ROUND_HALF_UP`). | `wrangler` / `@cloudflare/workers-types` |
+| `react-core` | **React Core Fundamentals** | Modern React fundamentals: strictly no `React.FC`, pure components, immutable state, core hooks, and form domain hooks. | `react` in `package.json` |
 | `react-advanced` | **React 19 Advanced & Compiler** | React Compiler auto-memoization, concurrent rendering, `use()`, Actions, and RSC boundaries. | `react` in `package.json` |
 | `react-create-page` | **React Page & View Architecture** | Declarative page coordinators (`<50` lines), custom domain hooks, and Valibot + Formisch forms. | `react` in `package.json` |
 

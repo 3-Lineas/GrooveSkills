@@ -1,14 +1,18 @@
-# Template: AppError Class
+# Template: AppError Base Class
 
 Copy or adapt this template when setting up error handling in your project: `src/errors/app-error.ts`.
 
 ```ts
+import { Logger } from "@/utils/logger";
+
 export interface AppErrorOptions {
   message: string;
   statusCode?: number;
   code?: string;
   details?: unknown;
   cause?: unknown;
+  /** When true, suppresses automatic warning logging for expected business conflicts */
+  silent?: boolean;
 }
 
 export class AppError extends Error {
@@ -27,6 +31,11 @@ export class AppError extends Error {
 
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, AppError);
+    }
+
+    if (!options.silent) {
+      const logger = new Logger(`API:Error:${this.name}`);
+      logger.warn(`${this.code}: ${this.message}`, { details: this.details });
     }
   }
 

@@ -1,5 +1,5 @@
 ---
-description: Deterministic error handling with custom AppError, Result/ActionResponse contracts, and structured logging. TRIGGER when designing error boundaries, writing try/catch blocks, handling I/O or network failures, creating domain exceptions, or configuring application loggers.
+description: Deterministic error handling with custom AppError, domain exception hierarchies, silent mode, Result/ActionResponse contracts, and structured logging. TRIGGER when designing error boundaries, writing try/catch blocks, handling I/O or network failures, creating domain exceptions, or configuring application loggers.
 globs: ["**/*"]
 alwaysApply: false
 ---

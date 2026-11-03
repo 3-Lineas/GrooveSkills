@@ -1,23 +1,33 @@
 ---
 name: controller-orchestration-queues
-description: Strict orchestration standards for Controllers, atomic Actions, database Transactions, and background Queue Adapters (Cloudflare Queues, BullMQ, AWS SQS, In-Memory). Mandates that Actions do only ONE atomic thing, while Controllers sequence multiple actions, manage transactions, or dispatch async jobs. Enforces Queue Workers as slim controllers. TRIGGER when orchestrating multi-step workflows, handling DB transactions across actions, dispatching background tasks, or designing queue consumers.
+description: Strict orchestration standards for Controllers, atomic Actions, Pipeline pattern, database Transactions (including Cloudflare D1 batching), and background Queue Adapters. Mandates that Actions do only ONE atomic thing, while Controllers sequence multiple actions, manage transactions, or dispatch async jobs. Enforces Queue Workers as slim controllers. TRIGGER when orchestrating multi-step workflows, handling DB transactions across actions, dispatching background tasks, or designing queue consumers.
 ---
 
-# Controller Action Orchestration, Transactions & Queue Adapters
+# Controller Action Orchestration, Pipelines, Transactions & Queues
 
-Architectural standard establishing strict separation of concerns between **Atomic Actions** and **Orchestration Controllers / Queue Workers**.
+Architectural standard establishing strict separation of concerns between **Atomic Actions**, **Declarative Pipelines**, **Transactions (SQL / D1)**, and **Orchestration Controllers / Queue Workers**.
 
 ---
 
 ## 1. The Core Architectural Law
 
 1. **Actions Do Exactly ONE Atomic Thing**:
-   - Pure single responsibility. Example: `createOrderAction`, `chargeCardAction`, `sendOrderEmailAction`.
-   - Actions NEVER orchestrate other sibling actions or dispatch unrelated background jobs directly.
-2. **Controllers are Orchestrators**:
-   - HTTP route handlers and RPC controllers validate inputs, sequence actions, wrap transactional DB boundaries (`withTransaction`), and dispatch background jobs via `QueuePort`.
-3. **Queue Workers are Slim Controllers**:
+   - Single responsibility. Example: `sanitizeSlugAction`, `ensureAvailableAction`, `persistOrderAction`.
+   - **An Action NEVER calls another Action directly.** No nested Action cascades.
+   - Signature: `(context: TContext) => Promise<TContext> | TContext`.
+
+2. **Controllers & Pipelines are Orchestrators**:
+   - HTTP route handlers and RPC controllers validate inputs, sequence actions through Pipelines (`Pipeline.send(context).through([...actions])`), wrap transactions, and dispatch background jobs via `QueuePort`.
+
+3. **Atomic Multi-Mutation Pipelines (`withTransaction` / `withD1Transaction`)**:
+   - In standard relational databases, wrap actions inside a database transaction handle (`tx`).
+   - In serverless SQLite / Cloudflare D1, wrap pipeline executions with `withD1Transaction`: actions run immediate reads via `tx.db.select()` and stage mutations via `tx.stage(stmt)` to guarantee all-or-nothing rollback using `db.batch()`.
+
+4. **Queue Workers are Slim Controllers**:
    - A queue worker message handler behaves like an HTTP controller: parses payload and delegates to atomic actions.
+
+5. **Hard Size Limit of <200 Lines**:
+   - Controllers, actions, and pipeline steps must remain strictly below 200 lines (target: 20-60 lines).
 
 ---
 
@@ -26,84 +36,73 @@ Architectural standard establishing strict separation of concerns between **Atom
 ```text
 src/
 ├── actions/
-│   ├── orders/
-│   │   ├── create-order.action.ts          # Atomic insert order (<70 lines)
-│   │   └── update-order-status.action.ts   # Atomic update status (<60 lines)
-│   └── billing/
-│       └── charge-card.action.ts           # Atomic payment charge (<70 lines)
+│   └── orders/
+│       ├── sanitize-order.action.ts        # Atomic data transform (<50 lines)
+│       ├── ensure-stock.action.ts          # Atomic invariant check (<50 lines)
+│       └── persist-order.action.ts         # Atomic DB persistence (<60 lines)
 ├── controllers/
 │   └── orders/
-│       └── checkout.controller.ts         # Orchestrates actions + Queue (<90 lines)
+│       └── checkout.controller.ts          # Pipeline & Queue Orchestration (<80 lines)
 ├── domains/
 │   └── queue/
 │       ├── queue.port.ts                   # Domain interface for dispatching (<40 lines)
 │       └── queue-message.types.ts          # Strongly typed queue messages (<50 lines)
 └── infrastructure/
-    ├── adapters/
-    │   └── queue/
-    │       ├── cloudflare-queues.adapter.ts # Cloudflare Queues adapter (<80 lines)
-    │       ├── bullmq-queues.adapter.ts     # Redis / BullMQ adapter (<80 lines)
-    │       ├── sqs-queues.adapter.ts        # AWS SQS adapter (<80 lines)
-    │       └── memory-queues.adapter.ts     # In-memory testing queue (<60 lines)
-    └── workers/
-        └── order-events.worker.ts          # Slim worker invoking actions (<80 lines)
+    └── adapters/
+        └── queue/                          # Swappable Queue adapters (Cloudflare, BullMQ, Memory)
 ```
 
 ---
 
-## 3. Domain Queue Contract (`src/domains/queue/queue.port.ts`)
+## 3. Pipeline Orchestration Pattern
 
 ```ts
-export interface QueueJob<TData = unknown> {
-  id?: string;
-  name: string;
-  data: TData;
-  delaySeconds?: number;
-}
-
-export interface QueuePort {
-  dispatch<T>(job: QueueJob<T>): Promise<{ jobId: string }>;
-  dispatchBatch<T>(jobs: QueueJob<T>[]): Promise<{ count: number }>;
-}
-```
-
----
-
-## 4. Orchestration Controller Pattern
-
-```ts
-// src/controllers/orders/checkout.controller.ts
 import type { Context } from "hono";
-import type { QueuePort } from "@/domains/queue/queue.port";
-import { createOrderAction } from "@/actions/orders/create-order.action";
-import { chargeCardAction } from "@/actions/billing/charge-card.action";
-import { db, withTransaction } from "@/infrastructure/db/connection";
+import { Pipeline } from "@/common/utils/pipeline";
+import { sanitizeOrderAction } from "@/actions/orders/sanitize-order.action";
+import { ensureStockAction } from "@/actions/orders/ensure-stock.action";
+import { persistOrderAction } from "@/actions/orders/persist-order.action";
+import type { CheckoutContext } from "@/types/orders/checkout-context.type";
 
-export async function checkoutController(c: Context, queue: QueuePort) {
-  const payload = c.get("validatedJson");
-  const actor = c.get("actor");
+export async function checkoutController(ctx: Context) {
+  const database = ctx.get("db");
+  const validatedPayload = ctx.req.valid("json");
 
-  // Step 1: Charge card (external side-effect, kept outside DB transaction)
-  const charge = await chargeCardAction(payload.paymentMethodId, payload.amount);
+  const finalContext = await Pipeline.send<CheckoutContext>({
+    database,
+    input: validatedPayload,
+  })
+    .through([
+      sanitizeOrderAction,
+      ensureStockAction,
+      persistOrderAction,
+    ]);
 
-  // Step 2: Atomic DB Transaction for local entity creation
-  const order = await withTransaction(db, async (tx) => {
-    return createOrderAction(tx, { actorId: actor.id, amount: payload.amount, chargeId: charge.id });
-  });
-
-  // Step 3: Dispatch async post-processing via Queue
-  await queue.dispatch({
-    name: "orders.post-checkout",
-    data: { orderId: order.id, customerEmail: actor.email },
-  });
-
-  return c.json({ orderId: order.id, status: "confirmed" }, 201);
+  return ctx.json({ success: true, data: finalContext.createdOrder }, 201);
 }
 ```
 
 ---
 
-## 5. Detailed Adapters & Workers Reference
+## 4. Cloudflare D1 Staged Batching (`withD1Transaction`)
 
-For real implementations of Cloudflare Queues, BullMQ, AWS SQS, and In-Memory Queue adapters, consult:
-- `references/controller-queue-examples.md`
+For Cloudflare D1, wrap mutations in a staged batch to guarantee ACID rollback:
+
+```ts
+export async function stageOrderMutationAction(context: CheckoutContext): Promise<CheckoutContext> {
+  const insertStatement = context.database
+    .insert(ordersTable)
+    .values(context.newOrderRecord);
+
+  // Stage statement for atomic db.batch() execution
+  context.transaction?.stage(insertStatement);
+  return context;
+}
+```
+
+---
+
+## 5. Detailed Adapters & References
+
+For real implementations of Cloudflare Queues, BullMQ, AWS SQS, In-Memory Queue adapters, and the full D1 Transaction runner, consult:
+- `./references/controller-queue-examples.md`

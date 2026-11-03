@@ -1,6 +1,6 @@
 ---
 name: controller-orchestration-queues
-description: Strict orchestration standards for Controllers, atomic Actions, database Transactions, and background Queue Adapters (Cloudflare Queues, BullMQ, AWS SQS, In-Memory). Mandates that Actions do only ONE atomic thing, while Controllers sequence multiple actions, manage transactions, or dispatch async jobs. Enforces Queue Workers as slim controllers. TRIGGER when orchestrating multi-step workflows, handling DB transactions across actions, dispatching background tasks, or designing queue consumers.
+description: Strict orchestration standards for Controllers, atomic Actions, Pipeline pattern, database Transactions (including Cloudflare D1 batching), and background Queue Adapters. Mandates that Actions do only ONE atomic thing, while Controllers sequence multiple actions, manage transactions, or dispatch async jobs. Enforces Queue Workers as slim controllers. TRIGGER when orchestrating multi-step workflows, handling DB transactions across actions, dispatching background tasks, or designing queue consumers.
 ---
 
 # Controller Orchestration & Queue Adapters — Skill Reference

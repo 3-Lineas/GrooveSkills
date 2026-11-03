@@ -1,5 +1,5 @@
 ---
-description: Advanced TypeScript 5.5+ standards, strict tsconfig rules, discriminated unions, satisfies operator, const type parameters, unknown over any, custom type guards, and elimination of unsafe type assertions (as / any). TRIGGER when writing or modifying TypeScript files (.ts, .tsx), type definitions, tsconfig.json, or when handling complex polymorphic domain models.
+description: Advanced TypeScript 5.5+ standards, strict tsconfig rules, discriminated unions, satisfies operator, const type parameters, unknown over any, atomic type isolation in @/types/, and elimination of unsafe type assertions (as / any). TRIGGER when writing or modifying TypeScript files (.ts, .tsx), type definitions, tsconfig.json, or when handling complex polymorphic domain models.
 globs: ["**/*"]
 alwaysApply: false
 ---

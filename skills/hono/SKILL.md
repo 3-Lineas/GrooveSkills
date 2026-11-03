@@ -3,96 +3,103 @@ name: hono
 description: Use when building or modifying Hono APIs, endpoints, middlewares, or actions. TRIGGER when the project imports 'hono', when modifying routes in src/modules/ or actions in src/actions/, or when the user mentions Hono, API endpoints, or routing. Always validate with Valibot (* as v from 'valibot') and adhere to the 'best-practices' skill.
 ---
 
-# Hono Architecture & Opinionated Best Practices
+# Hono Architecture & Thin Route Standards
 
-Standardized guide for building robust, scalable, enterprise-grade Hono applications with isolated domain layers, strict Valibot validation, and typed Actions.
+Standardized guide for building robust, scalable Hono applications with isolated domain layers, strict Valibot validation, typed Actions, and thin route wrappers.
 
 ---
 
 ## 1. Golden Rules (Non-negotiable)
 
 1. **Standard Schema Validator with Valibot**:
-   - Always use **Valibot** (`* as v from "valibot"`) with `@hono/standard-validator` (`sValidator`) or `@hono/valibot-validator`.
-   - Never use Zod.
-2. **Mandatory Path Aliases (`@/...`)**:
-   - Import all internal modules using configured path aliases (`@/actions/...`, `@/schemas/...`, `@/errors/...`).
-3. **Zero Barrel Files**:
-   - Never create `index.ts` files that re-export multiple routes or actions.
-   - Import directly from each specific action and schema file.
+   - Always use **Valibot** (`* as v from "valibot"`) with `@hono/valibot-validator` (`vValidator`) or `@hono/standard-validator` (`sValidator`).
+   - Use `validationHook` to intercept schema issues and emit a standardized `400 Bad Request` with `ActionResponse<never>`.
+
+2. **Strict Route Wrapper (`createRouteHandler`)**:
+   - Endpoints must be thin controllers. Wrap routes with `createRouteHandler({ outputSchema, status }, handler)`.
+   - Handler automatically receives `{ db, logger, env, input, ctx }`, handles try/catch normalization to `AppError`, and returns serialized `ActionResponse<T>`.
+
+3. **Strict Identifier Naming**:
+   - The Hono context parameter is **ALWAYS** named `ctx` (NEVER `c`).
+   - Catch errors are **ALWAYS** named `error` or `caughtError` (NEVER `e` or `err`).
+
 4. **Independent Route per File by Domain**:
-   - Every single endpoint resides in its own file (`src/modules/{domain}/{action}.ts`).
-   - Group them under the domain router `src/modules/{domain}/{domain}.router.ts`.
-5. **Business Logic Exclusively in Actions**:
-   - All business logic lives inside `src/actions/{domain}/{action}.action.ts`.
-   - Routers are slim controllers: validate input, call the action, return the response.
-6. **Database Connections strictly in Actions**:
-   - Never execute SQL, D1, Drizzle, or Prisma queries inside routes or middleware.
-   - The database instance is injected from Hono context (`ctx.get("db")`) into the action function.
-7. **Single Responsibility Principle (SRP)**:
-   - Each action performs **exactly one** business action.
-8. **Hard File Limit**:
-   - Maximum **200 lines per file**.
-9. **Unified Error Handling**:
-   - Throw typed `AppError` instances for business failures.
-   - Wrap I/O operations in `try / catch`, log with structured `Logger`, and re-throw or propagate to `globalErrorHandler`.
-10. **Courteous and Professional User Feedback**:
-    - Return polite, engaging, and solution-oriented messages in English (`ActionResponse<T>`).
+   - Every single endpoint resides in its own file (`src/routes/modules/{domain}/{action}.route.ts`).
+   - Group them under the domain router `src/routes/modules/{domain}/{domain}.router.ts` and mount in root router.
+
+5. **Business Logic Exclusively in Actions / Pipelines**:
+   - All business logic lives in `src/actions/{domain}/{action}.action.ts`.
+   - Never execute SQL, D1, Drizzle, or Prisma queries directly inside route handlers.
+
+6. **Hard Size Limit: <200 Lines Max**:
+   - Keep route endpoints under 60 lines and routers under 50 lines.
+
+7. **Unified Client Response (`ActionResponse<T>`)**:
+   - Every API endpoint response (success or failure) conforms to `ActionResponse<T>` (`success`, `message`, `data`, `error`).
 
 ---
 
 ## 2. Directory Taxonomy
 
 ```text
-apps/api/src/
-├── actions/                         # Pure business logic layer
-│   └── auth/
-│       ├── register-user.action.ts  # One atomic action (< 100 lines)
-│       └── login-user.action.ts
-├── modules/                         # Thin HTTP controllers
-│   └── auth/
-│       ├── register-user.ts         # Endpoint definition (< 80 lines)
-│       └── auth.router.ts           # Domain router mounting endpoints (< 60 lines)
-├── schemas/                         # Valibot schemas
-│   └── auth/
-│       └── register-user.schema.ts  # Strict input schema (< 50 lines)
-├── errors/
-│   ├── app-error.ts                 # Base application error with auto-logging
-│   └── error-handler.ts             # Central Hono error handler
-└── routers/
-    └── api.router.ts                # Root router exporting ApiRouter type for RPC
+src/
+├── routes/
+│   ├── index.ts                     # Main apiRouter mounting domain routers
+│   └── modules/{domain}/
+│       ├── {action}.route.ts        # Atomic endpoint (<60 lines)
+│       └── {domain}.router.ts       # Domain assembly router (<50 lines)
+├── dtos/{domain}/                   # Valibot schemas (<50 lines)
+├── actions/{domain}/                # Atomic business logic (<100 lines)
+└── types/                           # Isolated domain contracts (<50 lines)
 ```
 
 ---
 
-## 3. Valibot Validation Example
+## 3. Thin Route Pattern Example
 
 ```ts
-import { sValidator } from "@hono/standard-validator";
-import * as v from "valibot";
+import { Hono } from "hono";
+import { vValidator } from "@hono/valibot-validator";
+import type { AppContext } from "@/types/context/app-context.type";
+import type { CreateUserInput } from "@/types/users/create-user-input.type";
+import { CreateUserDto } from "@/dtos/users/create-user.dto";
+import { UserResponseDto } from "@/dtos/users/user-response.dto";
+import { registerUserAction } from "@/actions/users/register-user.action";
+import { createRouteHandler } from "@/common/utils/route-handler";
+import { validationHook } from "@/common/utils/validation";
 
-export const loginSchema = v.object({
-  email: v.pipe(
-    v.string("Please provide your email address."),
-    v.email("Please provide a valid email address.")
-  ),
-  password: v.pipe(
-    v.string("Password is required."),
-    v.minLength(8, "Your password must be at least 8 characters long.")
-  ),
-});
-
-export type LoginInput = v.InferOutput<typeof loginSchema>;
+export const createUserRoute = new Hono<AppContext>().post(
+  "/",
+  vValidator("json", CreateUserDto, validationHook),
+  createRouteHandler<unknown, typeof UserResponseDto, CreateUserInput>(
+    { outputSchema: UserResponseDto, status: 201 },
+    async ({ db, input }) => {
+      return await registerUserAction(db, input!);
+    }
+  )
+);
 ```
 
 ---
 
-## 4. Standard Response Contract
+## 4. Domain Router Assembly
 
 ```ts
-export interface ActionResponse<T = unknown> {
-  success: boolean;
-  message?: string;
-  error?: string;
-  data?: T;
-}
+import { Hono } from "hono";
+import type { AppContext } from "@/types/context/app-context.type";
+import { createUserRoute } from "./create-user.route";
+import { listUsersRoute } from "./list-users.route";
+
+export const usersRouter = new Hono<AppContext>()
+  .route("/", createUserRoute)
+  .route("/", listUsersRoute);
 ```
+
+---
+
+## 5. Templates
+
+- `./templates/router.template.md`: Atomic route template with `createRouteHandler`.
+- `./templates/action.template.md`: Single responsibility Action template.
+- `./templates/schema.template.md`: Valibot schema template with UX microcopy.
+- `./templates/error-handler.template.md`: Centralized error handler template.

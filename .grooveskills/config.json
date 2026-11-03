@@ -27,7 +27,12 @@
     "webhook-idempotency",
     "caching-rate-limiting",
     "env-feature-flags",
-    "docs-standards"
+    "docs-standards",
+    "hono",
+    "workers-rpc-precision",
+    "react-core",
+    "react-advanced",
+    "react-create-page"
   ],
-  "updatedAt": "2026-11-03T12:49:19.834Z"
+  "updatedAt": "2026-11-03T18:34:03.073Z"
 }
