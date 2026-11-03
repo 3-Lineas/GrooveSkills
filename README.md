@@ -131,6 +131,13 @@ my-project/
 | `ux-writing` | **UX Writing & Microcopy** | Warm, empathetic, conversion-oriented microcopy for validations, CTAs, toasts, and empty states. | **Default (Universal)** |
 | `error-handling-logging` | **Error Handling & Logging** | Predictable error flows with typed `AppError`, `ActionResponse` contracts, and structured logging. | **Default (Universal)** |
 | `clean-architecture-ddd` | **Clean Architecture & DDD** | Domain-driven module boundaries, single-purpose Actions, pure functions, and immutable data models. | **Default (Universal)** |
+| `external-service-adapters` | **External Service Adapters & Wrappers** | Decoupled domain ports, vendor SDK wrappers, and swappable adapters for payment gateways, emails, and APIs. | **Default (Universal)** |
+| `storage-file-adapters` | **Storage & File Adapters (S3, R2, Supabase)** | Object storage ports, uploads, presigned URLs, and streaming without repository abstractions. | **Default (Universal)** |
+| `auth-rbac-policies` | **Auth Adapters & RBAC/ABAC Policies** | Authentication adapter ports with `AuthenticatedActor` and side-effect-free pure authorization policies. | **Default (Universal)** |
+| `controller-orchestration-queues` | **Controller Orchestration & Queues** | Atomic Actions, Controller sequence/transactions, and swappable background Queue adapters. | **Default (Universal)** |
+| `webhook-idempotency` | **Webhook Verifiers & Idempotency** | Cryptographic HMAC webhook verifiers (Stripe, Svix, MercadoPago) and atomic idempotency guards. | **Default (Universal)** |
+| `caching-rate-limiting` | **Cache-Aside & Rate Limiting** | Declarative `cache.remember` wrappers and sliding-window rate limiting adapters (Redis, KV, Memory). | **Default (Universal)** |
+| `env-feature-flags` | **Fail-Fast Env & Feature Flags** | Boot-time fail-fast Valibot environment validation and decoupled feature flag adapters (PostHog, LD). | **Default (Universal)** |
 | `typescript-clean` | **TypeScript Clean Code (5.5+)** | Modern TypeScript (`satisfies`, discriminated unions, `const` generics, `unknown` narrowing). | `typescript` in `package.json` |
 | `rust-clean` | **Rust Clean Code (Rust 2024)** | Idiomatic Rust: `let-else` guard clauses, zero `.unwrap()`, `thiserror` typed errors, and Newtypes. | `Cargo.toml` in project root |
 | `python-clean` | **Python Clean Code (Python 3.12+)** | Modern Python: guard clauses (no nested ifs), strict typing (zero `Any`), uv, Ruff, and Pyright. | `pyproject.toml` / `requirements.txt` |

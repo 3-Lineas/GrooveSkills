@@ -12,9 +12,12 @@ import {
 } from "@/domains/harness/harness-templates";
 import { scanProjectOnboarding } from "@/domains/harness/scan-project-onboarding";
 import { upsertAgentInstructions } from "@/domains/harness/upsert-agent-instructions";
-import type { HarnessInstallOptions } from "@/types/harness.types";
+import type {
+  HarnessInstallOptions,
+  HarnessInstallResult,
+} from "@/types/harness.types";
 
-export function installHarness(options: HarnessInstallOptions): string[] {
+export function installHarness(options: HarnessInstallOptions): HarnessInstallResult {
   const memoryDir = getProjectMemoryDir(options.targetPath);
   const tasksDir = getProjectTasksDir(options.targetPath);
   const language = options.language ?? "es";
@@ -66,5 +69,8 @@ export function installHarness(options: HarnessInstallOptions): string[] {
   );
   createdFiles.push(...instructions);
 
-  return createdFiles;
+  return {
+    createdFiles,
+    onboardingInitialized: shouldWriteContext,
+  };
 }

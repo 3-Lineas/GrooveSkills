@@ -54,7 +54,7 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
     }
   }
 
-  const harnessFiles = installHarness({
+  const harnessResult = installHarness({
     targetPath: options.targetPath,
     selectedAgents: options.selectedAgents,
     selectedSkillIds: skillsToInstall,
@@ -62,7 +62,7 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
     language: options.language,
     forceOnboarding: options.forceOnboarding,
   });
-  createdFiles.push(...harnessFiles);
+  createdFiles.push(...harnessResult.createdFiles);
 
   const configPath = writeProjectConfig(
     options.targetPath,
@@ -77,7 +77,7 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
     installedSkills: skillsToInstall,
     configuredAgents: options.selectedAgents,
     createdFiles,
-    harnessInitialized: true,
+    harnessInitialized: harnessResult.onboardingInitialized,
     language: options.language,
   };
 }

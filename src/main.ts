@@ -1,6 +1,7 @@
 import { detectProjectContext } from "@/domains/detector/project-detector";
 import { runInteractiveUi } from "@/domains/ui/ui-orchestrator";
 import { installSkills } from "@/domains/installer/install-orchestrator";
+import { formatOnboardingPrompt } from "@/domains/ui/render-onboarding-prompt";
 import type { AgentId } from "@/types/agent.types";
 import type { ProjectLanguage } from "@/types/harness.types";
 
@@ -24,7 +25,7 @@ export async function runGrooveSkills(options: CliOptions = {}): Promise<void> {
 
   if ((hasSkills && hasAgents) || isDirectHarness || isDirectInit) {
     const language = options.language ?? context.configuredLanguage ?? "es";
-    await installSkills({
+    const result = await installSkills({
       targetPath,
       selectedSkillIds: options.skills || [],
       selectedAgents: options.agents || [],
@@ -34,6 +35,12 @@ export async function runGrooveSkills(options: CliOptions = {}): Promise<void> {
       language,
       forceOnboarding: options.forceOnboarding,
     });
+
+    if (result.harnessInitialized) {
+      const promptRender = formatOnboardingPrompt(language);
+      console.log(`\n${promptRender.formattedOutput}\n`);
+    }
+
     return;
   }
 

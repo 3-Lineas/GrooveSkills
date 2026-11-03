@@ -101,3 +101,4 @@ export async function chargeSubscriptionAction(
 - **`best-practices`**: Universal clean code rules and guard clauses.
 - **`error-handling-logging`**: Structured `AppError` and `ActionResponse`.
 - **`valibot-validation`**: Domain input/output validation.
+- **`external-service-adapters`**: Standardized domain ports, vendor SDK wrappers, and adapters for third-party services.

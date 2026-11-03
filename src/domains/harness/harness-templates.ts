@@ -92,20 +92,23 @@ createdAt: ${now}
 # 00 — Initial Project Onboarding & Architecture Exploration: ${projectName}
 
 ## Outcome Hypothesis
-By scanning dependencies, entry points, configuration manifests, and module layout, the AI agent will gain a verified architectural understanding of \`${projectName}\`, proven by filling out \`.grooveskills/memory/context.md\` and validating the essential build/typecheck commands.
+By scanning dependencies, entry points, configuration manifests, and module layout, the AI agent will gain a verified architectural understanding of \`${projectName}\`, proven by filling out \`.grooveskills/memory/context.md\`, formulating interactive alignment questions with the user, and validating the essential build/typecheck commands.
 
 ## Scope
-- In scope: Inspect project manifests, entry points, directory conventions, and script execution.
-- Out of scope: Refactoring business logic or modifying functional code.
+- In scope: Inspect project manifests, entry points, directory conventions, ask interactive alignment questions, and verify script execution.
+- Out of scope: Refactoring business logic or modifying functional code before alignment.
 
 ## Checklist
 - [ ] Verify package manager and essential scripts (\`build\`, \`test\`, \`typecheck\`).
 - [ ] Map high-level module architecture and data flow in \`.grooveskills/memory/context.md\`.
+- [ ] Ask the user step-by-step interactive questions to clarify goals, domain scope, and adapt project conventions.
+- [ ] Document agreed technical decisions in \`.grooveskills/memory/decisions.md\`.
 - [ ] Verify test runner or static checks pass cleanly.
 - [ ] Switch status to \`completed\` once project context is fully verified.
 
 ## Evidence
 - Observed command runs and outputs during the initial onboarding pass.
+- User answers to alignment questions captured in memory.
 
 ## Next
 - Once onboarding is marked completed, proceed with domain tasks following the 3-lane ODD protocol.

@@ -31,6 +31,13 @@ export function detectProjectContext(targetPath: string): ProjectContext {
     "ux-writing",
     "error-handling-logging",
     "clean-architecture-ddd",
+    "external-service-adapters",
+    "storage-file-adapters",
+    "auth-rbac-policies",
+    "controller-orchestration-queues",
+    "webhook-idempotency",
+    "caching-rate-limiting",
+    "env-feature-flags",
   ];
 
   for (const skill of SKILL_CATALOG) {

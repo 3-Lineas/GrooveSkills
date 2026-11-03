@@ -19,3 +19,8 @@ export interface HarnessInstallOptions {
   language?: ProjectLanguage;
   forceOnboarding?: boolean;
 }
+
+export interface HarnessInstallResult {
+  createdFiles: string[];
+  onboardingInitialized: boolean;
+}

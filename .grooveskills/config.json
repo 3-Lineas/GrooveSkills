@@ -19,7 +19,14 @@
     "testing-vitest",
     "rust-clean",
     "python-clean",
-    "odd-ai"
+    "odd-ai",
+    "external-service-adapters",
+    "storage-file-adapters",
+    "auth-rbac-policies",
+    "controller-orchestration-queues",
+    "webhook-idempotency",
+    "caching-rate-limiting",
+    "env-feature-flags"
   ],
-  "updatedAt": "2026-11-02T00:09:24.084Z"
+  "updatedAt": "2026-11-03T10:11:04.267Z"
 }

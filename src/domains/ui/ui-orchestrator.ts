@@ -8,6 +8,7 @@ import { promptConfirmOverwrite } from "@/domains/ui/prompt-confirm-overwrite";
 import { verifySkillExists } from "@/domains/installer/verify-skill-exists";
 import { installSkills } from "@/domains/installer/install-orchestrator";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
+import { formatOnboardingPrompt } from "@/domains/ui/render-onboarding-prompt";
 import type { ProjectContext } from "@/types/context.types";
 import type { AgentId } from "@/types/agent.types";
 import type { ProjectLanguage } from "@/types/harness.types";
@@ -123,6 +124,14 @@ export async function runInteractiveUi(
     `GrooveSkills Harness: ${harnessStatus}`,
     "Installation Summary"
   );
+
+  if (result.harnessInitialized) {
+    const promptRender = formatOnboardingPrompt(selectedLanguage);
+    p.note(
+      pc.green(promptRender.prompt),
+      promptRender.title
+    );
+  }
 
   p.outro(pc.green("Your AI programming pair is now empowered with your team's architectural habits! 🚀"));
 }
