@@ -1,0 +1,14 @@
+---
+description: Distinctive, opinionated visual design guidance for building new UI or reshaping existing interfaces. Steers away from generic AI clichés (purple gradients, uniform rounded cards, default Inter typography) toward bespoke tokens, intentional typography, layout wireframing, and disciplined restraint. TRIGGER when designing components, pages, landing screens, web apps, or creating visual design systems.
+globs: ["**/*"]
+alwaysApply: false
+---
+
+# Frontend Visual Design & Identity — Rule Reference
+
+Canonical rule specification stored in `.grooveskills/`.
+
+- **Specification**: `.grooveskills/skills/frontend-design/SKILL.md`
+- **References & Templates**: `.grooveskills/skills/frontend-design/`
+
+> **Instruction**: Read `.grooveskills/skills/frontend-design/SKILL.md` before executing tasks matching this rule.

@@ -150,6 +150,13 @@ export const SKILL_CATALOG: SkillMetadata[] = [
     directoryName: "workers-rpc-precision",
   },
   {
+    id: "frontend-design",
+    name: "Frontend Visual Design & Identity",
+    description: "Distinctive, opinionated visual UI design avoiding AI clichés: bespoke tokens, intentional typography, layout wireframing, and restraint",
+    dependencies: ["react", "react-dom", "next", "vue", "svelte", "tailwindcss"],
+    directoryName: "frontend-design",
+  },
+  {
     id: "react-core",
     name: "React Core Fundamentals",
     description: "Opinionated React fundamentals: no React.FC, pure components, immutable state, core hooks, lists, and form encapsulation",
