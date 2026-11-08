@@ -30,9 +30,9 @@ A hybrid software engineering methodology tailored for AI coding assistants. It 
 - Evaluate whether the user's prompt explicitly authorizes code modification.
 - Inquiries, reviews, audits, or questions trigger **Lane 1 (Answer)**: remain strictly **read-only**.
 
-### Step 2: Explore Proportionately
-- Consult `.grooveskills/memory/context.md` for project architecture, conventions, and key commands.
-- Read only files relevant to the active scope; avoid full codebase traversals that waste tokens.
+### Step 2: Explore Proportionately (.grooveskills-First)
+- Read `.grooveskills/memory/context.md`, `decisions.md`, and active tasks FIRST.
+- **Zero Full-Project Re-Scanning**: Rely on the documented architecture; do NOT perform recursive directory walks on every prompt. Read only files strictly relevant to the active scope.
 
 ### Step 3: Resolve Uncertainty Early
 - Disambiguate technical choices directly from codebase inspection.
@@ -52,13 +52,15 @@ Before modifying source files for substantial tasks, record the **Outcome Hypoth
 - Apply strict typing (zero `any`), guard clauses (no nested `if`s), SRP, and file limit (<200 lines).
 - Avoid premature optimizations; implement exactly what the outcome demands.
 
-### Step 7: Verify Against Outcomes (Receipt of Evidence)
+### Step 7: Verify Against Outcomes (Receipt of Evidence & Bitacora)
 - Run automated verification: typecheck, tests, linter, or build.
 - Record exact outputs under `## Evidence` in the task document.
 - Update `## Next` so work can be resumed seamlessly across agent turns.
+- **Daily Bitacora Entry**: If the interaction delivers progress, append or update the concise summary in `.grooveskills/bitacora/YYYY-MM.md` (`YYYY-MM-DD` bullets, reverse chronological, no tables).
 
 ---
 
 ## 3. Communication Standard
 - Maintain an empathetic, professional, and solution-driven tone.
 - When working in Spanish (`es`), use clear, courteous explanations and actionable guidance.
+

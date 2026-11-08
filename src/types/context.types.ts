@@ -9,4 +9,7 @@ export interface ProjectContext {
   packageJsonExists: boolean;
   harnessExists: boolean;
   configuredLanguage?: ProjectLanguage;
+  configuredSkills?: string[];
+  configuredAgents?: AgentId[];
 }
+

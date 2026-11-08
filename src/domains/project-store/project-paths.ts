@@ -16,6 +16,11 @@ export function getProjectTasksDir(targetPath: string): string {
   return join(getProjectMemoryDir(targetPath), "tasks");
 }
 
+export function getProjectBitacoraDir(targetPath: string): string {
+  return join(getProjectStoreDir(targetPath), "bitacora");
+}
+
 export function getProjectConfigPath(targetPath: string): string {
   return join(getProjectStoreDir(targetPath), "config.json");
 }
+

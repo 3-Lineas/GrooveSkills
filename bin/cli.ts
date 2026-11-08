@@ -19,7 +19,7 @@ program
   .name("grooveskills")
   .description("Multi-agent AI skills, ODD workflow, and persistent project harness installer")
   .version(__VERSION__)
-  .argument("[command]", "Optional command: use 'init' to initialize or re-run full project onboarding")
+  .argument("[command]", "Optional command: 'init' (force re-onboarding) or 'update' (update harness and skills in-place)")
   .option("-s, --skills <skills...>", "Specific skill IDs to install (e.g. odd-ai best-practices hono)")
   .option("-a, --agents <agents...>", "Target AI agents (antigravity claude cursor gemini)")
   .option("-y, --yes", "Automatically confirm overwrite of existing skills", false)
@@ -27,6 +27,7 @@ program
   .action(async (command: string | undefined, options: CliRawOptions) => {
     try {
       const forceOnboarding = command === "init";
+      const isUpdate = command === "update";
       await runGrooveSkills({
         skills: options.skills,
         agents: options.agents as AgentId[] | undefined,
@@ -34,6 +35,7 @@ program
         harness: true,
         language: options.language as ProjectLanguage | undefined,
         forceOnboarding,
+        isUpdate,
       });
     } catch (error) {
       if (error instanceof InstallTransactionError) {

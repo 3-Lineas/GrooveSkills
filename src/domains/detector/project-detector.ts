@@ -3,21 +3,30 @@ import { join } from "node:path";
 import { detectAgents } from "@/domains/detector/detect-agents";
 import { detectDependencies } from "@/domains/detector/detect-dependencies";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
+import type { AgentId } from "@/types/agent.types";
 import type { ProjectContext } from "@/types/context.types";
 import type { GrooveSkillsConfig, ProjectLanguage } from "@/types/harness.types";
 
-function readConfiguredLanguage(targetPath: string): ProjectLanguage | undefined {
+function readConfiguredState(targetPath: string): {
+  language?: ProjectLanguage;
+  agents?: AgentId[];
+  skills?: string[];
+} {
   const configPath = join(targetPath, ".grooveskills", "config.json");
   if (!existsSync(configPath)) {
-    return undefined;
+    return {};
   }
 
   try {
     const raw = readFileSync(configPath, "utf-8");
     const parsed = JSON.parse(raw) as Partial<GrooveSkillsConfig>;
-    return typeof parsed.language === "string" ? (parsed.language as ProjectLanguage) : undefined;
+    const language =
+      typeof parsed.language === "string" ? (parsed.language as ProjectLanguage) : undefined;
+    const agents = Array.isArray(parsed.agents) ? (parsed.agents as AgentId[]) : undefined;
+    const skills = Array.isArray(parsed.skills) ? (parsed.skills as string[]) : undefined;
+    return { language, agents, skills };
   } catch {
-    return undefined;
+    return {};
   }
 }
 
@@ -54,15 +63,27 @@ export function detectProjectContext(targetPath: string): ProjectContext {
   }
 
   const harnessExists = existsSync(join(targetPath, ".grooveskills", "memory", "context.md"));
-  const configuredLanguage = readConfiguredLanguage(targetPath);
+  const configuredState = readConfiguredState(targetPath);
+
+  const initialAgents =
+    configuredState.agents && configuredState.agents.length > 0
+      ? Array.from(new Set([...detectedAgents, ...configuredState.agents]))
+      : detectedAgents;
+
+  const mergedSuggestedSkills =
+    configuredState.skills && configuredState.skills.length > 0
+      ? Array.from(new Set([...suggestedSkillIds, ...configuredState.skills]))
+      : suggestedSkillIds;
 
   return {
     targetPath,
     detectedDependencies: dependencies,
-    suggestedSkillIds,
-    detectedAgents,
+    suggestedSkillIds: mergedSuggestedSkills,
+    detectedAgents: initialAgents,
     packageJsonExists: exists,
     harnessExists,
-    configuredLanguage,
+    configuredLanguage: configuredState.language,
+    configuredSkills: configuredState.skills,
+    configuredAgents: configuredState.agents,
   };
 }

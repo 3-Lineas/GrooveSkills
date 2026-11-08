@@ -32,7 +32,7 @@ AI coding assistants perform at their highest potential when they share your tea
 ### 1. Automatic Project Onboarding & Persistent Memory (`.grooveskills/memory/`)
 The **GrooveSkills Harness** is installed automatically as the foundation of your project—never an optional checkbox:
 - **First-Time Setup (Automatic Onboarding)**: Scans your repository (package manager, real `package.json` scripts, `tsconfig.json` path aliases, and `src/` modules), asks for your preferred communication language, and populates `.grooveskills/memory/context.md`, `decisions.md`, `tasks/00-onboarding.md`, `AGENTS.md`, and `CLAUDE.md`.
-- **Subsequent Runs (Smart Skill Updates)**: Detects your existing harness, preserves your memory and language settings untouched, and **only updates the skills you select**.
+- **Subsequent Runs & In-Place Updates (`update`)**: Run `npx @3lineas/grooveskills update` anytime to refresh instructions, sync bitacora directory, and update installed skills while preserving project memory.
 - **Re-Onboarding on Demand (`init`)**: Run `npx @3lineas/grooveskills init` anytime to re-scan your project stack and refresh the onboarding context.
 
 ### 2. Smart Stack Detection & Lightweight Agent References
@@ -49,13 +49,13 @@ Through the built-in `odd-ai` and `groove-harness` skills, GrooveSkills guides y
 
 #### The 7-Step ODD Lifecycle
 1. **Authorize (Permission Gate)**: Evaluates whether your prompt authorizes code modifications. Questions, audits, and reviews remain strictly **read-only**.
-2. **Explore Proportionately**: Consults `.grooveskills/memory/context.md` and inspects only the files relevant to the active domain, preserving your token budget and context window.
-3. **Resolve Uncertainty Early**: Answers technical unknowns by reading the codebase and asks concise, thoughtful questions only when product or design decisions are open.
+2. **Explore Proportionately (.grooveskills-First)**: Always reads `.grooveskills/` first; zero recursive project re-scanning on every turn.
+3. **Resolve Uncertainty Early**: Answers technical unknowns by reading the codebase; asks concise questions only at architectural crossroads.
 4. **Classify Semantic Scope**: Routes the request into one of three execution lanes based on architectural impact and reversibility rather than line counts.
 5. **Track Before First Write & Outcome Hypothesis**: Before editing source files on non-trivial tasks, records the plan and a formal hypothesis in `.grooveskills/memory/tasks/<slug>.md`:
    > *"By delivering `[Output / Technical Change]`, `[Outcome / Verifiable Behavior]` will occur, proven by `[Evidence / Test / Build Command]`."*
 6. **Execute Proportionate Clean Code**: Writes clean, modular code following strict typing (zero `any`), guard clauses (zero nested `if`s), direct imports, and `<200` lines per file.
-7. **Verify Against Outcomes (Empirical Receipt)**: Runs deterministic checks (typecheck, test suite, linter, or build), logs the real output under `## Evidence`, and updates `## Next` for effortless session continuity.
+7. **Verify Against Outcomes & Bitacora**: Runs deterministic checks, logs output under `## Evidence`, and logs daily bullets in `.grooveskills/bitacora/YYYY-MM.md`.
 
 | Execution Lane | When It Activates | Agent Behavior |
 | :--- | :--- | :--- |
@@ -75,24 +75,21 @@ Select your preferred language (**Español, English, Português, Italiano, or Fr
 npx @3lineas/grooveskills
 ```
 
+### In-Place Update for Existing Projects (`update`)
+```bash
+npx @3lineas/grooveskills update
+```
+
 ### Force Full Project Re-Onboarding (`init`)
 ```bash
 npx @3lineas/grooveskills init
-```
-
-### Non-Interactive Mode (CI & Scripting)
-```bash
-# Install skills and initialize harness in Spanish for Claude and Antigravity
-npx @3lineas/grooveskills --skills odd-ai best-practices hono --agents antigravity claude -l es -y
-
-# Re-run full project onboarding non-interactively across all AI assistants
-npx @3lineas/grooveskills init --agents antigravity claude cursor gemini -l es -y
 ```
 
 ### CLI Options Reference
 
 | Command / Flag | Description | Example |
 | :--- | :--- | :--- |
+| `update` | In-place update of harness rules, bitacora directory, and active skills | `npx @3lineas/grooveskills update` |
 | `init` | Force re-run of project onboarding, stack scan & memory context | `npx @3lineas/grooveskills init` |
 | `-s, --skills <skills...>` | Space-separated list of skill IDs to install | `--skills odd-ai best-practices` |
 | `-a, --agents <agents...>` | Target AI assistants (`antigravity`, `claude`, `cursor`, `gemini`) | `--agents antigravity cursor` |
@@ -108,6 +105,7 @@ my-project/
 ├── .grooveskills/
 │   ├── config.json                  # Manifest of active skills, agents, language & harness state
 │   ├── skills/                      # Canonical single source of truth for installed skills
+│   ├── bitacora/                    # Monthly markdown summaries (YYYY-MM.md) for Jira/Trello sync
 │   └── memory/                      # Persistent project memory (Core Harness control plane)
 │       ├── context.md               # Auto-scanned stack, scripts, aliases & architecture map
 │       ├── decisions.md             # Architecture Decision Records (ADR)

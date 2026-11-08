@@ -16,6 +16,7 @@ export interface CliOptions {
   harness?: boolean;
   language?: ProjectLanguage;
   forceOnboarding?: boolean;
+  isUpdate?: boolean;
 }
 
 function resolveUsername(): string {
@@ -34,6 +35,51 @@ export async function runGrooveSkills(options: CliOptions = {}): Promise<void> {
   const hasAgents = options.agents && options.agents.length > 0;
   const isDirectHarness = Boolean(options.harness) && hasAgents;
   const isDirectInit = Boolean(options.forceOnboarding) && hasAgents;
+  const isUpdateMode = Boolean(options.isUpdate);
+
+  if (isUpdateMode) {
+    const agentsToUpdate =
+      options.agents && options.agents.length > 0
+        ? options.agents
+        : context.configuredAgents && context.configuredAgents.length > 0
+          ? context.configuredAgents
+          : context.detectedAgents.length > 0
+            ? context.detectedAgents
+            : (["antigravity"] as AgentId[]);
+
+    const skillsToUpdate =
+      options.skills && options.skills.length > 0
+        ? options.skills
+        : context.configuredSkills && context.configuredSkills.length > 0
+          ? context.configuredSkills
+          : context.suggestedSkillIds;
+
+    const language = options.language ?? context.configuredLanguage ?? "es";
+
+    console.log(
+      picocolors.cyan(
+        `Updating GrooveSkills harness and ${skillsToUpdate.length} skills in-place...`
+      )
+    );
+
+    const result = await installSkills({
+      targetPath,
+      selectedSkillIds: skillsToUpdate,
+      selectedAgents: agentsToUpdate,
+      forceOverwrite: true,
+      enableHarness: true,
+      detectedDependencies: context.detectedDependencies,
+      language,
+      forceOnboarding: false,
+    });
+
+    console.log(
+      picocolors.green(
+        `✔ Updated harness instructions, bitacora directory, and ${result.installedSkills.length} skills!`
+      )
+    );
+    return;
+  }
 
   if ((hasSkills && hasAgents) || isDirectHarness || isDirectInit) {
     const language = options.language ?? context.configuredLanguage ?? "es";

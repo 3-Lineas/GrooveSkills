@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import {
+  getProjectBitacoraDir,
   getProjectMemoryDir,
   getProjectTasksDir,
 } from "@/domains/project-store/project-paths";
@@ -36,6 +37,7 @@ function writeTrackedFile(
 export function installHarness(options: HarnessInstallOptions): HarnessInstallResult {
   const memoryDir = getProjectMemoryDir(options.targetPath);
   const tasksDir = getProjectTasksDir(options.targetPath);
+  const bitacoraDir = getProjectBitacoraDir(options.targetPath);
   const language = options.language ?? "es";
   const forceOnboarding = Boolean(options.forceOnboarding);
   const transaction = options.transaction;
@@ -43,10 +45,15 @@ export function installHarness(options: HarnessInstallOptions): HarnessInstallRe
   if (transaction) {
     transaction.recordCreatedDir(memoryDir);
     transaction.recordCreatedDir(tasksDir);
+    transaction.recordCreatedDir(bitacoraDir);
   }
 
   if (!existsSync(tasksDir)) {
     mkdirSync(tasksDir, { recursive: true });
+  }
+
+  if (!existsSync(bitacoraDir)) {
+    mkdirSync(bitacoraDir, { recursive: true });
   }
 
   const createdFiles: string[] = [];

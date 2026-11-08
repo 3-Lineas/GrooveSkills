@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import { inspectFileAccess } from "@/domains/fs/inspect-file-access";
 import {
+  getProjectBitacoraDir,
   getProjectConfigPath,
   getProjectMemoryDir,
   getProjectTasksDir,
@@ -62,7 +63,8 @@ export function runPreflightWriteCheck(options: PreflightCheckOptions): void {
     join(memoryDir, "context.md"),
     join(memoryDir, "decisions.md"),
     join(tasksDir, "00-onboarding.md"),
-    join(tasksDir, "_template.md")
+    join(tasksDir, "_template.md"),
+    getProjectBitacoraDir(options.targetPath)
   );
 
   for (const filePath of candidatePaths) {

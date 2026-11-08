@@ -9,7 +9,16 @@ A lightweight, non-intrusive harness living entirely within `.grooveskills/`. It
 
 ---
 
-## 1. The ODD 3-Lane Execution Flow
+## 1. Mandatory .grooveskills-First Read (Zero Project Re-Scanning)
+- **First Step**: On every turn, prompt, or interaction, the agent MUST immediately read `.grooveskills/` FIRST:
+  1. `.grooveskills/memory/context.md` (project stack, architecture map, conventions, commands).
+  2. `.grooveskills/memory/decisions.md` (ADRs & architectural decisions).
+  3. Active task records in `.grooveskills/memory/tasks/`.
+- **Zero Full-Project Re-Scanning**: DO NOT perform broad scans of the entire workspace, recursive directory walks, or full codebase inspections on every interaction. The architecture and conventions are already documented in `.grooveskills/`. Inspect only specific files needed for the task at hand.
+
+---
+
+## 2. The ODD 3-Lane Execution Flow
 
 Every request is governed by the 7-step ODD protocol (*Authorize, Explore, Resolve, Classify, Track & Hypothesize, Execute, Verify*) mapped into three lanes:
 
@@ -35,17 +44,36 @@ Every request is governed by the 7-step ODD protocol (*Authorize, Explore, Resol
 
 ---
 
-## 2. Project Memory Maintenance
+## 3. Daily Bitacora (`.grooveskills/bitacora/YYYY-MM.md`)
+
+- **Purpose**: Maintain a daily summary of what was completed so the developer can effortlessly update external management trackers (Jira, Trello, ClickUp, Linear).
+- **Format**: Plain date `YYYY-MM-DD` followed by concise bullet points (`- ...`). Strictly NO tables.
+```markdown
+2026-10-25
+- Se agrego tal funcionalidad...
+- Se corrigio tal problema...
+```
+- **Storage**: One file per month located at `.grooveskills/bitacora/YYYY-MM.md` (e.g., `.grooveskills/bitacora/2026-11.md`).
+- **Order**: Reverse chronological (most recent day at the top of the file).
+- **Update Frequency**: Update on every agent interaction that delivers progress (code changes, fixes, specs, or audits).
+- **Rewrite Rule**: Rewrite and compress the day's bullets if they get too long; do NOT link or reference internal task files.
+
+---
+
+## 4. Project Memory Maintenance
 
 - **`.grooveskills/memory/context.md`**: Stores project stack, architectural patterns, conventions, and key commands. Read this when starting work on a domain; update it when new dependencies or architectural standards are introduced.
 - **`.grooveskills/memory/decisions.md`**: An append-only Architecture Decision Record (ADR). Log significant technical decisions (`Date`, `Context`, `Decision`, `Consequences`).
 - **`.grooveskills/memory/tasks/00-onboarding.md`**: Initial onboarding task. If `status: pending`, inspect project structure, commands, and verify `.grooveskills/memory/context.md`, then mark as `completed`.
 - **`.grooveskills/memory/tasks/`**: Individual feature records holding outcome hypotheses, checklists, and observed proof.
+- **`.grooveskills/bitacora/`**: Monthly markdown summaries for daily developer progress tracking.
 
 ---
 
-## 3. Core Principles
+## 5. Core Principles
 
-1. **Outcome-Driven Accountability**: Every non-trivial change requires an outcome hypothesis and an observed verification receipt.
-2. **Strict Encapsulation**: Keep harness and state confined to `.grooveskills/`. Do not pollute the root repository.
-3. **Respect Best Practices**: All code must follow strict typing, guard clauses, SRP, direct imports (no barrels), and file limits (<200 lines).
+1. **Mandatory .grooveskills-First Read**: Never re-scan the entire codebase; rely on persistent project memory.
+2. **Outcome-Driven Accountability**: Every non-trivial change requires an outcome hypothesis and an observed verification receipt.
+3. **Strict Encapsulation**: Keep harness and state confined to `.grooveskills/`. Do not pollute the root repository.
+4. **Respect Best Practices**: All code must follow strict typing, guard clauses, SRP, direct imports (no barrels), and file limits (<200 lines).
+
