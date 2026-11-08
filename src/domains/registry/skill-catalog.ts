@@ -38,6 +38,13 @@ export const SKILL_CATALOG: SkillMetadata[] = [
     directoryName: "docs-standards",
   },
   {
+    id: "security-audit",
+    name: "Adversarial Security Audit & Trust Boundaries",
+    description: "6-phase adversarial audit (Cloudflare), Agent/MCP scanner (NVIDIA SkillSpector), OWASP API BOLA/BOPLA & PoC remediation (Strix)",
+    dependencies: [],
+    directoryName: "security-audit",
+  },
+  {
     id: "typescript-clean",
     name: "TypeScript Clean Code (TS 5.5+)",
     description: "Advanced strict TypeScript, discriminated unions, satisfies, const generics, unknown over any, and zero unsafe casts",

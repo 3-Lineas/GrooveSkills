@@ -55,7 +55,7 @@ Through the built-in `odd-ai` and `groove-harness` skills, GrooveSkills guides y
 5. **Track Before First Write & Outcome Hypothesis**: Before editing source files on non-trivial tasks, records the plan and a formal hypothesis in `.grooveskills/memory/tasks/<slug>.md`:
    > *"By delivering `[Output / Technical Change]`, `[Outcome / Verifiable Behavior]` will occur, proven by `[Evidence / Test / Build Command]`."*
 6. **Execute Proportionate Clean Code**: Writes clean, modular code following strict typing (zero `any`), guard clauses (zero nested `if`s), direct imports, and `<200` lines per file.
-7. **Verify Against Outcomes & Bitacora**: Runs deterministic checks, logs output under `## Evidence`, and logs daily bullets in `.grooveskills/bitacora/YYYY-MM.md`.
+7. **Verify Against Outcomes, Security Gate & Bitacora**: Runs deterministic checks (including the Post-Task Security Gate on trust boundary changes), logs output under `## Evidence`, and logs daily bullets in `.grooveskills/bitacora/YYYY-MM.md`.
 
 | Execution Lane | When It Activates | Agent Behavior |
 | :--- | :--- | :--- |
@@ -83,6 +83,17 @@ npx @3lineas/grooveskills update
 ### Force Full Project Re-Onboarding (`init`)
 ```bash
 npx @3lineas/grooveskills init
+```
+
+### 🛡️ Run a Full On-Demand Security Audit (Prompt)
+While GrooveSkills runs an automatic **Post-Task Security Gate** on modified trust boundaries at the end of every task, you can trigger a full **6-Phase Adversarial Security Audit** (Cloudflare + NVIDIA SkillSpector + Strix) anytime by pasting this prompt into your AI assistant:
+
+```text
+Run a full 6-phase adversarial security audit using .grooveskills/skills/security-audit/SKILL.md on [entire repository | path/to/module]:
+1. Phase 1 (Recon): Read .grooveskills/memory/context.md, map trust boundaries, and generate coverage-ledger.json in .grooveskills/memory/audits/<date>-<scope>/.
+2. Phase 2 (Hunting): Audit each ledger unit across domain references (API BOLA/BOPLA, Client IPC, Data/Cloud/RLS, AI/MCP, Memory/Race Conditions).
+3. Phase 3-5 (Adversarial Disproof): Challenge every candidate with a fresh adversarial check, record verdicts in findings.json, and run validate-audit.mjs and scan-skill-integrity.mjs.
+4. Phase 6 (Remediation Plan): Generate REPORT.md with confirmed findings, source traces, and root-cause fix + regression PoC test plans.
 ```
 
 ### CLI Options Reference
@@ -128,6 +139,7 @@ my-project/
 | `best-practices` | **Universal Best Practices** | Multi-language clean code, strict typing (zero `any`), guard clauses, and `<200` lines per file. | **Default (Universal)** |
 | `ux-writing` | **UX Writing & Microcopy** | Warm, empathetic, conversion-oriented microcopy for validations, CTAs, toasts, and empty states. | **Default (Universal)** |
 | `docs-standards` | **Documentation & ADR Standards** | English documentation rule, relative POSIX links, resilient Mermaid diagrams, ADR lifecycle, and intent docstrings. | **Default (Universal)** |
+| `security-audit` | **Adversarial Security Audit & Trust Boundaries** | 6-phase adversarial audit (Cloudflare), Agent/MCP scanner (NVIDIA SkillSpector), OWASP API BOLA/BOPLA & PoC remediation (Strix). | **Default (Universal)** |
 | `error-handling-logging` | **Error Handling & Logging** | Predictable error flows with typed `AppError`, `ActionResponse` contracts, and structured logging. | **Default (Universal)** |
 | `clean-architecture-ddd` | **Clean Architecture & DDD** | Domain-driven module boundaries, single-purpose Actions, pure functions, and immutable data models. | **Default (Universal)** |
 | `external-service-adapters` | **External Service Adapters & Wrappers** | Decoupled domain ports, vendor SDK wrappers, and swappable adapters for payment gateways, emails, and APIs. | **Default (Universal)** |

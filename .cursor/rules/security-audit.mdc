@@ -1,0 +1,14 @@
+---
+description: Adversarial security audit, threat modeling, and trust-boundary verification combining Cloudflare 6-phase audits, NVIDIA SkillSpector agent/MCP static security, and Strix OWASP API & root-cause remediation.
+globs: ["**/*"]
+alwaysApply: false
+---
+
+# Adversarial Security Audit & Trust Boundaries — Rule Reference
+
+Canonical rule specification stored in `.grooveskills/`.
+
+- **Specification**: `.grooveskills/skills/security-audit/SKILL.md`
+- **References & Templates**: `.grooveskills/skills/security-audit/`
+
+> **Instruction**: Read `.grooveskills/skills/security-audit/SKILL.md` before executing tasks matching this rule.

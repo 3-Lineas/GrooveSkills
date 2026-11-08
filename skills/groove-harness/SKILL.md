@@ -32,7 +32,7 @@ Every request is governed by the 7-step ODD protocol (*Authorize, Explore, Resol
   1. For non-trivial work, locate or create `.grooveskills/memory/tasks/<slug>.md`.
   2. Declare the **Outcome Hypothesis**, `Scope`, and an itemized `Checklist`.
   3. Execute code changes incrementally following clean code standards.
-  4. Only check off tasks once **observed evidence** is verified (e.g. `check-types`, test runs, or command outputs under `Evidence`).
+  4. Only check off tasks once **observed evidence** is verified (e.g. `check-types`, tests, build, and the **Post-Task Security Gate** if trust boundaries or agent rules were touched).
   5. Keep `Next` updated so any interruption costs nothing.
 
 ### Lane 3: Spec (Collaborative Design)

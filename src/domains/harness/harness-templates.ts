@@ -134,9 +134,10 @@ By [Output / Technical Change], [Outcome / Verifiable Behavior] will occur, prov
 ## Checklist
 - [ ] Task 1: (Define expected observed proof)
 - [ ] Task 2: (Define expected observed proof)
+- [ ] Post-Task Security Gate: If trust boundaries or agent rules were modified, verify defenses and integrity.
 
 ## Evidence
-- Observed test/typecheck/build commands or runtime outputs proving completion.
+- Observed test/typecheck/build commands, runtime outputs, or security gate receipts.
 
 ## Next
 - Next concrete step if interrupted.
@@ -162,7 +163,7 @@ This project uses the **GrooveSkills Harness** located in \`.grooveskills/\`.
 - **Onboarding Check**: If \`.grooveskills/memory/tasks/00-onboarding.md\` has \`status: pending\`, complete its checklist to enrich \`context.md\` and set its status to \`completed\`.
 - **Authorize & Explore**: Follow the 7-step ODD protocol (Authorize, Explore, Resolve, Classify, Track & Hypothesize, Execute, Verify).
 - **Lane 1 (Answer)**: Explanations, audits, or questions. Read-only; write zero code.
-- **Lane 2 (Task)**: Direct implementation. Declare Outcome Hypothesis and checklist in \`.grooveskills/memory/tasks/<slug>.md\`. Only check off tasks with observed evidence under \`Evidence\`.
+- **Lane 2 (Task)**: Direct implementation. Declare Outcome Hypothesis and checklist in \`.grooveskills/memory/tasks/<slug>.md\`. Only check off tasks with observed evidence under \`Evidence\` (including Post-Task Security Gate on trust boundary changes).
 - **Lane 3 (Spec)**: Ambiguous or high-impact architecture. Clarify and validate the spec in \`.grooveskills/memory/tasks/<slug>.md\` before writing code.
 
 ## 3. Daily Bitacora (\`.grooveskills/bitacora/YYYY-MM.md\`)

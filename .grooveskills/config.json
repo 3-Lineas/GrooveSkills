@@ -28,6 +28,7 @@
     "caching-rate-limiting",
     "env-feature-flags",
     "docs-standards",
+    "security-audit",
     "hono",
     "workers-rpc-precision",
     "react-core",
@@ -35,5 +36,5 @@
     "react-create-page",
     "frontend-design"
   ],
-  "updatedAt": "2026-11-08T14:44:22.664Z"
+  "updatedAt": "2026-11-08T15:47:23.048Z"
 }
