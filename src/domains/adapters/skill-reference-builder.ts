@@ -1,5 +1,5 @@
-import { existsSync, lstatSync, mkdirSync, readFileSync, rmSync, unlinkSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, lstatSync, mkdirSync, readFileSync, rmSync, symlinkSync, unlinkSync } from "node:fs";
+import { join, posix, relative, sep } from "node:path";
 import { getProjectSkillsDir } from "@/domains/project-store/project-paths";
 import { safeWriteFileSync } from "@/domains/fs/safe-file-writer";
 import type { InstallTransaction } from "@/domains/fs/install-transaction";
@@ -57,45 +57,34 @@ function extractSkillDescription(canonicalSkillMdPath: string, fallback: string)
   return fallback;
 }
 
-export function writeAgentSkillReference(
+export function linkAgentSkill(
   targetPath: string,
   agentRelativeSkillsDir: string,
   skill: SkillMetadata,
   transaction?: InstallTransaction
 ): string {
-  const agentSkillFolder = join(targetPath, agentRelativeSkillsDir, skill.directoryName);
-  const targetFile = join(agentSkillFolder, "SKILL.md");
+  const agentSkillsDir = join(targetPath, agentRelativeSkillsDir);
+  const linkPath = join(agentSkillsDir, skill.directoryName);
+  const canonicalSkillDir = join(getProjectSkillsDir(targetPath), skill.directoryName);
+
   if (transaction) {
-    transaction.recordCreatedDir(join(targetPath, agentRelativeSkillsDir));
-    transaction.recordCreatedDir(agentSkillFolder);
-    transaction.recordBeforeWrite(targetFile);
+    transaction.recordCreatedDir(agentSkillsDir);
+    transaction.recordCreatedSymlink(linkPath);
   }
 
-  removeExistingPathSafely(agentSkillFolder);
+  if (!existsSync(agentSkillsDir)) {
+    mkdirSync(agentSkillsDir, { recursive: true });
+  }
 
-  mkdirSync(agentSkillFolder, { recursive: true });
+  removeExistingPathSafely(linkPath);
 
-  const canonicalSkillMd = join(getProjectSkillsDir(targetPath), skill.directoryName, "SKILL.md");
-  const description = extractSkillDescription(canonicalSkillMd, skill.description);
+  const relativeTargetPath = relative(agentSkillsDir, canonicalSkillDir)
+    .split(sep)
+    .join(posix.sep);
 
-  const referenceContent = `---
-name: ${skill.id}
-description: ${description}
----
+  symlinkSync(relativeTargetPath, linkPath, "junction");
 
-# ${skill.name} — Skill Reference
-
-Canonical skill specification stored in \`.grooveskills/\`.
-
-- **Specification**: [\`.grooveskills/skills/${skill.directoryName}/SKILL.md\`](../../../.grooveskills/skills/${skill.directoryName}/SKILL.md)
-- **References & Templates**: \`.grooveskills/skills/${skill.directoryName}/\`
-
-> **Instruction**: Read \`.grooveskills/skills/${skill.directoryName}/SKILL.md\` before executing tasks matching this skill.
-`;
-
-  safeWriteFileSync(targetFile, referenceContent);
-
-  return targetFile;
+  return linkPath;
 }
 
 export function writeCursorRuleReference(

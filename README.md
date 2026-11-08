@@ -35,12 +35,12 @@ The **GrooveSkills Harness** is installed automatically as the foundation of you
 - **Subsequent Runs & In-Place Updates (`update`)**: Run `npx @3lineas/grooveskills update` anytime to refresh instructions, sync bitacora directory, and update installed skills while preserving project memory.
 - **Re-Onboarding on Demand (`init`)**: Run `npx @3lineas/grooveskills init` anytime to re-scan your project stack and refresh the onboarding context.
 
-### 2. Smart Stack Detection & Lightweight Agent References
-GrooveSkills inspects your project manifests (`package.json`, `Cargo.toml`, `pyproject.toml`) to pre-select recommended skills. All canonical skill files live in `.grooveskills/skills/<skill>/`, while agent folders receive **lightweight reference files** (~13 lines) that preserve trigger metadata without duplicating trees in your IDE:
-- **Antigravity**: `.agents/skills/<skill>/SKILL.md`
-- **Claude Code**: `.claude/skills/<skill>/SKILL.md`
-- **Gemini Code Assist**: `.gemini/skills/<skill>/SKILL.md`
-- **Cursor IDE**: `.cursor/rules/<skill>.mdc`
+### 2. Smart Stack Detection & Symbolic Links to Canonical Skills
+GrooveSkills inspects your project manifests (`package.json`, `Cargo.toml`, `pyproject.toml`) to pre-select recommended skills. All canonical skill files live in `.grooveskills/skills/<skill>/`. For agent folders (`.agents/skills/`, `.claude/skills/`, `.gemini/skills/`), each installed skill is created as a **relative symbolic link** pointing directly into `.grooveskills/skills/<skill>/`. This eliminates duplicated content while leaving the skills folder open for users to add their own custom skills:
+- **Antigravity**: `.agents/skills/<skill>` -> `../../.grooveskills/skills/<skill>`
+- **Claude Code**: `.claude/skills/<skill>` -> `../../.grooveskills/skills/<skill>`
+- **Gemini Code Assist**: `.gemini/skills/<skill>` -> `../../.grooveskills/skills/<skill>`
+- **Cursor IDE**: `.cursor/rules/<skill>.mdc` (Cursor rule specification)
 
 ### 3. Organic & Outcome-Driven Development (ODD) & 3-Lane Workflow
 Through the built-in `odd-ai` and `groove-harness` skills, GrooveSkills guides your AI assistant with a hybrid **Organic & Outcome-Driven Development (ODD)** methodology:
@@ -121,9 +121,9 @@ my-project/
 │       ├── context.md               # Auto-scanned stack, scripts, aliases & architecture map
 │       ├── decisions.md             # Architecture Decision Records (ADR)
 │       └── tasks/                   # 00-onboarding.md & tasks with Outcome Hypotheses
-├── .agents/skills/<skill>/SKILL.md  # Lightweight reference pointer -> .grooveskills/skills/<skill>/SKILL.md
-├── .claude/skills/<skill>/SKILL.md  # Lightweight reference pointer -> .grooveskills/skills/<skill>/SKILL.md
-├── .gemini/skills/<skill>/SKILL.md  # Lightweight reference pointer -> .grooveskills/skills/<skill>/SKILL.md
+├── .agents/skills/<skill>           # Relative symbolic link -> ../../.grooveskills/skills/<skill>
+├── .claude/skills/<skill>           # Relative symbolic link -> ../../.grooveskills/skills/<skill>
+├── .gemini/skills/<skill>           # Relative symbolic link -> ../../.grooveskills/skills/<skill>
 ├── .cursor/rules/<skill>.mdc        # Lightweight reference rule -> .grooveskills/skills/<skill>/SKILL.md
 └── AGENTS.md / CLAUDE.md            # Concise harness pointer <!-- grooveskills:harness -->
 ```

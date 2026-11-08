@@ -19,7 +19,7 @@ This file provides AI agents with instant architectural orientation for this pro
 - `@/*` -> `./src/*`
 
 ### Source Modules (`src/`)
-- `domains/adapters/`: Agent adapters (`antigravity`, `claude`, `cursor`, `gemini`) and `skill-reference-builder.ts` (generates lightweight reference files pointing to `.grooveskills/skills/`).
+- `domains/adapters/`: Agent adapters (`antigravity`, `claude`, `cursor`, `gemini`) and `skill-reference-builder.ts` (creates relative symbolic links in agent skills folders pointing directly to `.grooveskills/skills/<skill>/` and rule references for Cursor).
 - `domains/detector/`: Stack dependency detection (`package.json`, `Cargo.toml`, `pyproject.toml`) and active agent/harness detection.
 - `domains/harness/`: Mandatory harness installer (`install-harness.ts`), automatic project onboarding scanner (`scan-project-onboarding.ts`), multilingual templates (`harness-templates.ts`), `AGENTS.md`/`CLAUDE.md` upserter, and `config.json` persistence.
 - `domains/installer/`: Installation orchestrator (`install-orchestrator.ts`) ensuring `groove-harness` and `odd-ai` are always installed.

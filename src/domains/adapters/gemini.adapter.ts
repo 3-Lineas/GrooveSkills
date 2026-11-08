@@ -1,5 +1,5 @@
 import type { AgentAdapter } from "@/domains/adapters/adapter.interface";
-import { writeAgentSkillReference } from "@/domains/adapters/skill-reference-builder";
+import { linkAgentSkill } from "@/domains/adapters/skill-reference-builder";
 import type { SkillMetadata } from "@/types/skill.types";
 
 export class GeminiAdapter implements AgentAdapter {
@@ -13,7 +13,7 @@ export class GeminiAdapter implements AgentAdapter {
     _skillSourceDir: string,
     transaction?: import("@/domains/fs/install-transaction").InstallTransaction
   ): Promise<string[]> {
-    const file = writeAgentSkillReference(targetPath, this.targetRelativeDir, skill, transaction);
-    return [file];
+    const symlinkPath = linkAgentSkill(targetPath, this.targetRelativeDir, skill, transaction);
+    return [symlinkPath];
   }
 }

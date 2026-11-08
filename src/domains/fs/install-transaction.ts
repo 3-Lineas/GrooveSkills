@@ -15,6 +15,7 @@ export interface RollbackReport {
   restoredFiles: string[];
   removedFiles: string[];
   removedDirs: string[];
+  removedSymlinks: string[];
   failures: RollbackFailure[];
   isClean: boolean;
 }
@@ -22,6 +23,7 @@ export interface RollbackReport {
 export class InstallTransaction {
   private originalFiles = new Map<string, string | null>();
   private createdDirs: string[] = [];
+  private createdSymlinks: string[] = [];
   private replacedFiles: ReplacedFileNotice[] = [];
 
   recordBeforeWrite(filePath: string): void {
@@ -45,6 +47,12 @@ export class InstallTransaction {
     }
   }
 
+  recordCreatedSymlink(symlinkPath: string): void {
+    if (!this.createdSymlinks.includes(symlinkPath)) {
+      this.createdSymlinks.push(symlinkPath);
+    }
+  }
+
   recordReplacedFile(filePath: string, previousOwnerUid: number | null): void {
     if (!this.replacedFiles.some((item) => item.filePath === filePath)) {
       this.replacedFiles.push({ filePath, previousOwnerUid });
@@ -59,7 +67,18 @@ export class InstallTransaction {
     const restoredFiles: string[] = [];
     const removedFiles: string[] = [];
     const removedDirs: string[] = [];
+    const removedSymlinks: string[] = [];
     const failures: RollbackFailure[] = [];
+
+    for (const symlinkPath of this.createdSymlinks) {
+      try {
+        rmSync(symlinkPath, { force: true, recursive: true });
+        removedSymlinks.push(symlinkPath);
+      } catch (error: unknown) {
+        const reason = error instanceof Error ? error.message : String(error);
+        failures.push({ path: symlinkPath, reason });
+      }
+    }
 
     for (const [filePath, content] of this.originalFiles.entries()) {
       try {
@@ -109,6 +128,7 @@ export class InstallTransaction {
       restoredFiles,
       removedFiles,
       removedDirs,
+      removedSymlinks,
       failures,
       isClean: failures.length === 0,
     };

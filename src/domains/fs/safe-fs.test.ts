@@ -181,6 +181,74 @@ try {
   await runSafeFsIntegrationTests(testBaseDir);
   runNormalizeTaskFilenamesTests();
 
+  // 11. Test linkAgentSkill relative symlinks, legacy migration, custom skills preservation, and rollback
+  console.log("11. Test linkAgentSkill creates symlinks, migrates legacy directories, and preserves custom skills...");
+  const symlinkProjectDir = join(testBaseDir, "symlink-project");
+  mkdirSync(symlinkProjectDir, { recursive: true });
+
+  // Pre-seed canonical skill in .grooveskills/skills/my-skill
+  const canonicalSkillDir = join(symlinkProjectDir, ".grooveskills", "skills", "my-skill");
+  mkdirSync(canonicalSkillDir, { recursive: true });
+  writeFileSync(join(canonicalSkillDir, "SKILL.md"), "# Canonical My Skill Content\n", "utf-8");
+
+  // Pre-seed legacy agent folder with old copy/reference style
+  const agentSkillsDir = join(symlinkProjectDir, ".agents", "skills");
+  const legacySkillFolder = join(agentSkillsDir, "my-skill");
+  mkdirSync(legacySkillFolder, { recursive: true });
+  writeFileSync(join(legacySkillFolder, "SKILL.md"), "# Legacy Reference Content\n", "utf-8");
+
+  // Pre-seed a custom user-created skill in .agents/skills/custom-user-skill
+  const customUserSkillDir = join(agentSkillsDir, "custom-user-skill");
+  mkdirSync(customUserSkillDir, { recursive: true });
+  writeFileSync(join(customUserSkillDir, "SKILL.md"), "# User Custom Skill\n", "utf-8");
+
+  const symlinkTransaction = new InstallTransaction();
+  const { linkAgentSkill } = await import("@/domains/adapters/skill-reference-builder");
+
+  const skillMetadata = {
+    id: "my-skill",
+    name: "My Skill",
+    description: "Test skill",
+    dependencies: [],
+    directoryName: "my-skill",
+  };
+
+  const createdLink = linkAgentSkill(
+    symlinkProjectDir,
+    ".agents/skills",
+    skillMetadata,
+    symlinkTransaction
+  );
+
+  const { lstatSync: lstatCheck, readlinkSync: readlinkCheck } = await import("node:fs");
+  const linkStat = lstatCheck(createdLink);
+  assert.strictEqual(linkStat.isSymbolicLink(), true, "Skill in .agents/skills must be a symbolic link");
+
+  const linkTarget = readlinkCheck(createdLink);
+  assert.strictEqual(
+    linkTarget,
+    "../../.grooveskills/skills/my-skill",
+    "Symlink must be relative: ../../.grooveskills/skills/<skill>"
+  );
+
+  // Check content is readable through symlink
+  const resolvedContent = readFileSync(join(createdLink, "SKILL.md"), "utf-8");
+  assert.strictEqual(resolvedContent, "# Canonical My Skill Content\n");
+
+  // Verify custom user skill was NOT deleted or disturbed
+  assert.strictEqual(existsSync(customUserSkillDir), true, "Custom user skill directory must be preserved");
+  assert.strictEqual(
+    readFileSync(join(customUserSkillDir, "SKILL.md"), "utf-8"),
+    "# User Custom Skill\n"
+  );
+
+  // Test rollback removes created symlink
+  const symlinkRollbackReport = symlinkTransaction.rollback();
+  assert.strictEqual(symlinkRollbackReport.removedSymlinks.includes(createdLink), true);
+  assert.strictEqual(existsSync(createdLink), false, "Rollback should remove newly created symlink");
+  assert.strictEqual(existsSync(customUserSkillDir), true, "Custom skill must remain after rollback");
+  console.log("  ✔ linkAgentSkill creates relative symlinks, migrates legacy directories, and preserves custom skills.");
+
   console.log("\n✅ ALL RESILIENCE, ATOMIC REPLACE, AND ROLLBACK TESTS PASSED.");
 } finally {
   rmSync(testBaseDir, { recursive: true, force: true });
