@@ -41,11 +41,11 @@ A hybrid software engineering methodology tailored for AI coding assistants. It 
 ### Step 4: Classify Semantic Scope
 - Classify tasks by semantic complexity and reversibility, never by superficial line counts:
   - **Micro-Fix**: Focused 1-line or localized tweak; execute directly and verify.
-  - **Feature / Refactor (Lane 2 - Task)**: Requires state tracking in `.grooveskills/memory/tasks/<slug>.md`.
-  - **Architecture (Lane 3 - Spec)**: High ambiguity or cross-domain risk; draft spec and align before writing code.
+  - **Feature / Refactor (Lane 2 - Task)**: Requires state tracking in `.grooveskills/memory/tasks/YY-MM-DD-<slug>.md` (e.g. `26-11-08-auth-flow.md`). Correct existing task files if they lack this chronological prefix.
+  - **Architecture (Lane 3 - Spec)**: High ambiguity or cross-domain risk; draft spec in `.grooveskills/memory/tasks/YY-MM-DD-<slug>.md` and align before writing code.
 
 ### Step 5: Track Before First Write & Outcome Hypothesis
-Before modifying source files for substantial tasks, record the **Outcome Hypothesis** in `.grooveskills/memory/tasks/<slug>.md`:
+Before modifying source files for substantial tasks, record the **Outcome Hypothesis** in `.grooveskills/memory/tasks/YY-MM-DD-<slug>.md`:
 > *"By [Output / Technical Change], [Outcome / Verifiable Behavior] will occur, proven by [Evidence / Test / Build Command]."*
 
 ### Step 6: Execute Proportionate Clean Code

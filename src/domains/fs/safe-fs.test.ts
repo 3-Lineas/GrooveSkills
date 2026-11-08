@@ -16,6 +16,7 @@ import { FilePermissionError } from "@/errors/file-permission-error";
 import { InstallTransactionError } from "@/errors/install-transaction-error";
 import { installSkills } from "@/domains/installer/install-orchestrator";
 import { runSafeFsIntegrationTests } from "./safe-fs-integration.test";
+import { runNormalizeTaskFilenamesTests } from "@/domains/harness/normalize-task-filenames.test";
 
 console.log("▶ Starting verification suite: Defensive Permissions, Atomic Replace & Transactional Rollback...");
 
@@ -178,6 +179,7 @@ try {
   console.log("  ✔ InstallTransaction accurately tracks failures and skips unchanged files.");
 
   await runSafeFsIntegrationTests(testBaseDir);
+  runNormalizeTaskFilenamesTests();
 
   console.log("\n✅ ALL RESILIENCE, ATOMIC REPLACE, AND ROLLBACK TESTS PASSED.");
 } finally {

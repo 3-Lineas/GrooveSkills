@@ -4,7 +4,7 @@ Concrete patterns and templates for applying Organic & Outcome-Driven Developmen
 
 ---
 
-## 1. Task Document Template (`.grooveskills/memory/tasks/<slug>.md`)
+## 1. Task Document Template (`.grooveskills/memory/tasks/YY-MM-DD-<slug>.md`)
 
 ```markdown
 ---

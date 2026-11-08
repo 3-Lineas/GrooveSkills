@@ -12,6 +12,7 @@ import {
   buildTaskTemplate,
 } from "@/domains/harness/harness-templates";
 import { scanProjectOnboarding } from "@/domains/harness/scan-project-onboarding";
+import { normalizeTaskFileNames } from "@/domains/harness/normalize-task-filenames";
 import { upsertAgentInstructions } from "@/domains/harness/upsert-agent-instructions";
 import { safeWriteFileSync } from "@/domains/fs/safe-file-writer";
 import type { InstallTransaction } from "@/domains/fs/install-transaction";
@@ -90,6 +91,8 @@ export function installHarness(options: HarnessInstallOptions): HarnessInstallRe
     writeTrackedFile(templateTaskPath, buildTaskTemplate(), transaction);
     createdFiles.push(templateTaskPath);
   }
+
+  normalizeTaskFileNames(tasksDir, transaction);
 
   const instructions = upsertAgentInstructions(
     options.targetPath,

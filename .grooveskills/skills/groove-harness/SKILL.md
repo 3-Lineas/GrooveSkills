@@ -29,7 +29,7 @@ Every request is governed by the 7-step ODD protocol (*Authorize, Explore, Resol
 ### Lane 2: Task (Outcome-Driven Implementation)
 - **Trigger**: Concrete change, standard feature, refactor, or bugfix with clear requirements.
 - **Protocol**:
-  1. For non-trivial work, locate or create `.grooveskills/memory/tasks/<slug>.md`.
+  1. For non-trivial work, locate or create `.grooveskills/memory/tasks/YY-MM-DD-<slug>.md` (e.g. `26-11-08-auth-flow.md`). Maintain chronological order; if any task files do not follow this pattern, correct them.
   2. Declare the **Outcome Hypothesis**, `Scope`, and an itemized `Checklist`.
   3. Execute code changes incrementally following clean code standards.
   4. Only check off tasks once **observed evidence** is verified (e.g. `check-types`, tests, build, and the **Post-Task Security Gate** if trust boundaries or agent rules were touched).
@@ -38,7 +38,7 @@ Every request is governed by the 7-step ODD protocol (*Authorize, Explore, Resol
 ### Lane 3: Spec (Collaborative Design)
 - **Trigger**: Multi-component restructuring, ambiguous requirements, or high-risk domain changes.
 - **Protocol**:
-  1. Draft the architectural proposal, interfaces, trade-offs, and open questions inside `.grooveskills/memory/tasks/<slug>.md`.
+  1. Draft the architectural proposal, interfaces, trade-offs, and open questions inside `.grooveskills/memory/tasks/YY-MM-DD-<slug>.md`.
   2. Present the spec to the user and request explicit confirmation.
   3. Once approved, switch to Lane 2 (Task) for outcome-driven implementation.
 

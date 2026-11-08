@@ -52,7 +52,7 @@ Through the built-in `odd-ai` and `groove-harness` skills, GrooveSkills guides y
 2. **Explore Proportionately (.grooveskills-First)**: Always reads `.grooveskills/` first; zero recursive project re-scanning on every turn.
 3. **Resolve Uncertainty Early**: Answers technical unknowns by reading the codebase; asks concise questions only at architectural crossroads.
 4. **Classify Semantic Scope**: Routes the request into one of three execution lanes based on architectural impact and reversibility rather than line counts.
-5. **Track Before First Write & Outcome Hypothesis**: Before editing source files on non-trivial tasks, records the plan and a formal hypothesis in `.grooveskills/memory/tasks/<slug>.md`:
+5. **Track Before First Write & Outcome Hypothesis**: Before editing source files on non-trivial tasks, records the plan and a formal hypothesis in `.grooveskills/memory/tasks/YY-MM-DD-<slug>.md` (e.g. `26-11-08-auth-flow.md`):
    > *"By delivering `[Output / Technical Change]`, `[Outcome / Verifiable Behavior]` will occur, proven by `[Evidence / Test / Build Command]`."*
 6. **Execute Proportionate Clean Code**: Writes clean, modular code following strict typing (zero `any`), guard clauses (zero nested `if`s), direct imports, and `<200` lines per file.
 7. **Verify Against Outcomes, Security Gate & Bitacora**: Runs deterministic checks (including the Post-Task Security Gate on trust boundary changes), logs output under `## Evidence`, and logs daily bullets in `.grooveskills/bitacora/YYYY-MM.md`.
@@ -60,8 +60,8 @@ Through the built-in `odd-ai` and `groove-harness` skills, GrooveSkills guides y
 | Execution Lane | When It Activates | Agent Behavior |
 | :--- | :--- | :--- |
 | **Lane 1 — Answer** | Questions, code reviews, audits, or architectural inquiries. | **Read-only exploration.** Inspects context and answers clearly with zero files modified. |
-| **Lane 2 — Task** | Well-defined features, refactors, or bugfixes. | **Outcome-driven implementation.** Declares an Outcome Hypothesis in `memory/tasks/<slug>.md` and checks off items only after verifying empirical proof under `## Evidence`. |
-| **Lane 3 — Spec** | High-impact or multi-domain architectural changes. | **Collaborative design.** Drafts a specification and Outcome Hypothesis in `memory/tasks/<slug>.md` and aligns with you before writing implementation code. |
+| **Lane 2 — Task** | Well-defined features, refactors, or bugfixes. | **Outcome-driven implementation.** Declares an Outcome Hypothesis in `memory/tasks/YY-MM-DD-<slug>.md` (correcting existing non-chronological tasks) and checks off items only after verifying empirical proof under `## Evidence`. |
+| **Lane 3 — Spec** | High-impact or multi-domain architectural changes. | **Collaborative design.** Drafts a specification and Outcome Hypothesis in `memory/tasks/YY-MM-DD-<slug>.md` and aligns with you before writing implementation code. |
 
 ### 4. Multilingual, Empathetic UX Communication
 Select your preferred language (**Español, English, Português, Italiano, or Français**) during onboarding so every validation message, toast, and agent interaction remains warm, persuasive, and professional.
