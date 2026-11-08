@@ -17,6 +17,7 @@ import { InstallTransactionError } from "@/errors/install-transaction-error";
 import { installSkills } from "@/domains/installer/install-orchestrator";
 import { runSafeFsIntegrationTests } from "./safe-fs-integration.test";
 import { runNormalizeTaskFilenamesTests } from "@/domains/harness/normalize-task-filenames.test";
+import { runSecurityAuditTests } from "@/domains/audit/run-security-audit.test";
 
 console.log("▶ Starting verification suite: Defensive Permissions, Atomic Replace & Transactional Rollback...");
 
@@ -248,6 +249,9 @@ try {
   assert.strictEqual(existsSync(createdLink), false, "Rollback should remove newly created symlink");
   assert.strictEqual(existsSync(customUserSkillDir), true, "Custom skill must remain after rollback");
   console.log("  ✔ linkAgentSkill creates relative symlinks, migrates legacy directories, and preserves custom skills.");
+
+  // 12. Test standalone zero-footprint security audit
+  await runSecurityAuditTests();
 
   console.log("\n✅ ALL RESILIENCE, ATOMIC REPLACE, AND ROLLBACK TESTS PASSED.");
 } finally {

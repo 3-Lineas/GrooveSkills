@@ -11,6 +11,7 @@ interface CliRawOptions {
   agents?: string[];
   yes?: boolean;
   language?: string;
+  output?: string;
 }
 
 const program = new Command();
@@ -19,13 +20,16 @@ program
   .name("grooveskills")
   .description("Multi-agent AI skills, ODD workflow, and persistent project harness installer")
   .version(__VERSION__)
-  .argument("[command]", "Optional command: 'init' (force re-onboarding) or 'update' (update harness and skills in-place)")
+  .argument("[command]", "Optional command: 'init', 'update', 'audit', or 'security-audit'")
+  .argument("[target]", "Target path (for audit command, defaults to current directory)")
   .option("-s, --skills <skills...>", "Specific skill IDs to install (e.g. odd-ai best-practices hono)")
   .option("-a, --agents <agents...>", "Target AI agents (antigravity claude cursor gemini)")
   .option("-y, --yes", "Automatically confirm overwrite of existing skills", false)
   .option("-l, --language <lang>", "Project user copy language (es, en, pt, it, fr)")
-  .action(async (command: string | undefined, options: CliRawOptions) => {
+  .option("-o, --output <dir>", "Output directory for exported audit artifacts (coverage-ledger.json, findings.json, REPORT.md)")
+  .action(async (command: string | undefined, target: string | undefined, options: CliRawOptions) => {
     try {
+      const isAudit = command === "audit" || command === "security-audit";
       const forceOnboarding = command === "init";
       const isUpdate = command === "update";
       await runGrooveSkills({
@@ -36,6 +40,9 @@ program
         language: options.language as ProjectLanguage | undefined,
         forceOnboarding,
         isUpdate,
+        isAudit,
+        auditTarget: isAudit ? target : undefined,
+        outputDirectory: options.output,
       });
     } catch (error) {
       if (error instanceof InstallTransactionError) {

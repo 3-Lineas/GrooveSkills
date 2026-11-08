@@ -17,6 +17,9 @@ export interface CliOptions {
   language?: ProjectLanguage;
   forceOnboarding?: boolean;
   isUpdate?: boolean;
+  isAudit?: boolean;
+  auditTarget?: string;
+  outputDirectory?: string;
 }
 
 function resolveUsername(): string {
@@ -36,6 +39,17 @@ export async function runGrooveSkills(options: CliOptions = {}): Promise<void> {
   const isDirectHarness = Boolean(options.harness) && hasAgents;
   const isDirectInit = Boolean(options.forceOnboarding) && hasAgents;
   const isUpdateMode = Boolean(options.isUpdate);
+  const isAuditMode = Boolean(options.isAudit);
+
+  if (isAuditMode) {
+    const { runSecurityAudit } = await import("@/domains/audit/run-security-audit");
+    await runSecurityAudit({
+      targetPath: options.auditTarget || targetPath,
+      outputDirectory: options.outputDirectory,
+      language: options.language ?? context.configuredLanguage ?? "es",
+    });
+    return;
+  }
 
   if (isUpdateMode) {
     const agentsToUpdate =

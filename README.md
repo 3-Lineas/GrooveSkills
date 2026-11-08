@@ -85,23 +85,22 @@ npx @3lineas/grooveskills update
 npx @3lineas/grooveskills init
 ```
 
-### 🛡️ Run a Full On-Demand Security Audit (Prompt)
-While GrooveSkills runs an automatic **Post-Task Security Gate** on modified trust boundaries at the end of every task, you can trigger a full **6-Phase Adversarial Security Audit** (Cloudflare + NVIDIA SkillSpector + Strix) anytime by pasting this prompt into your AI assistant:
-
-```text
-Run a full 6-phase adversarial security audit using .grooveskills/skills/security-audit/SKILL.md on [entire repository | path/to/module]:
-1. Phase 1 (Recon): Read .grooveskills/memory/context.md, map trust boundaries, and generate coverage-ledger.json in .grooveskills/memory/audits/<date>-<scope>/.
-2. Phase 2 (Hunting): Audit each ledger unit across domain references (API BOLA/BOPLA, Client IPC, Data/Cloud/RLS, AI/MCP, Memory/Race Conditions).
-3. Phase 3-5 (Adversarial Disproof): Challenge every candidate with a fresh adversarial check, record verdicts in findings.json, and run validate-audit.mjs and scan-skill-integrity.mjs.
-4. Phase 6 (Remediation Plan): Generate REPORT.md with confirmed findings, source traces, and root-cause fix + regression PoC test plans.
+### 🛡️ Autonomous Zero-Footprint Security Audit (`audit` / `security-audit`)
+Run a complete static & adversarial security audit on **any codebase** without installing GrooveSkills (zero files created unless `-o` is given):
+```bash
+npx @3lineas/grooveskills audit [path]
+# Optional: export coverage-ledger.json, findings.json, and REPORT.md
+npx @3lineas/grooveskills audit [path] --output ./audit-results
 ```
 
 ### CLI Options Reference
 
 | Command / Flag | Description | Example |
 | :--- | :--- | :--- |
+| `audit [path]` | Zero-footprint multi-domain security audit (alias: `security-audit`) | `npx @3lineas/grooveskills audit ./src` |
 | `update` | In-place update of harness rules, bitacora directory, and active skills | `npx @3lineas/grooveskills update` |
 | `init` | Force re-run of project onboarding, stack scan & memory context | `npx @3lineas/grooveskills init` |
+| `-o, --output <dir>` | Export audit artifacts (`coverage-ledger.json`, `findings.json`, `REPORT.md`) | `audit --output ./reports` |
 | `-s, --skills <skills...>` | Space-separated list of skill IDs to install | `--skills odd-ai best-practices` |
 | `-a, --agents <agents...>` | Target AI assistants (`antigravity`, `claude`, `cursor`, `gemini`) | `--agents antigravity cursor` |
 | `-l, --language <lang>` | Set the language for user-facing copy (`es`, `en`, `pt`, `it`, `fr`) | `-l es` |
