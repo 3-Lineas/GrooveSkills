@@ -82,7 +82,7 @@ export const SKILL_CATALOG: SkillMetadata[] = [
   {
     id: "clean-architecture-ddd",
     name: "Clean Architecture & DDD",
-    description: "Domain-driven design, isolated atomic Actions (1 function per file), pure functions, immutability, zero barrel files, <200 lines per file",
+    description: "Domain-driven design, isolated atomic Actions (1 step / 1 DB query per file), pure functions, immutability, zero barrel files, <200 lines per file",
     dependencies: [],
     directoryName: "clean-architecture-ddd",
   },
@@ -110,7 +110,7 @@ export const SKILL_CATALOG: SkillMetadata[] = [
   {
     id: "controller-orchestration-queues",
     name: "Controller Orchestration & Queue Adapters",
-    description: "Strict orchestration for Hono routes and thin controllers, atomic Actions, DB Transactions, and background Queue Adapters",
+    description: "Strict orchestration for Hono routes: atomic Actions (1 DB query/step), mandatory Pipeline chaining, DB Transactions, and Queues",
     dependencies: [],
     directoryName: "controller-orchestration-queues",
   },
@@ -145,7 +145,7 @@ export const SKILL_CATALOG: SkillMetadata[] = [
   {
     id: "hono",
     name: "Hono Architecture (Valibot)",
-    description: "Enterprise Hono API standard with atomic routes in src/routes/{domain}/ delegating to Actions (direct or via Pipeline) and Valibot validation",
+    description: "Enterprise Hono API standard with atomic routes in src/routes/{domain}/, 1 DB query per Action, mandatory Pipeline chaining, and Valibot",
     dependencies: ["hono", "@hono/valibot-validator", "@hono/standard-validator"],
     directoryName: "hono",
   },

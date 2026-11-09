@@ -15,10 +15,12 @@ Architectural guidelines for organizing code into decoupled domain modules, isol
    - Organize files by business domain subfolders (`users/`, `billing/`, `orders/`) *inside* each technical layer (`src/actions/{domain}/`, `src/routes/{domain}/`, `src/types/{domain}/`, `src/dtos/{domain}/`, `src/errors/{domain}/`).
    - **NEVER** create a root `src/domains/`, `src/controllers/`, or `src/services/` folder to dump code.
 
-2. **Actions Layer for Business Logic**:
-   - Encapsulate every single business use case or domain computation in an isolated Action (`src/actions/{domain}/{action-name}.action.ts`).
-   - Exactly ONE function per file. Pure domain logic, transformations, or calculations (e.g. `calculate-prorated-tax.action.ts`) also live as atomic Actions.
-   - Routers and UI controllers remain thin and delegate to Actions.
+2. **Actions Layer for Atomic Business Steps (Max 1 DB Query)**:
+   - Encapsulate every single atomic business step or domain computation in an isolated Action (`src/actions/{domain}/{action-name}.action.ts`).
+   - Actions are **atomic steps**, NOT entire use cases. Never bundle calculation + database lookup + gateway call + database mutation into one monolithic Action.
+   - **Every DB Call is an Atomic Action**: All database queries or mutations live in their own dedicated Action (maximum 1 DB query per Action).
+   - Exactly ONE function per file. Pure domain logic, transformations, or calculations (e.g. `calculate-prorated-tax.action.ts`) live as atomic Actions.
+   - Routers remain thin and sequence atomic Actions using `Pipeline.send(context).through([...actions])`.
 
 3. **Inversion of Dependencies**:
    - Business actions do not depend directly on concrete database drivers or external HTTP clients.
@@ -44,22 +46,23 @@ Architectural guidelines for organizing code into decoupled domain modules, isol
 
 ```text
 src/
-├── actions/                         # Pure business logic actions (1 function/file)
+├── actions/                         # Pure business logic actions (1 function/file, max 1 DB query)
 │   └── billing/
-│       ├── charge-subscription.action.ts
-│       ├── cancel-subscription.action.ts
-│       └── calculate-prorated-tax.action.ts
+│       ├── calculate-prorated-tax.action.ts # Step 1: Pure math calculation (<40 lines)
+│       ├── charge-payment-gateway.action.ts # Step 2: Atomic external payment call (<60 lines)
+│       └── persist-invoice.action.ts        # Step 3: Atomic 1 DB mutation (<50 lines)
 ├── routes/                          # Thin HTTP route endpoints (1 route/file)
 │   └── billing/
 │       ├── billing.router.ts
-│       └── charge-subscription.route.ts
+│       └── charge-subscription.route.ts     # Pipeline orchestrator chaining Steps 1 -> 2 -> 3
 ├── dtos/                            # Valibot schemas (<50 lines)
 │   └── billing/
 │       └── charge-subscription.dto.ts
 ├── types/                           # Pure isolated domain types (1 type/file)
 │   └── billing/
 │       ├── invoice.type.ts
-│       └── charge-subscription-input.type.ts
+│       ├── charge-subscription-input.type.ts
+│       └── billing-context.type.ts
 └── infrastructure/                  # Adapters, DB clients, external APIs
     └── stripe/
         └── stripe-payment-gateway.adapter.ts
@@ -69,34 +72,42 @@ src/
 
 ## 3. Atomic Action Blueprint
 
-```ts
-import type { Invoice } from "@/types/billing/invoice.type";
-import type { ChargeSubscriptionInput } from "@/types/billing/charge-subscription-input.type";
-import type { PaymentGatewayPort } from "@/types/billing/payment-gateway-port.type";
-import { AppError } from "@/errors/app-error";
-import type { ActionResponse } from "@/types/common/action-response.type";
+Actions represent ONE isolated atomic step (pure transformation, single external adapter call, or single DB query/mutation). Endpoints chain them via `Pipeline`.
 
-export async function chargeSubscriptionAction(
-  input: ChargeSubscriptionInput,
-  paymentGateway: PaymentGatewayPort
-): Promise<ActionResponse<Invoice>> {
-  if (!input.customerId || !input.planId) {
-    throw new AppError({ message: "Customer and Plan are required.", statusCode: 400 });
+```ts
+// src/actions/billing/charge-payment-gateway.action.ts
+import type { BillingContext } from "@/types/billing/billing-context.type";
+import { AppError } from "@/errors/app-error";
+
+export async function chargePaymentGatewayAction(
+  context: BillingContext
+): Promise<BillingContext> {
+  if (!context.customerId || context.totalAmount <= 0) {
+    throw new AppError({
+      message: "Customer identifier and valid amount are required to process payment.",
+      statusCode: 400,
+      silent: true,
+    });
   }
 
-  // Pure domain math calculated directly; or if calculated by an Action, sequenced upstream via Pipeline
-  const baseAmount = 4900;
-  const proratedTax = Math.round(baseAmount * 0.21);
-  const total = baseAmount + proratedTax;
+  // Exactly 1 external service call via injected port
+  const chargeReceipt = await context.paymentGateway.charge(
+    context.customerId,
+    context.totalAmount
+  );
 
-  const success = await paymentGateway.charge(input.customerId, total);
-  if (!success) {
-    return { success: false, error: "Payment processing was declined by provider." };
+  if (!chargeReceipt.success) {
+    throw new AppError({
+      message: "Payment processing was declined by the provider. Please verify your payment details.",
+      code: "PAYMENT_DECLINED",
+      statusCode: 402,
+      silent: true,
+    });
   }
 
   return {
-    success: true,
-    data: { id: "inv_123", total, customerId: input.customerId },
+    ...context,
+    paymentReceipt: chargeReceipt,
   };
 }
 ```

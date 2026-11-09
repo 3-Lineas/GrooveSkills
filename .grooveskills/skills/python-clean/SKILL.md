@@ -74,18 +74,20 @@ def activate_subscription(customer_id: str | None, plan: Plan | None) -> Invoice
 
 ## 3. Atomic Action Blueprint
 
+Actions represent ONE isolated atomic step (max 1 DB query/mutation or 1 external call). Routes chain atomic actions via Pipeline; monolithic actions bundling full use-case logic are forbidden.
+
 ```python
-# app/actions/billing/charge_subscription.py
-from app.types.billing.invoice import Invoice
-from app.types.billing.charge_subscription_input import ChargeSubscriptionInput
+# app/actions/billing/charge_payment_gateway.py
+from app.types.billing.payment_receipt import PaymentReceipt
+from app.types.billing.charge_payment_input import ChargePaymentInput
 from app.types.billing.payment_gateway_protocol import PaymentGatewayProtocol
 from app.errors.app_error import AppError
 from app.types.common.response import ActionResponse
 
-def charge_subscription_action(
-    input_data: ChargeSubscriptionInput,
+def charge_payment_gateway_action(
+    input_data: ChargePaymentInput,
     payment_gateway: PaymentGatewayProtocol,
-) -> ActionResponse[Invoice]:
+) -> ActionResponse[PaymentReceipt]:
     if not input_data.customer_id.strip():
         raise AppError(
             message="El cliente es requerido para procesar el pago.",
@@ -98,8 +100,8 @@ def charge_subscription_action(
             status_code=422,
         )
 
-    invoice = payment_gateway.charge(input_data.customer_id, input_data.amount_cents)
-    return ActionResponse(success=True, data=invoice)
+    receipt = payment_gateway.charge(input_data.customer_id, input_data.amount_cents)
+    return ActionResponse(success=True, data=receipt)
 ```
 
 ---

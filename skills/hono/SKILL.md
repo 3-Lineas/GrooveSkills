@@ -32,15 +32,18 @@ Standardized guide for building robust, scalable Hono applications with isolated
    - Subfolders for surfaces (e.g. `src/routes/{surface}/{domain}/` or `modules`) are ONLY permitted when the backend serves 2 or more distinct route surfaces (e.g. `web` vs `mobile`). For standard APIs, `{domain}` is direct: `src/routes/{domain}/`.
    - Group domain routes under `src/routes/{domain}/{domain}.router.ts` and mount in root router `src/routes/index.ts`.
 
-6. **1 Route per File & 1 Action per File (100% Atomic)**:
+6. **1 Route per File & 1 Atomic Action per File (Max 1 DB Query/Mutation)**:
    - Each route file defines exactly 1 HTTP endpoint.
    - Each action file exports exactly 1 atomic function.
+   - **Every DB Call is an Atomic Action**: All database queries or mutations (`SELECT`, `INSERT`, `UPDATE`, `DELETE`) must live in their own dedicated atomic Action. An Action must NEVER execute multiple database operations.
+   - **Zero Monolithic Use-Case Actions**: Creating god actions like `register-user.action.ts` (which bundles email existence lookup, validation, and insertion in one file) is strictly forbidden. Decompose into atomic actions (`sanitizeUserInputAction`, `ensureEmailAvailableAction`, `persistUserAction`).
    - An Action **NEVER** calls another Action. Orchestration belongs in the route.
    - No inline data interfaces or types; domain types live in `@/types/{domain}/`.
 
-7. **Direct Action vs. Pipeline Execution in Routes**:
-   - When an endpoint needs only 1 Action: invoke the Action directly (`const result = await myAction(ctx);`).
-   - When an endpoint coordinates multiple Actions: sequence them cleanly using `Pipeline.send(context).through([actionA, actionB, actionC])`.
+7. **Mandatory Pipeline Chaining in Routes (No Monolithic Route Actions)**:
+   - A route **must never** call a single action that performs the entire use-case logic.
+   - When an endpoint performs multiple steps (validation, DB lookup, DB insertion, external call): chain them sequentially using `Pipeline.send(context).through([actionA, actionB, actionC])`.
+   - When an endpoint performs a simple atomic read: invoke the single query action directly (`const userProfile = await getUserByIdAction({ db, userId });`).
 
 8. **Hard Size Limit: <200 Lines Max**:
    - Keep route endpoints under 60 lines and routers under 50 lines.

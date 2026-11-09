@@ -81,16 +81,18 @@ pub fn process_order(order: Option<OrderInput>) -> Result<Order, AppError> {
 
 ## 3. Atomic Action Blueprint
 
+Actions represent ONE isolated atomic step (max 1 DB query/mutation or 1 external call). Routes chain atomic actions via Pipeline; monolithic actions bundling full use-case logic are forbidden.
+
 ```rust
-// src/actions/billing/charge_subscription.rs
-use crate::types::billing::{ChargeSubscriptionInput, Invoice};
+// src/actions/billing/charge_payment_gateway.rs
+use crate::types::billing::{ChargePaymentInput, PaymentReceipt};
 use crate::types::billing::PaymentGateway;
 use crate::errors::AppError;
 
-pub fn charge_subscription_action(
-    input: &ChargeSubscriptionInput,
+pub fn charge_payment_gateway_action(
+    input: &ChargePaymentInput,
     payment_client: &impl PaymentGateway,
-) -> Result<Invoice, AppError> {
+) -> Result<PaymentReceipt, AppError> {
     if input.customer_id.trim().is_empty() {
         return Err(AppError::validation(
             "El identificador de cliente es obligatorio.",
@@ -104,7 +106,7 @@ pub fn charge_subscription_action(
     }
 
     let receipt = payment_client.process_charge(&input.customer_id, input.amount_cents)?;
-    Ok(Invoice::from_receipt(receipt))
+    Ok(receipt)
 }
 ```
 

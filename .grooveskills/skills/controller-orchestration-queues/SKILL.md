@@ -11,13 +11,16 @@ Architectural standard establishing strict separation of concerns between **Atom
 
 ## 1. The Core Architectural Law
 
-1. **Actions Do Exactly ONE Atomic Thing**:
-   - Single responsibility. Example: `sanitizeSlugAction`, `ensureAvailableAction`, `persistOrderAction`.
+1. **Actions Do Exactly ONE Atomic Thing (Max 1 DB Query)**:
+   - Single responsibility. Example: `sanitizeSlugAction`, `ensureAvailableAction` (1 `SELECT` query), `persistOrderAction` (1 `INSERT` query).
+   - **Every DB Call is an Atomic Action**: All database queries or mutations must live in an isolated Action. An Action must NEVER execute multiple DB operations.
    - **An Action NEVER calls another Action directly.** No nested Action cascades.
    - Signature: `(context: TContext) => Promise<TContext> | TContext`.
 
-2. **Controllers & Pipelines are Orchestrators**:
-   - HTTP route handlers and RPC controllers validate inputs, sequence actions through Pipelines (`Pipeline.send(context).through([...actions])`), wrap transactions, and dispatch background jobs via `QueuePort`.
+2. **Controllers & Pipelines are Orchestrators (Zero Use-Case God Actions)**:
+   - Creating god actions (like `register-user.action.ts` or `checkout-order.action.ts` that bundle verification and persistence) is strictly forbidden.
+   - HTTP route handlers and RPC controllers validate inputs, sequence atomic actions through Pipelines (`Pipeline.send(context).through([...actions])`), wrap transactions, and dispatch background jobs via `QueuePort`.
+   - Never call a single monolithic action from a route to execute the entire use case.
 
 3. **Atomic Multi-Mutation Pipelines (`withTransaction` / `withD1Transaction`)**:
    - In standard relational databases, wrap actions inside a database transaction handle (`tx`).

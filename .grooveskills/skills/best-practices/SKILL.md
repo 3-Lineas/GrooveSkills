@@ -30,9 +30,11 @@ Universal guidelines applicable to **any programming language** and **any file**
    - Never nest `if` conditions ("pyramid of doom").
    - Validate preconditions first and fail fast (return or throw). The happy path stays unindented.
 
-5. **Strict Atomic File Rule (1 Function / 1 Method per File)**:
+5. **Strict Atomic File Rule (1 Function / 1 Method per File & Max 1 DB Query)**:
    - Every file must export **at most ONE function, method, action, route handler, component, hook, schema, or type**.
    - **NEVER** group multiple functions, helper functions, or utility methods in the same file. If a function needs a helper, extract that helper into its own dedicated atomic file.
+   - **1 DB Call per Action**: Every database operation (`SELECT`, `INSERT`, `UPDATE`, `DELETE`) must reside in its own dedicated atomic Action. An Action must never execute multiple DB queries.
+   - **Zero Monolithic Use-Case Actions**: Do not create god actions (like `register-user.action.ts`) that bundle lookups, validations, and persistence together. Routes must chain atomic actions sequentially via `Pipeline`.
    - **No Inline Data Types**: Never declare data `interface` or `type` definitions inline inside actions, routes, DTOs, hooks, or components. **Exception**: Only a UI component's own `Props` interface (e.g. `interface ButtonProps`) may be declared inline in its `.tsx` file; all other domain/data types must live in `@/types/{domain}/{name}.type.ts`.
    - **NEVER** create `src/domains/` or `src/services/` folders to dump business logic; all business logic lives in atomic actions under `src/actions/{domain}/{action-name}.action.ts`.
 
@@ -93,9 +95,9 @@ export function processTransaction(tx: Transaction) {
 
 ```ts
 // ✅ CORRECT (Direct import with alias):
-import { registerUserAction } from "@/actions/auth/register-user.action.ts";
+import { persistUserAction } from "@/actions/auth/persist-user.action.ts";
 import { AppError } from "@/errors/app-error.ts";
 
 // ❌ FORBIDDEN (Barrel import & relative path):
-import { registerUserAction } from "../../actions/auth";
+import { persistUserAction } from "../../actions/auth";
 ```

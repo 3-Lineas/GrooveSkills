@@ -1,6 +1,9 @@
 # Hono Route Template
 
-Slim HTTP controller that validates request body with Valibot via `validationHook`, uses `createRouteHandler`, and delegates to atomic Actions (direct call or via Pipeline). Located at `src/routes/{domain}/{action}.route.ts`.
+Slim HTTP controller that validates request body with Valibot via `validationHook`, uses `createRouteHandler`, and delegates to atomic Actions.
+- **Multi-Step Flow (Default)**: Mandatory Pipeline orchestration chaining atomic actions (maximum 1 DB query/mutation per action). Calling a single monolithic action that does all the logic is strictly forbidden.
+- **Single Read Flow**: Directly calls an atomic read Action (which executes exactly 1 `SELECT` query).
+Located at `src/routes/{domain}/{action}.route.ts`.
 
 ## Pattern A: Direct Single Action Call
 

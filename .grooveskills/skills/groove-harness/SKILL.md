@@ -78,5 +78,6 @@ Every request is governed by the 7-step ODD protocol (*Authorize, Explore, Resol
 4. **Strict Atomic File Rule (1 Function/Method per File)**: Every code file must export at most ONE function, method, action, route handler, component, hook, schema, or type. Never group multiple helpers or methods in one file.
 5. **Type Isolation Rule**: Never declare data interfaces or types inline inside actions, routes, DTOs, or hooks. Only a UI component's own `Props` interface can be declared inline in its `.tsx` file; all other domain/data types must live in `@/types/{domain}/{name}.type.ts`.
 6. **Domain within Technical Layers**: Always organize by `{domain}` subfolders inside each technical layer (`src/actions/{domain}/`, `src/routes/{domain}/`, `src/dtos/{domain}/`, `src/types/{domain}/`, `src/errors/{domain}/`). Never create root `src/domains/` or `src/controllers/` folders.
-7. **Respect Best Practices**: All code must follow strict typing, guard clauses, SRP, direct imports (no barrels), and file limits (<200 lines).
+7. **1 DB Call per Action & Mandatory Pipeline Chaining**: Every database query or mutation must live in its own dedicated Action (max 1 DB query per Action). Monolithic use-case actions (like `register-user.action.ts`) are strictly forbidden; routes must chain atomic actions via `Pipeline`.
+8. **Respect Best Practices**: All code must follow strict typing, guard clauses, SRP, direct imports (no barrels), and file limits (<200 lines).
 
