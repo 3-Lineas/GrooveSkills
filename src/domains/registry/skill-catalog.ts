@@ -19,7 +19,7 @@ export const SKILL_CATALOG: SkillMetadata[] = [
   {
     id: "best-practices",
     name: "Universal Best Practices",
-    description: "Multi-language clean code standards, early returns, no barrel files, strict typing, <200 lines",
+    description: "Multi-language clean code standards, strict 1 method/function per file, early returns, no barrel files, strict typing, <200 lines",
     dependencies: [],
     directoryName: "best-practices",
   },
@@ -82,7 +82,7 @@ export const SKILL_CATALOG: SkillMetadata[] = [
   {
     id: "clean-architecture-ddd",
     name: "Clean Architecture & DDD",
-    description: "Domain-driven design, isolated single-purpose Actions, pure functions, immutability, zero barrel files, <200 lines per file",
+    description: "Domain-driven design, isolated atomic Actions (1 function per file), pure functions, immutability, zero barrel files, <200 lines per file",
     dependencies: [],
     directoryName: "clean-architecture-ddd",
   },
@@ -110,7 +110,7 @@ export const SKILL_CATALOG: SkillMetadata[] = [
   {
     id: "controller-orchestration-queues",
     name: "Controller Orchestration & Queue Adapters",
-    description: "Strict orchestration rules for Controllers, atomic Actions, DB Transactions, and background Queue Adapters (Cloudflare, BullMQ, SQS)",
+    description: "Strict orchestration for Hono routes and thin controllers, atomic Actions, DB Transactions, and background Queue Adapters",
     dependencies: [],
     directoryName: "controller-orchestration-queues",
   },
@@ -145,7 +145,7 @@ export const SKILL_CATALOG: SkillMetadata[] = [
   {
     id: "hono",
     name: "Hono Architecture (Valibot)",
-    description: "Enterprise Hono API standard with thin route handlers (createRouteHandler), Valibot validation, and isolated Actions",
+    description: "Enterprise Hono API standard with atomic routes in src/routes/{domain}/ delegating to Actions (direct or via Pipeline) and Valibot validation",
     dependencies: ["hono", "@hono/valibot-validator", "@hono/standard-validator"],
     directoryName: "hono",
   },

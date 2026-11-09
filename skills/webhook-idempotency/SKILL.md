@@ -15,8 +15,8 @@ Architectural pattern for incoming webhooks: decoupled cryptographic signature v
    - Webhook endpoints must verify HMAC cryptographic signatures using raw request bodies before running any business logic or parsing JSON.
 2. **Idempotency Guard**:
    - Webhooks are delivered with "at-least-once" guarantees. An `IdempotencyGuard` checks if an event ID was already processed; if so, returns early (HTTP 200) without re-running actions.
-3. **Slim Webhook Controller**:
-   - The webhook controller verifies signatures, claims idempotency, and delegates to an action or dispatches to a queue.
+3. **Slim Webhook Route**:
+   - The webhook route verifies signatures, claims idempotency, and delegates to an action or dispatches to a queue.
 
 ---
 
@@ -24,14 +24,15 @@ Architectural pattern for incoming webhooks: decoupled cryptographic signature v
 
 ```text
 src/
-├── controllers/
+├── routes/
 │   └── webhooks/
-│       ├── stripe-webhook.controller.ts     # Verifies + Idempotency + Action (<80 lines)
-│       └── mercadopago-webhook.controller.ts # Verifies + Idempotency + Action (<80 lines)
-├── domains/
+│       ├── stripe-webhook.route.ts          # Verifies + Idempotency + Action (<80 lines)
+│       └── mercadopago-webhook.route.ts     # Verifies + Idempotency + Action (<80 lines)
+├── types/
 │   └── webhooks/
-│       ├── webhook-verifier.port.ts         # Signature verification interface (<40 lines)
-│       └── idempotency.port.ts              # Idempotency storage interface (<40 lines)
+│       ├── webhook-verifier-port.type.ts    # Signature verification interface (<40 lines)
+│       ├── webhook-verify-input.type.ts     # Payload type (<30 lines)
+│       └── idempotency-port.type.ts         # Idempotency storage interface (<40 lines)
 └── infrastructure/
     ├── adapters/
     │   ├── webhooks/
@@ -47,21 +48,28 @@ src/
 
 ---
 
-## 3. Interfaces Contract (`src/domains/webhooks/`)
+## 3. Interfaces Contract (`src/types/webhooks/`)
 
 ```ts
-// webhook-verifier.port.ts
+// src/types/webhooks/webhook-verify-input.type.ts
 export interface WebhookVerifyInput {
   rawBody: string | Uint8Array;
   signatureHeader: string;
   secret: string;
 }
+```
+
+```ts
+// src/types/webhooks/webhook-verifier-port.type.ts
+import type { WebhookVerifyInput } from "@/types/webhooks/webhook-verify-input.type";
 
 export interface WebhookVerifierPort<TEvent = unknown> {
   verify(input: WebhookVerifyInput): Promise<TEvent>;
 }
+```
 
-// idempotency.port.ts
+```ts
+// src/types/webhooks/idempotency-port.type.ts
 export interface IdempotencyPort {
   lockOrSkip(key: string, ttlSeconds: number): Promise<boolean>;
   markCompleted(key: string): Promise<void>;
@@ -74,7 +82,7 @@ export interface IdempotencyPort {
 
 ```ts
 // src/infrastructure/guards/idempotency.guard.ts
-import type { IdempotencyPort } from "@/domains/webhooks/idempotency.port";
+import type { IdempotencyPort } from "@/types/webhooks/idempotency-port.type";
 
 export class IdempotencyGuard {
   constructor(private port: IdempotencyPort) {}
@@ -89,8 +97,8 @@ export class IdempotencyGuard {
       const result = await fn();
       await this.port.markCompleted(key);
       return { executed: true, result };
-    } catch (err) {
-      throw err;
+    } catch (caughtError) {
+      throw caughtError;
     }
   }
 }

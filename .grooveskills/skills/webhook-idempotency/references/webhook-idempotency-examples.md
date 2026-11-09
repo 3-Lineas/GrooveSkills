@@ -9,7 +9,8 @@ Real-world HMAC verification adapters (Stripe, Svix, MercadoPago) and atomic ide
 ```ts
 // src/infrastructure/adapters/webhooks/stripe-verifier.adapter.ts
 import Stripe from "stripe";
-import type { WebhookVerifierPort, WebhookVerifyInput } from "@/domains/webhooks/webhook-verifier.port";
+import type { WebhookVerifierPort } from "@/types/webhooks/webhook-verifier-port.type";
+import type { WebhookVerifyInput } from "@/types/webhooks/webhook-verify-input.type";
 import { AppError } from "@/errors/app-error";
 
 export class StripeWebhookVerifierAdapter implements WebhookVerifierPort<Stripe.Event> {
@@ -22,11 +23,11 @@ export class StripeWebhookVerifierAdapter implements WebhookVerifierPort<Stripe.
         input.signatureHeader,
         input.secret
       );
-    } catch (err) {
+    } catch (caughtError) {
       throw new AppError({
         message: "Firma criptográfica de Stripe inválida.",
         statusCode: 400,
-        cause: err,
+        cause: caughtError,
       });
     }
   }
@@ -40,7 +41,8 @@ export class StripeWebhookVerifierAdapter implements WebhookVerifierPort<Stripe.
 ```ts
 // src/infrastructure/adapters/webhooks/svix-verifier.adapter.ts
 import { Webhook } from "svix";
-import type { WebhookVerifierPort, WebhookVerifyInput } from "@/domains/webhooks/webhook-verifier.port";
+import type { WebhookVerifierPort } from "@/types/webhooks/webhook-verifier-port.type";
+import type { WebhookVerifyInput } from "@/types/webhooks/webhook-verify-input.type";
 import { AppError } from "@/errors/app-error";
 
 export class SvixWebhookVerifierAdapter implements WebhookVerifierPort<unknown> {
@@ -48,8 +50,8 @@ export class SvixWebhookVerifierAdapter implements WebhookVerifierPort<unknown> 
     try {
       const wh = new Webhook(input.secret);
       return wh.verify(input.rawBody.toString(), { "svix-signature": input.signatureHeader });
-    } catch (err) {
-      throw new AppError({ message: "Firma Svix inválida.", statusCode: 400, cause: err });
+    } catch (caughtError) {
+      throw new AppError({ message: "Firma Svix inválida.", statusCode: 400, cause: caughtError });
     }
   }
 }
@@ -62,7 +64,7 @@ export class SvixWebhookVerifierAdapter implements WebhookVerifierPort<unknown> 
 ```ts
 // src/infrastructure/adapters/idempotency/redis-idempotency.adapter.ts
 import type { Redis } from "ioredis";
-import type { IdempotencyPort } from "@/domains/webhooks/idempotency.port";
+import type { IdempotencyPort } from "@/types/webhooks/idempotency-port.type";
 
 export class RedisIdempotencyAdapter implements IdempotencyPort {
   constructor(private redis: Redis) {}
@@ -80,33 +82,35 @@ export class RedisIdempotencyAdapter implements IdempotencyPort {
 
 ---
 
-## 4. End-to-End Webhook Controller with Idempotency
+## 4. End-to-End Webhook Route with Idempotency
 
 ```ts
-// src/controllers/webhooks/stripe-webhook.controller.ts
+// src/routes/webhooks/stripe-webhook.route.ts
+import { Hono } from "hono";
 import type { Context } from "hono";
-import type { WebhookVerifierPort } from "@/domains/webhooks/webhook-verifier.port";
+import type { WebhookVerifierPort } from "@/types/webhooks/webhook-verifier-port.type";
 import type { IdempotencyGuard } from "@/infrastructure/guards/idempotency.guard";
 import { fulfillSubscriptionAction } from "@/actions/billing/fulfill-subscription.action";
 import type Stripe from "stripe";
 
-export async function stripeWebhookController(
-  c: Context,
+export function createStripeWebhookRoute(
   verifier: WebhookVerifierPort<Stripe.Event>,
   guard: IdempotencyGuard,
   webhookSecret: string
 ) {
-  const signature = c.req.header("stripe-signature") ?? "";
-  const rawBody = await c.req.text();
+  return new Hono().post("/", async (ctx: Context) => {
+    const signature = ctx.req.header("stripe-signature") ?? "";
+    const rawBody = await ctx.req.text();
 
-  const event = await verifier.verify({ rawBody, signatureHeader: signature, secret: webhookSecret });
+    const event = await verifier.verify({ rawBody, signatureHeader: signature, secret: webhookSecret });
 
-  const { executed } = await guard.runOnce(event.id, 86400, async () => {
-    if (event.type === "checkout.session.completed") {
-      await fulfillSubscriptionAction(event.data.object as Stripe.Checkout.Session);
-    }
+    const { executed } = await guard.runOnce(event.id, 86400, async () => {
+      if (event.type === "checkout.session.completed") {
+        await fulfillSubscriptionAction(event.data.object as Stripe.Checkout.Session);
+      }
+    });
+
+    return ctx.json({ received: true, processed: executed }, 200);
   });
-
-  return c.json({ received: true, processed: executed }, 200);
 }
 ```

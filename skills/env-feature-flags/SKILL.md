@@ -26,10 +26,11 @@ Opinionated architectural standard combining **Fail-Fast Environment Schema Vali
 src/
 ├── config/
 │   └── env.ts                              # Fail-fast Valibot environment parser (<70 lines)
-├── domains/
+├── types/
 │   └── feature-flags/
-│       ├── feature-flag.port.ts            # Domain interface for flags (<40 lines)
-│       └── flag-keys.ts                    # Strongly typed flag registry (<30 lines)
+│       ├── feature-flag-port.type.ts       # Domain interface for flags (<40 lines)
+│       ├── feature-flag-key.type.ts        # Strongly typed flag registry (<30 lines)
+│       └── feature-flag-context.type.ts    # Evaluation context (<30 lines)
 └── infrastructure/
     └── adapters/
         └── feature-flags/
@@ -69,16 +70,12 @@ export const env = loadEnv();
 
 ---
 
-## 4. Feature Flag Port (`src/domains/feature-flags/feature-flag.port.ts`)
+## 4. Feature Flag Port (`src/types/feature-flags/feature-flag-port.type.ts`)
 
 ```ts
-export type FeatureFlagKey = "new-checkout-flow" | "ai-copilot" | "export-pdf";
-
-export interface FeatureFlagEvaluationContext {
-  distinctId: string;
-  organizationId?: string;
-  properties?: Record<string, unknown>;
-}
+// src/types/feature-flags/feature-flag-port.type.ts
+import type { FeatureFlagKey } from "@/types/feature-flags/feature-flag-key.type";
+import type { FeatureFlagEvaluationContext } from "@/types/feature-flags/feature-flag-context.type";
 
 export interface FeatureFlagPort {
   isEnabled(key: FeatureFlagKey, context?: FeatureFlagEvaluationContext): Promise<boolean>;

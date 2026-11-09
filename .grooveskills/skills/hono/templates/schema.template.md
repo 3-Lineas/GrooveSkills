@@ -1,6 +1,7 @@
 # Valibot Schema Template
 
 Type-safe schema validation with courteous, persuasive, and professional error messages.
+Schema lives in `src/dtos/{domain}/`. Inferred types are placed in `@/types/{domain}/` (1 type per file).
 
 ```ts
 import * as v from "valibot";
@@ -19,6 +20,12 @@ export const registerUserSchema = v.object({
     v.minLength(2, "Your name should be at least 2 characters long.")
   ),
 });
+```
+
+*Note: Inferred type `RegisterUserInput` belongs in `src/types/auth/register-user-input.type.ts`:*
+```ts
+import * as v from "valibot";
+import type { registerUserSchema } from "@/dtos/auth/register-user.dto";
 
 export type RegisterUserInput = v.InferOutput<typeof registerUserSchema>;
 ```

@@ -33,8 +33,10 @@ Engineering guidelines for writing idiomatic, highly performant, and maintainabl
    - Use the modern file hierarchy (`domain.rs` and `domain/module.rs`).
    - Always import symbols directly from `crate::...` path roots. Avoid deep relative paths (`super::super::`).
 
-6. **Isolated Actions & 200-Line Limit**:
-   - Isolate each business use case into its own atomic action file (`src/actions/<domain>/<action>.rs`).
+6. **Strict Atomic 1 Function per File & 200-Line Limit**:
+   - Every file exports at most ONE function, method, or struct/enum.
+   - Isolate each business use case into its own atomic action file (`src/actions/{domain}/{action}.rs`).
+   - Domain types live in `src/types/{domain}/` rather than inline in action files.
    - Keep all source files strictly under 200 lines. Split large modules into atomic domain helpers.
 
 7. **Zero Allocation Waste**:
@@ -80,14 +82,10 @@ pub fn process_order(order: Option<OrderInput>) -> Result<Order, AppError> {
 ## 3. Atomic Action Blueprint
 
 ```rust
-use crate::domains::billing::models::{Customer, Invoice};
+// src/actions/billing/charge_subscription.rs
+use crate::types::billing::{ChargeSubscriptionInput, Invoice};
+use crate::types::billing::PaymentGateway;
 use crate::errors::AppError;
-
-pub struct ChargeSubscriptionInput {
-    pub customer_id: String,
-    pub plan_id: String,
-    pub amount_cents: u64,
-}
 
 pub fn charge_subscription_action(
     input: &ChargeSubscriptionInput,

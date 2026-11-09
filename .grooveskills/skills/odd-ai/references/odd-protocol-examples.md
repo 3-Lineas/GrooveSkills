@@ -15,22 +15,22 @@ createdAt: 2026-11-01
 # Feature: Strict Valibot Input Sanitization for Auth Route
 
 ## Outcome Hypothesis
-By introducing a Valibot validation schema and an isolated Action in \`src/domains/auth/validate-login.ts\`, the authentication endpoint will reject malformed payloads with structured 400 errors and sanitize incoming email strings, proven by passing Vitest unit tests and a zero-error typecheck.
+By introducing a Valibot validation schema in \`src/dtos/auth/login.dto.ts\` and an isolated Action in \`src/actions/auth/validate-login.action.ts\`, the authentication endpoint will reject malformed payloads with structured 400 errors and sanitize incoming email strings, proven by passing Vitest unit tests and a zero-error typecheck.
 
 ## Scope
 - In scope:
-  - Valibot schema for \`loginSchema\` with trimmed, lowercased email.
+  - Valibot schema for \`loginSchema\` with trimmed, lowercased email in \`src/dtos/auth/login.dto.ts\`.
   - Unit tests covering empty payload, invalid format, and valid login.
 - Out of scope:
   - Database token generation or session cookies.
 
 ## Checklist
-- [x] Create \`src/domains/auth/login.schema.ts\` with Valibot schema
-- [x] Implement isolated action in \`src/domains/auth/validate-login-action.ts\`
-- [x] Add test suite in \`src/domains/auth/validate-login.test.ts\`
+- [x] Create \`src/dtos/auth/login.dto.ts\` with Valibot schema
+- [x] Implement isolated action in \`src/actions/auth/validate-login.action.ts\`
+- [x] Add test suite in \`tests/actions/auth/validate-login.test.ts\`
 
 ## Evidence
-- Ran \`pnpm vitest run src/domains/auth/validate-login.test.ts\`: 3 passed (12ms)
+- Ran \`pnpm vitest run tests/actions/auth/validate-login.test.ts\`: 3 passed (12ms)
 - Ran \`tsc --noEmit\`: Exit code 0 (0 errors)
 
 ## Next

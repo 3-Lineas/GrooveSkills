@@ -16,8 +16,9 @@ Canonical reference for React fundamentals in GrooveSkills projects: function co
    - Declare standard functions and type `props` directly in the parameter list.
    - For components requiring children, type `children: ReactNode` explicitly in the props interface.
 
-2. **One Component per File & < 200 Lines**:
+2. **One Component per File & Props-Only Inline Type**:
    - Every exported React component resides in its own dedicated `.tsx` file and never exceeds **200 lines**.
+   - **Exclusive Inline Exception**: ONLY the component's own `Props` interface (e.g. `interface UserAvatarProps { ... }`) may be declared inline in its `.tsx` file. All other domain models, entities, or state structures must be imported from `@/types/{domain}/`.
    - Extract sub-components or custom hooks (`use-*.ts`) into atomic files before reaching the limit.
 
 3. **Domain Custom Hooks for Form Encapsulation**:
@@ -39,12 +40,11 @@ Canonical reference for React fundamentals in GrooveSkills projects: function co
 
 ---
 
-## 2. Component Typing Standards
+## 2. Component Typing Standards (1 Component per File)
 
 ```tsx
-import type { ReactNode } from "react";
-
-// ✅ Component with props
+// src/components/users/user-avatar.tsx
+// ✅ Component with props (Props interface permitted inline)
 export interface UserAvatarProps {
   name: string;
   avatarUrl?: string;
@@ -58,8 +58,13 @@ export function UserAvatar({ name, avatarUrl }: UserAvatarProps) {
     </div>
   );
 }
+```
 
-// ✅ Component with children
+```tsx
+// src/components/ui/card.tsx
+import type { ReactNode } from "react";
+
+// ✅ Component with children (Props interface permitted inline)
 export interface CardProps {
   title: string;
   children: ReactNode;
@@ -73,7 +78,10 @@ export function Card({ title, children }: CardProps) {
     </section>
   );
 }
+```
 
+```tsx
+// src/components/ui/empty-state.tsx
 // ✅ Component without props
 export function EmptyState() {
   return <p className="text-muted-foreground text-sm">No items found.</p>;

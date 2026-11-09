@@ -90,22 +90,14 @@ export function ProductExplorer({ catalog }: { catalog: Product[] }) {
 
 ## 3. RSC & `'use server'` Boundary with Valibot
 
-Server Functions (`'use server'`) are public-facing boundaries. Always validate inputs with **Valibot** and authorize the caller before executing business logic.
+Server Functions (`'use server'`) are public-facing boundaries. Always validate inputs with **Valibot** and authorize the caller before executing business logic. Schemas live in `@/dtos/`.
 
 ```tsx
 "use server";
 
 import * as v from "valibot";
-import { requireAuthenticatedUser } from "@/actions/auth/require-authenticated-user.action";
-
-const commentSchema = v.object({
-  articleId: v.pipe(v.string(), v.nonEmpty("Article ID is required.")),
-  body: v.pipe(
-    v.string(),
-    v.trim(),
-    v.minLength(3, "Please write at least 3 characters before posting.")
-  ),
-});
+import { commentSchema } from "@/dtos/articles/publish-comment.dto";
+import { requireAuthenticatedUserAction } from "@/actions/auth/require-authenticated-user.action";
 
 export async function publishCommentServerAction(formData: FormData) {
   const parsed = v.safeParse(commentSchema, {
@@ -117,7 +109,7 @@ export async function publishCommentServerAction(formData: FormData) {
     return { success: false, error: parsed.issues[0].message };
   }
 
-  const user = await requireAuthenticatedUser();
+  const user = await requireAuthenticatedUserAction();
   return { success: true, userId: user.id, message: "Thank you! Your comment has been published." };
 }
 ```

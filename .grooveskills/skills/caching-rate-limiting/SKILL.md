@@ -24,13 +24,16 @@ Opinionated architectural pattern for performance caching via the **Cache-Aside 
 
 ```text
 src/
-├── domains/
+├── types/
 │   ├── cache/
-│   │   ├── cache-store.port.ts             # Raw key-value cache contract (<40 lines)
-│   │   └── cache.wrapper.ts                # Cache-aside remember helper (<60 lines)
+│   │   └── cache-store-port.type.ts        # Raw key-value cache contract (<40 lines)
 │   └── rate-limit/
-│       └── rate-limiter.port.ts            # Rate limiting contract (<40 lines)
+│       ├── rate-limiter-port.type.ts       # Rate limiting contract (<40 lines)
+│       └── rate-limit-result.type.ts       # RateLimitResult contract (<30 lines)
 └── infrastructure/
+    ├── wrappers/
+    │   └── cache/
+    │       └── cache.wrapper.ts            # Cache-aside remember helper (<60 lines)
     └── adapters/
         ├── cache/
         │   ├── redis-cache.adapter.ts      # Redis cache implementation (<70 lines)
@@ -43,10 +46,10 @@ src/
 
 ---
 
-## 3. Cache-Aside Wrapper (`src/domains/cache/cache.wrapper.ts`)
+## 3. Cache-Aside Wrapper (`src/infrastructure/wrappers/cache/cache.wrapper.ts`)
 
 ```ts
-import type { CacheStorePort } from "./cache-store.port";
+import type { CacheStorePort } from "@/types/cache/cache-store-port.type";
 
 export class CacheWrapper {
   constructor(private store: CacheStorePort) {}
@@ -73,13 +76,18 @@ export class CacheWrapper {
 ## 4. Rate Limiter Port & Enforcement
 
 ```ts
-// src/domains/rate-limit/rate-limiter.port.ts
+// src/types/rate-limit/rate-limit-result.type.ts
 export interface RateLimitResult {
   success: boolean;
   limit: number;
   remaining: number;
   resetSeconds: number;
 }
+```
+
+```ts
+// src/types/rate-limit/rate-limiter-port.type.ts
+import type { RateLimitResult } from "@/types/rate-limit/rate-limit-result.type";
 
 export interface RateLimiterPort {
   limit(identifier: string): Promise<RateLimitResult>;
@@ -88,12 +96,16 @@ export interface RateLimiterPort {
 
 ### Rate Limiter Middleware Example
 ```ts
-export async function rateLimitMiddleware(c: Context, limiter: RateLimiterPort) {
-  const ip = c.req.header("cf-connecting-ip") ?? c.req.header("x-forwarded-for") ?? "anonymous";
+import type { Context } from "hono";
+import type { RateLimiterPort } from "@/types/rate-limit/rate-limiter-port.type";
+import { AppError } from "@/errors/app-error";
+
+export async function rateLimitMiddleware(ctx: Context, limiter: RateLimiterPort) {
+  const ip = ctx.req.header("cf-connecting-ip") ?? ctx.req.header("x-forwarded-for") ?? "anonymous";
   const check = await limiter.limit(`ip:${ip}`);
 
-  c.header("X-RateLimit-Limit", String(check.limit));
-  c.header("X-RateLimit-Remaining", String(check.remaining));
+  ctx.header("X-RateLimit-Limit", String(check.limit));
+  ctx.header("X-RateLimit-Remaining", String(check.remaining));
 
   if (!check.success) {
     throw new AppError({ message: "Has excedido el límite de solicitudes. Intenta más tarde.", statusCode: 429 });

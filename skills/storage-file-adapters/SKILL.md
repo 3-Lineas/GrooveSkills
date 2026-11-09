@@ -30,10 +30,13 @@ src/
 ├── actions/
 │   └── media/
 │       └── upload-avatar.action.ts         # Consumes StoragePort (<80 lines)
-├── domains/
+├── types/
 │   └── storage/
-│       ├── storage.port.ts                 # Domain interface contract (<50 lines)
-│       └── storage.types.ts                # Pure domain payloads (<50 lines)
+│       ├── storage-port.type.ts            # Domain interface contract (<50 lines)
+│       ├── storage-file.type.ts            # Pure domain payloads (<30 lines)
+│       ├── put-file-input.type.ts
+│       ├── put-file-output.type.ts
+│       └── presigned-url-input.type.ts
 └── infrastructure/
     ├── adapters/
     │   └── storage/
@@ -50,35 +53,15 @@ src/
 
 ---
 
-## 3. Implementation Contract (`src/domains/storage/storage.port.ts`)
+## 3. Implementation Contract (`src/types/storage/storage-port.type.ts`)
+
+*(Note: Each payload interface lives in its own file in `@/types/storage/`)*
 
 ```ts
-export interface StorageFile {
-  buffer: Uint8Array | Buffer;
-  contentType: string;
-  sizeBytes: number;
-}
-
-export interface PutFileInput {
-  bucket: string;
-  key: string;
-  file: StorageFile;
-  isPublic?: boolean;
-}
-
-export interface PutFileOutput {
-  key: string;
-  bucket: string;
-  publicUrl?: string;
-  etag?: string;
-}
-
-export interface PresignedUrlInput {
-  bucket: string;
-  key: string;
-  operation: "getObject" | "putObject";
-  expiresInSeconds: number;
-}
+import type { StorageFile } from "@/types/storage/storage-file.type";
+import type { PutFileInput } from "@/types/storage/put-file-input.type";
+import type { PutFileOutput } from "@/types/storage/put-file-output.type";
+import type { PresignedUrlInput } from "@/types/storage/presigned-url-input.type";
 
 export interface StoragePort {
   putFile(input: PutFileInput): Promise<PutFileOutput>;
@@ -93,7 +76,7 @@ export interface StoragePort {
 ## 4. Usage in Business Actions
 
 ```ts
-import type { StoragePort } from "@/domains/storage/storage.port";
+import type { StoragePort } from "@/types/storage/storage-port.type";
 import { AppError } from "@/errors/app-error";
 
 export async function uploadAvatarAction(

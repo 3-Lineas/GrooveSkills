@@ -20,7 +20,7 @@ Universal guidelines applicable to **any programming language** and **any file**
 
 2. **Always Use Path Aliases (`@/...`)**:
    - Never use deep relative paths (`../../..`).
-   - Use configured aliases (e.g. `@/actions/...`, `@/domains/...`, or language package namespaces).
+   - Use configured aliases (e.g. `@/actions/{domain}/...`, `@/routes/{domain}/...`, `@/types/{domain}/...`, or language package namespaces).
 
 3. **Zero Barrel Files (No re-exporting `index.ts`)**:
    - Never create `index.ts`, `mod.rs`, or library barrel files whose only purpose is re-exporting.
@@ -30,8 +30,11 @@ Universal guidelines applicable to **any programming language** and **any file**
    - Never nest `if` conditions ("pyramid of doom").
    - Validate preconditions first and fail fast (return or throw). The happy path stays unindented.
 
-5. **Single Responsibility Principle (SRP per file)**:
-   - Every file must do exactly one thing. One action per action file, one endpoint per route file.
+5. **Strict Atomic File Rule (1 Function / 1 Method per File)**:
+   - Every file must export **at most ONE function, method, action, route handler, component, hook, schema, or type**.
+   - **NEVER** group multiple functions, helper functions, or utility methods in the same file. If a function needs a helper, extract that helper into its own dedicated atomic file.
+   - **No Inline Data Types**: Never declare data `interface` or `type` definitions inline inside actions, routes, DTOs, hooks, or components. **Exception**: Only a UI component's own `Props` interface (e.g. `interface ButtonProps`) may be declared inline in its `.tsx` file; all other domain/data types must live in `@/types/{domain}/{name}.type.ts`.
+   - **NEVER** create `src/domains/` or `src/services/` folders to dump business logic; all business logic lives in atomic actions under `src/actions/{domain}/{action-name}.action.ts`.
 
 6. **Hard Size Limit: 200 Lines Max**:
    - No file may exceed 200 lines. If a file approaches 200 lines, extract helper logic into dedicated atomic files.

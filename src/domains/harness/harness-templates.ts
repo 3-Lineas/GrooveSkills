@@ -54,7 +54,9 @@ This file provides AI agents with instant architectural orientation for this pro
 ${dependenciesFormatted}
 
 ## 2. Directory Structure Conventions
-- Follow single-responsibility per file (<200 lines).
+- Follow strict atomic file rule: at most 1 function, method, action, route handler, component, hook, schema, or type per file (<200 lines).
+- Type Isolation: Never declare data interfaces inline. Only a UI component's own \`Props\` interface can be inline in its \`.tsx\` file; all other domain/data types live in \`@/types/{domain}/{name}.type.ts\`.
+- Domain within Technical Layers: Organize code by \`{domain}\` subfolders inside each technical layer (\`src/actions/{domain}/\`, \`src/routes/{domain}/\`, \`src/dtos/{domain}/\`, \`src/types/{domain}/\`, \`src/errors/{domain}/\`). Never create root \`src/domains/\` or \`src/controllers/\` folders.
 - Maintain direct imports with path aliases; avoid barrel files.
 - Keep domain boundaries explicit and clean.
 ${aliasesSection}${directoriesSection}
@@ -188,6 +190,12 @@ YYYY-MM-DD
 - Technical decisions (ADR): \`.grooveskills/memory/decisions.md\`
 - Active tasks & evidence: \`.grooveskills/memory/tasks/\`
 - Daily bitacora: \`.grooveskills/bitacora/\`
+
+## 6. Strict Architectural Non-Negotiables
+- **1 Function/Method per File (100% Atomic)**: Every code file must export at most ONE function, method, action, route handler, component, hook, schema, or type. Never group multiple helpers or methods in one file.
+- **Type Isolation**: Never declare data interfaces or types inline. Only a UI component's own \`Props\` interface can be declared inline in its \`.tsx\` file; all other domain/data types must live in \`@/types/{domain}/{name}.type.ts\`.
+- **Domain within Technical Layers**: Always organize by \`{domain}\` subfolders inside each technical layer (\`src/actions/{domain}/\`, \`src/routes/{domain}/\`, \`src/dtos/{domain}/\`, \`src/types/{domain}/\`, \`src/errors/{domain}/\`). Never create root \`src/domains/\` or \`src/controllers/\` folders.
+- **Hono Route Architecture**: Endpoints live in \`src/routes/{domain}/{action}.route.ts\` and only delegate to atomic Actions (direct call for 1 action, or via \`Pipeline\` for multiple actions). Subfolders like \`src/routes/{surface}/{domain}/\` are only allowed if serving 2+ distinct surfaces (e.g. \`web\` and \`mobile\`).
 <!-- grooveskills:harness:end -->`;
 }
 

@@ -135,25 +135,25 @@ my-project/
 | :--- | :--- | :--- | :--- |
 | `groove-harness` | **GrooveSkills Harness** | ODD 3-lane workflow (Answer, Task, Spec), onboarding protocol, ADR logging, and `.grooveskills/memory/`. | **Core Harness (Always Installed)** |
 | `odd-ai` | **Organic & Outcome-Driven (ODD)** | 7-step ODD protocol for AI agents: authorize, explore, classify, outcome hypotheses, and evidence receipts. | **Default (Universal)** |
-| `best-practices` | **Universal Best Practices** | Multi-language clean code, strict typing (zero `any`), guard clauses, and `<200` lines per file. | **Default (Universal)** |
+| `best-practices` | **Universal Best Practices** | Multi-language clean code, strict 1 method/function per file, strict typing (zero `any`), guard clauses, and `<200` lines per file. | **Default (Universal)** |
 | `ux-writing` | **UX Writing & Microcopy** | Warm, empathetic, conversion-oriented microcopy for validations, CTAs, toasts, and empty states. | **Default (Universal)** |
 | `docs-standards` | **Documentation & ADR Standards** | English documentation rule, relative POSIX links, resilient Mermaid diagrams, ADR lifecycle, and intent docstrings. | **Default (Universal)** |
 | `security-audit` | **Adversarial Security Audit & Trust Boundaries** | 6-phase adversarial audit (Cloudflare), Agent/MCP scanner (NVIDIA SkillSpector), OWASP API BOLA/BOPLA & PoC remediation (Strix). | **Default (Universal)** |
 | `error-handling-logging` | **Error Handling & Logging** | Predictable error flows with typed `AppError`, `ActionResponse` contracts, and structured logging. | **Default (Universal)** |
-| `clean-architecture-ddd` | **Clean Architecture & DDD** | Domain-driven module boundaries, single-purpose Actions, pure functions, and immutable data models. | **Default (Universal)** |
+| `clean-architecture-ddd` | **Clean Architecture & DDD** | Domain-driven technical layers, atomic Actions (1 function per file), pure functions, and isolated domain types. | **Default (Universal)** |
 | `external-service-adapters` | **External Service Adapters & Wrappers** | Decoupled domain ports, vendor SDK wrappers, and swappable adapters for payment gateways, emails, and APIs. | **Default (Universal)** |
 | `storage-file-adapters` | **Storage & File Adapters (S3, R2, Supabase)** | Object storage ports, uploads, presigned URLs, and streaming without repository abstractions. | **Default (Universal)** |
-| `auth-rbac-policies` | **Auth Adapters & RBAC/ABAC Policies** | Authentication adapter ports with `AuthenticatedActor` and side-effect-free pure authorization policies. | **Default (Universal)** |
-| `controller-orchestration-queues` | **Controller Orchestration & Queues** | Atomic Actions, Controller sequence/transactions, and swappable background Queue adapters. | **Default (Universal)** |
+| `auth-rbac-policies` | **Auth Adapters & RBAC/ABAC Policies** | Authentication adapter ports with `AuthenticatedActor` and atomic, side-effect-free authorization policies. | **Default (Universal)** |
+| `controller-orchestration-queues` | **Controller Orchestration & Queues** | Atomic Actions, route orchestration (direct or Pipeline), and swappable background Queue adapters. | **Default (Universal)** |
 | `webhook-idempotency` | **Webhook Verifiers & Idempotency** | Cryptographic HMAC webhook verifiers (Stripe, Svix, MercadoPago) and atomic idempotency guards. | **Default (Universal)** |
 | `caching-rate-limiting` | **Cache-Aside & Rate Limiting** | Declarative `cache.remember` wrappers and sliding-window rate limiting adapters (Redis, KV, Memory). | **Default (Universal)** |
 | `env-feature-flags` | **Fail-Fast Env & Feature Flags** | Boot-time fail-fast Valibot environment validation and decoupled feature flag adapters (PostHog, LD). | **Default (Universal)** |
-| `typescript-clean` | **TypeScript Clean Code (5.5+)** | Modern TypeScript (`satisfies`, discriminated unions, `const` generics, `unknown` narrowing). | `typescript` in `package.json` |
-| `rust-clean` | **Rust Clean Code (Rust 2024)** | Idiomatic Rust: `let-else` guard clauses, zero `.unwrap()`, `thiserror` typed errors, and Newtypes. | `Cargo.toml` in project root |
-| `python-clean` | **Python Clean Code (Python 3.12+)** | Modern Python: guard clauses (no nested ifs), strict typing (zero `Any`), uv, Ruff, and Pyright. | `pyproject.toml` / `requirements.txt` |
-| `valibot-validation` | **Valibot Schema Validation** | Boundary validation with modular Valibot schemas (`* as v from "valibot"`) and courteous errors. | `valibot` in `package.json` |
+| `typescript-clean` | **TypeScript Clean Code (5.5+)** | Modern TypeScript (`satisfies`, discriminated unions, `const` generics, isolated types, props-only inline). | `typescript` in `package.json` |
+| `rust-clean` | **Rust Clean Code (Rust 2024)** | Idiomatic Rust: 1 function/action per file, `let-else` guard clauses, zero `.unwrap()`, `thiserror` typed errors, and Newtypes. | `Cargo.toml` in project root |
+| `python-clean` | **Python Clean Code (Python 3.12+)** | Modern Python: 1 function per file, guard clauses (no nested ifs), strict typing (zero `Any`), uv, Ruff, and Pyright. | `pyproject.toml` / `requirements.txt` |
+| `valibot-validation` | **Valibot Schema Validation** | Boundary validation with modular Valibot schemas (`* as v from "valibot"`), isolated types, and courteous errors. | `valibot` in `package.json` |
 | `testing-vitest` | **Vitest Testing Standards** | Fast, deterministic test suites using Arrange-Act-Assert (AAA) and in-memory fakes. | `vitest` in `package.json` |
-| `hono` | **Hono Architecture (Valibot)** | Scalable Hono APIs with thin route handlers (`createRouteHandler`), Valibot validation, and isolated Actions. | `hono` in `package.json` |
+| `hono` | **Hono Architecture (Valibot)** | Scalable Hono APIs with atomic routes in `src/routes/{domain}/` delegating to Actions (direct or Pipeline), and Valibot validation. | `hono` in `package.json` |
 | `workers-rpc-precision` | **Workers RPC & Precision Calculations** | Cloudflare Workers native RPC (`WorkerEntrypoint` / `Service<T>`) and decimal arithmetic (`Decimal` + `ROUND_HALF_UP`). | `wrangler` / `@cloudflare/workers-types` |
 | `frontend-design` | **Frontend Visual Design & Identity** | Distinctive, opinionated visual UI design avoiding AI clichés: bespoke tokens, intentional typography, and layout wireframing. | `react`, `next`, `vue`, `svelte`, `tailwindcss` |
 | `react-core` | **React Core Fundamentals** | Modern React fundamentals: strictly no `React.FC`, pure components, immutable state, core hooks, and form domain hooks. | `react` in `package.json` |

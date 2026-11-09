@@ -47,16 +47,18 @@ apps/py-worker/ (or specialized worker)
 ├── requirements.txt                     # Dependencies
 └── src/
     ├── entry.py                         # WorkerEntrypoint exposing RPC methods (<60 lines)
-    ├── core/
-    │   ├── money.py                     # Pure Decimal math & rounding (<50 lines)
-    │   └── dates.py                     # Pure timezone & datetime logic (<50 lines)
-    └── domains/
+    └── actions/
         └── finance/
-            └── calculate_totals.py      # Domain handler (<70 lines)
+            ├── to_decimal.py            # Atomic Decimal conversion (<30 lines)
+            ├── round_currency.py        # Atomic currency quantize (<30 lines)
+            ├── compute_item_total.py    # Atomic line-item total (<30 lines)
+            ├── compute_tax.py           # Atomic tax computation (<30 lines)
+            └── calculate_totals.py      # Domain action handler (<70 lines)
 
 apps/backend/src/
 ├── types/services/
-│   └── calculator-service.type.ts       # TypeScript RPC interface (<50 lines)
+│   ├── calculator-service.type.ts       # TypeScript RPC interface (<50 lines)
+│   └── calculate-totals-action-input.type.ts # Input context type (<30 lines)
 └── actions/finance/
     └── calculate-totals.action.ts       # Action wrapping RPC call (<40 lines)
 ```
@@ -68,7 +70,7 @@ apps/backend/src/
 ### Python Worker Entrypoint (`src/entry.py`):
 ```python
 from workers import WorkerEntrypoint
-from domains.finance.calculate_totals import handle_calculate_totals
+from actions.finance.calculate_totals import handle_calculate_totals
 
 class CalculatorRpcService(WorkerEntrypoint):
     async def calculate_order_totals(self, data: dict) -> dict:
@@ -76,26 +78,8 @@ class CalculatorRpcService(WorkerEntrypoint):
 ```
 
 ### TypeScript RPC Contract (`@/types/services/calculator-service.type.ts`):
+*(Note: Each contract type lives in its own file in `@/types/services/`)*
 ```ts
-export interface OrderItemInput {
-  id?: string;
-  unitPrice: string | number;
-  quantity: number;
-  discountPct?: string | number;
-}
-
-export interface CalculateTotalsPayload {
-  items: OrderItemInput[];
-  taxRatePct: string | number;
-}
-
-export interface CalculateTotalsResult {
-  items: Array<{ id?: string; itemTotal: string }>;
-  subtotal: string;
-  tax: string;
-  total: string;
-}
-
 export interface CalculatorRpcService {
   calculate_order_totals(data: CalculateTotalsPayload): Promise<CalculateTotalsResult>;
 }
@@ -103,17 +87,8 @@ export interface CalculatorRpcService {
 
 ### Caller Action in TypeScript (`@/actions/finance/calculate-totals.action.ts`):
 ```ts
-import type { Service } from "@cloudflare/workers-types";
-import type {
-  CalculatorRpcService,
-  CalculateTotalsPayload,
-  CalculateTotalsResult,
-} from "@/types/services/calculator-service.type";
-
-export interface CalculateTotalsActionInput {
-  calculator: Service<CalculatorRpcService>;
-  payload: CalculateTotalsPayload;
-}
+import type { CalculateTotalsActionInput } from "@/types/services/calculate-totals-action-input.type";
+import type { CalculateTotalsResult } from "@/types/services/calculate-totals-result.type";
 
 export async function calculateTotalsAction(
   input: CalculateTotalsActionInput

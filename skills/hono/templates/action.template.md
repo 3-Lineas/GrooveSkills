@@ -1,25 +1,20 @@
 # Action Template (Single Responsibility Principle)
 
 Atomic business logic decoupled from HTTP context. Database queries must be isolated inside Actions.
+Exports exactly ONE function per file, with zero inline data interfaces (all types imported from `@/types/{domain}/`).
 
 ```ts
-import { AppError } from "@/errors/app-error.ts";
-import { Logger } from "@/logger/logger.ts";
-import type { RegisterUserInput } from "@/schemas/auth/register-user.schema.ts";
-
-export interface DatabaseConnection {
-  findUserByEmail(email: string): Promise<{ id: string; email: string } | null>;
-  createUser(data: RegisterUserInput): Promise<{ id: string; email: string; fullName: string }>;
-}
+import { AppError } from "@/errors/app-error";
+import { Logger } from "@/logger/logger";
+import type { RegisterUserContext } from "@/types/auth/register-user-context.type";
 
 export async function registerUserAction(
-  db: DatabaseConnection,
-  input: RegisterUserInput
-): Promise<{ id: string; email: string; fullName: string }> {
+  context: RegisterUserContext
+): Promise<RegisterUserContext> {
   const logger = new Logger("Auth:Action:RegisterUser");
 
   try {
-    const existing = await db.findUserByEmail(input.email);
+    const existing = await context.db.findUserByEmail(context.input.email);
 
     if (existing) {
       throw new AppError({
@@ -30,7 +25,11 @@ export async function registerUserAction(
       });
     }
 
-    return await db.createUser(input);
+    const createdUser = await context.db.createUser(context.input);
+    return {
+      ...context,
+      user: createdUser,
+    };
   } catch (error) {
     if (error instanceof AppError) {
       throw error;

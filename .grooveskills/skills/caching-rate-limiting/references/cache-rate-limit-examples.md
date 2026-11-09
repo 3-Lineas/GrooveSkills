@@ -9,7 +9,7 @@ Production implementations of Redis cache, Cloudflare KV, and sliding-window rat
 ```ts
 // src/infrastructure/adapters/cache/redis-cache.adapter.ts
 import type { Redis } from "ioredis";
-import type { CacheStorePort } from "@/domains/cache/cache-store.port";
+import type { CacheStorePort } from "@/types/cache/cache-store-port.type";
 
 export class RedisCacheAdapter implements CacheStorePort {
   constructor(private redis: Redis) {}
@@ -40,7 +40,7 @@ export class RedisCacheAdapter implements CacheStorePort {
 
 ```ts
 // src/infrastructure/adapters/cache/cloudflare-kv.adapter.ts
-import type { CacheStorePort } from "@/domains/cache/cache-store.port";
+import type { CacheStorePort } from "@/types/cache/cache-store-port.type";
 
 export class CloudflareKvAdapter implements CacheStorePort {
   constructor(private kv: KVNamespace) {}
@@ -66,7 +66,8 @@ export class CloudflareKvAdapter implements CacheStorePort {
 ```ts
 // src/infrastructure/adapters/rate-limit/redis-rate-limiter.adapter.ts
 import type { Redis } from "ioredis";
-import type { RateLimiterPort, RateLimitResult } from "@/domains/rate-limit/rate-limiter.port";
+import type { RateLimiterPort } from "@/types/rate-limit/rate-limiter-port.type";
+import type { RateLimitResult } from "@/types/rate-limit/rate-limit-result.type";
 
 export class RedisSlidingWindowRateLimiter implements RateLimiterPort {
   constructor(
@@ -103,7 +104,7 @@ export class RedisSlidingWindowRateLimiter implements RateLimiterPort {
 
 ```ts
 // src/infrastructure/adapters/cache/memory-cache.adapter.ts
-import type { CacheStorePort } from "@/domains/cache/cache-store.port";
+import type { CacheStorePort } from "@/types/cache/cache-store-port.type";
 
 export class MemoryCacheAdapter implements CacheStorePort {
   private store = new Map<string, { value: unknown; expiresAt: number }>();

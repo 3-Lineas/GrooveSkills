@@ -105,13 +105,9 @@ export type CreateUserInput = v.InferInput<typeof CreateUserDto>;
 ## 4. Safe Parsing Helper Pattern
 
 ```ts
+// src/common/utils/validate-schema.ts
 import * as v from "valibot";
-
-export interface ValidationResult<T> {
-  success: boolean;
-  data?: T;
-  errors?: Record<string, string>;
-}
+import type { ValidationResult } from "@/types/common/validation-result.type";
 
 export function validateSchema<TSchema extends v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>(
   schema: TSchema,
@@ -125,9 +121,9 @@ export function validateSchema<TSchema extends v.BaseSchema<unknown, unknown, v.
 
   const errors: Record<string, string> = {};
   for (const issue of result.issues) {
-    const path = issue.path?.map((p) => p.key).join(".") || "root";
-    if (!errors[path]) {
-      errors[path] = issue.message;
+    const issuePath = issue.path?.map((pathItem) => pathItem.key).join(".") || "root";
+    if (!errors[issuePath]) {
+      errors[issuePath] = issue.message;
     }
   }
 

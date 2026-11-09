@@ -83,7 +83,7 @@ Our application previously instantiated third-party SDKs (Stripe, Resend) direct
 3. **Domain Ports & Swappable Adapters** (Chosen) - Actions depend on pure interfaces.
 
 ## Decision Outcome
-Chosen Option: **Domain Ports & Swappable Adapters**. We define pure domain interfaces (e.g. `PaymentGatewayPort`) under `src/domains/<domain>/` and concrete implementations under `src/infrastructure/adapters/`.
+Chosen Option: **Domain Ports & Swappable Adapters**. We define pure domain interfaces (e.g. `PaymentGatewayPort`) under `src/types/<domain>/` and concrete implementations under `src/infrastructure/adapters/`.
 
 ### Positive Consequences
 - Business actions remain 100% pure and independent of vendor libraries.

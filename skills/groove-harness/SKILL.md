@@ -75,5 +75,8 @@ Every request is governed by the 7-step ODD protocol (*Authorize, Explore, Resol
 1. **Mandatory .grooveskills-First Read**: Never re-scan the entire codebase; rely on persistent project memory.
 2. **Outcome-Driven Accountability**: Every non-trivial change requires an outcome hypothesis and an observed verification receipt.
 3. **Strict Encapsulation**: Keep harness and state confined to `.grooveskills/`. Do not pollute the root repository.
-4. **Respect Best Practices**: All code must follow strict typing, guard clauses, SRP, direct imports (no barrels), and file limits (<200 lines).
+4. **Strict Atomic File Rule (1 Function/Method per File)**: Every code file must export at most ONE function, method, action, route handler, component, hook, schema, or type. Never group multiple helpers or methods in one file.
+5. **Type Isolation Rule**: Never declare data interfaces or types inline inside actions, routes, DTOs, or hooks. Only a UI component's own `Props` interface can be declared inline in its `.tsx` file; all other domain/data types must live in `@/types/{domain}/{name}.type.ts`.
+6. **Domain within Technical Layers**: Always organize by `{domain}` subfolders inside each technical layer (`src/actions/{domain}/`, `src/routes/{domain}/`, `src/dtos/{domain}/`, `src/types/{domain}/`, `src/errors/{domain}/`). Never create root `src/domains/` or `src/controllers/` folders.
+7. **Respect Best Practices**: All code must follow strict typing, guard clauses, SRP, direct imports (no barrels), and file limits (<200 lines).
 

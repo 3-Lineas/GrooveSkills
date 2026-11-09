@@ -31,8 +31,10 @@ Guidelines for writing safe, performant, and maintainable Python code with flat 
    - Do not re-export functions or classes via `__all__` or `from .module import *`.
    - Always use explicit, absolute imports from the project package root.
 
-5. **Single Responsibility & 200-Line Limit**:
-   - Every file must do exactly one thing. Isolate business actions into single-purpose modules (`app/actions/<domain>/<action>.py`).
+5. **Strict Atomic 1 Function per File & 200-Line Limit**:
+   - Every file exports at most ONE function or class.
+   - Isolate each business action into a single-purpose module (`app/actions/{domain}/{action}.py`).
+   - Domain schemas/models live in `app/types/{domain}/` rather than inline in action files.
    - Strictly adhere to the <200 lines limit per file. Split helpers into atomic modules.
 
 6. **Friendly & Persuasive User Copy**:
@@ -73,16 +75,12 @@ def activate_subscription(customer_id: str | None, plan: Plan | None) -> Invoice
 ## 3. Atomic Action Blueprint
 
 ```python
-from dataclasses import dataclass
-from app.domains.billing.models import Invoice, SubscriptionPlan
+# app/actions/billing/charge_subscription.py
+from app.types.billing.invoice import Invoice
+from app.types.billing.charge_subscription_input import ChargeSubscriptionInput
+from app.types.billing.payment_gateway_protocol import PaymentGatewayProtocol
 from app.errors.app_error import AppError
-from app.types.response import ActionResponse
-
-@dataclass(frozen=True, slots=True)
-class ChargeSubscriptionInput:
-    customer_id: str
-    plan_id: str
-    amount_cents: int
+from app.types.common.response import ActionResponse
 
 def charge_subscription_action(
     input_data: ChargeSubscriptionInput,

@@ -9,7 +9,9 @@ Production implementations of PostHog, LaunchDarkly, and In-Memory testing featu
 ```ts
 // src/infrastructure/adapters/feature-flags/posthog-flags.adapter.ts
 import { PostHog } from "posthog-node";
-import type { FeatureFlagPort, FeatureFlagKey, FeatureFlagEvaluationContext } from "@/domains/feature-flags/feature-flag.port";
+import type { FeatureFlagPort } from "@/types/feature-flags/feature-flag-port.type";
+import type { FeatureFlagKey } from "@/types/feature-flags/feature-flag-key.type";
+import type { FeatureFlagEvaluationContext } from "@/types/feature-flags/feature-flag-context.type";
 
 export class PostHogFeatureFlagAdapter implements FeatureFlagPort {
   constructor(private client: PostHog) {}
@@ -39,7 +41,9 @@ export class PostHogFeatureFlagAdapter implements FeatureFlagPort {
 ```ts
 // src/infrastructure/adapters/feature-flags/launchdarkly-flags.adapter.ts
 import type { LDClient } from "@launchdarkly/node-server-sdk";
-import type { FeatureFlagPort, FeatureFlagKey, FeatureFlagEvaluationContext } from "@/domains/feature-flags/feature-flag.port";
+import type { FeatureFlagPort } from "@/types/feature-flags/feature-flag-port.type";
+import type { FeatureFlagKey } from "@/types/feature-flags/feature-flag-key.type";
+import type { FeatureFlagEvaluationContext } from "@/types/feature-flags/feature-flag-context.type";
 
 export class LaunchDarklyFeatureFlagAdapter implements FeatureFlagPort {
   constructor(private client: LDClient) {}
@@ -68,7 +72,8 @@ export class LaunchDarklyFeatureFlagAdapter implements FeatureFlagPort {
 
 ```ts
 // src/infrastructure/adapters/feature-flags/memory-flags.adapter.ts
-import type { FeatureFlagPort, FeatureFlagKey } from "@/domains/feature-flags/feature-flag.port";
+import type { FeatureFlagPort } from "@/types/feature-flags/feature-flag-port.type";
+import type { FeatureFlagKey } from "@/types/feature-flags/feature-flag-key.type";
 
 export class MemoryFeatureFlagAdapter implements FeatureFlagPort {
   private flags = new Map<string, boolean>();

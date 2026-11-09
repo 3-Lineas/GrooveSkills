@@ -80,7 +80,7 @@ describe("Users DTO Validation", () => {
 ```ts
 import { describe, it, expect, vi } from "vitest";
 import { Hono } from "hono";
-import { createUserRoute } from "@/routes/modules/users/create-user.route";
+import { createUserRoute } from "@/routes/users/create-user.route";
 import { testDb } from "@/backend/setup";
 import type { AppContext } from "@/types/context/app-context.type";
 import type { ActionResponse } from "@/types/common/action-response.type";

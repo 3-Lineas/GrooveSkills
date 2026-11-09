@@ -40,13 +40,17 @@ src/
 │       ├── sanitize-order.action.ts        # Atomic data transform (<50 lines)
 │       ├── ensure-stock.action.ts          # Atomic invariant check (<50 lines)
 │       └── persist-order.action.ts         # Atomic DB persistence (<60 lines)
-├── controllers/
+├── routes/
 │   └── orders/
-│       └── checkout.controller.ts          # Pipeline & Queue Orchestration (<80 lines)
-├── domains/
+│       ├── orders.router.ts                # Router mounting endpoints (<40 lines)
+│       └── checkout-order.route.ts         # Pipeline & Queue Orchestration (<80 lines)
+├── types/
+│   ├── orders/
+│   │   ├── checkout-context.type.ts        # Pipeline context type (<40 lines)
+│   │   └── order.type.ts
 │   └── queue/
-│       ├── queue.port.ts                   # Domain interface for dispatching (<40 lines)
-│       └── queue-message.types.ts          # Strongly typed queue messages (<50 lines)
+│       ├── queue-port.type.ts              # Domain interface for dispatching (<40 lines)
+│       └── queue-job.type.ts               # Strongly typed queue messages (<50 lines)
 └── infrastructure/
     └── adapters/
         └── queue/                          # Swappable Queue adapters (Cloudflare, BullMQ, Memory)
@@ -54,32 +58,46 @@ src/
 
 ---
 
-## 3. Pipeline Orchestration Pattern
+## 3. Pipeline Orchestration Pattern in Route
 
 ```ts
-import type { Context } from "hono";
-import { Pipeline } from "@/common/utils/pipeline";
+import { Hono } from "hono";
+import { vValidator } from "@hono/valibot-validator";
+import type { AppContext } from "@/types/context/app-context.type";
+import type { CheckoutOrderInput } from "@/types/orders/checkout-order-input.type";
+import type { CheckoutContext } from "@/types/orders/checkout-context.type";
+import { CheckoutOrderDto } from "@/dtos/orders/checkout-order.dto";
+import { OrderResponseDto } from "@/dtos/orders/order-response.dto";
 import { sanitizeOrderAction } from "@/actions/orders/sanitize-order.action";
 import { ensureStockAction } from "@/actions/orders/ensure-stock.action";
 import { persistOrderAction } from "@/actions/orders/persist-order.action";
-import type { CheckoutContext } from "@/types/orders/checkout-context.type";
+import { Pipeline } from "@/common/utils/pipeline";
+import { createRouteHandler } from "@/common/utils/route-handler";
+import { validationHook } from "@/common/utils/validation";
 
-export async function checkoutController(ctx: Context) {
-  const database = ctx.get("db");
-  const validatedPayload = ctx.req.valid("json");
+export const checkoutOrderRoute = new Hono<AppContext>().post(
+  "/checkout",
+  vValidator("json", CheckoutOrderDto, validationHook),
+  createRouteHandler<unknown, typeof OrderResponseDto, CheckoutOrderInput>(
+    { outputSchema: OrderResponseDto, status: 201 },
+    async ({ db, input }) => {
+      const initialContext: CheckoutContext = {
+        database: db,
+        input: input!,
+        createdOrder: null,
+      };
 
-  const finalContext = await Pipeline.send<CheckoutContext>({
-    database,
-    input: validatedPayload,
-  })
-    .through([
-      sanitizeOrderAction,
-      ensureStockAction,
-      persistOrderAction,
-    ]);
+      const finalContext = await Pipeline.send(initialContext)
+        .through([
+          sanitizeOrderAction,
+          ensureStockAction,
+          persistOrderAction,
+        ]);
 
-  return ctx.json({ success: true, data: finalContext.createdOrder }, 201);
-}
+      return finalContext.createdOrder!;
+    }
+  )
+);
 ```
 
 ---

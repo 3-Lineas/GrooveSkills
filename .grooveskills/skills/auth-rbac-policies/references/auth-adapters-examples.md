@@ -9,7 +9,8 @@ Real adapter implementations (Clerk, Supabase, JWT) converting provider-specific
 ```ts
 // src/infrastructure/adapters/auth/clerk-auth.adapter.ts
 import { verifyToken } from "@clerk/backend";
-import type { AuthAdapterPort, AuthenticatedActor } from "@/domains/auth/authenticated-actor";
+import type { AuthAdapterPort } from "@/types/auth/auth-adapter-port.type";
+import type { AuthenticatedActor } from "@/types/auth/authenticated-actor.type";
 import { AppError } from "@/errors/app-error";
 
 export class ClerkAuthAdapter implements AuthAdapterPort {
@@ -44,7 +45,8 @@ export class ClerkAuthAdapter implements AuthAdapterPort {
 ```ts
 // src/infrastructure/adapters/auth/supabase-auth.adapter.ts
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { AuthAdapterPort, AuthenticatedActor } from "@/domains/auth/authenticated-actor";
+import type { AuthAdapterPort } from "@/types/auth/auth-adapter-port.type";
+import type { AuthenticatedActor } from "@/types/auth/authenticated-actor.type";
 import { AppError } from "@/errors/app-error";
 
 export class SupabaseAuthAdapter implements AuthAdapterPort {
@@ -78,7 +80,8 @@ export class SupabaseAuthAdapter implements AuthAdapterPort {
 
 ```ts
 // src/infrastructure/adapters/auth/memory-auth.adapter.ts
-import type { AuthAdapterPort, AuthenticatedActor } from "@/domains/auth/authenticated-actor";
+import type { AuthAdapterPort } from "@/types/auth/auth-adapter-port.type";
+import type { AuthenticatedActor } from "@/types/auth/authenticated-actor.type";
 import { AppError } from "@/errors/app-error";
 
 export class MemoryAuthAdapter implements AuthAdapterPort {

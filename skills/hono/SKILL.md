@@ -1,6 +1,6 @@
 ---
 name: hono
-description: Use when building or modifying Hono APIs, endpoints, middlewares, or actions. TRIGGER when the project imports 'hono', when modifying routes in src/modules/ or actions in src/actions/, or when the user mentions Hono, API endpoints, or routing. Always validate with Valibot (* as v from 'valibot') and adhere to the 'best-practices' skill.
+description: Use when building or modifying Hono APIs, endpoints, middlewares, or actions. TRIGGER when the project imports 'hono', when modifying routes in src/routes/ or actions in src/actions/, or when the user mentions Hono, API endpoints, or routing. Always validate with Valibot (* as v from 'valibot') and adhere to the 'best-practices' skill.
 ---
 
 # Hono Architecture & Thin Route Standards
@@ -23,18 +23,29 @@ Standardized guide for building robust, scalable Hono applications with isolated
    - The Hono context parameter is **ALWAYS** named `ctx` (NEVER `c`).
    - Catch errors are **ALWAYS** named `error` or `caughtError` (NEVER `e` or `err`).
 
-4. **Independent Route per File by Domain**:
-   - Every single endpoint resides in its own file (`src/routes/modules/{domain}/{action}.route.ts`).
-   - Group them under the domain router `src/routes/modules/{domain}/{domain}.router.ts` and mount in root router.
+4. **Zero `src/domains/`, `src/controllers/`, or `src/services/` Folders**:
+   - Never create a root `src/domains/` folder.
+   - Domain is strictly an organizing subfolder `{domain}` inside each technical layer: `src/routes/{domain}/`, `src/actions/{domain}/`, `src/dtos/{domain}/`, `src/types/{domain}/`, and `src/errors/{domain}/`.
 
-5. **Business Logic Exclusively in Actions / Pipelines**:
-   - All business logic lives in `src/actions/{domain}/{action}.action.ts`.
-   - Never execute SQL, D1, Drizzle, or Prisma queries directly inside route handlers.
+5. **Independent Route per File by Domain (`src/routes/{domain}/`)**:
+   - Every single endpoint resides in its own atomic file: `src/routes/{domain}/{action}.route.ts`.
+   - Subfolders for surfaces (e.g. `src/routes/{surface}/{domain}/` or `modules`) are ONLY permitted when the backend serves 2 or more distinct route surfaces (e.g. `web` vs `mobile`). For standard APIs, `{domain}` is direct: `src/routes/{domain}/`.
+   - Group domain routes under `src/routes/{domain}/{domain}.router.ts` and mount in root router `src/routes/index.ts`.
 
-6. **Hard Size Limit: <200 Lines Max**:
+6. **1 Route per File & 1 Action per File (100% Atomic)**:
+   - Each route file defines exactly 1 HTTP endpoint.
+   - Each action file exports exactly 1 atomic function.
+   - An Action **NEVER** calls another Action. Orchestration belongs in the route.
+   - No inline data interfaces or types; domain types live in `@/types/{domain}/`.
+
+7. **Direct Action vs. Pipeline Execution in Routes**:
+   - When an endpoint needs only 1 Action: invoke the Action directly (`const result = await myAction(ctx);`).
+   - When an endpoint coordinates multiple Actions: sequence them cleanly using `Pipeline.send(context).through([actionA, actionB, actionC])`.
+
+8. **Hard Size Limit: <200 Lines Max**:
    - Keep route endpoints under 60 lines and routers under 50 lines.
 
-7. **Unified Client Response (`ActionResponse<T>`)**:
+9. **Unified Client Response (`ActionResponse<T>`)**:
    - Every API endpoint response (success or failure) conforms to `ActionResponse<T>` (`success`, `message`, `data`, `error`).
 
 ---
@@ -45,26 +56,56 @@ Standardized guide for building robust, scalable Hono applications with isolated
 src/
 ├── routes/
 │   ├── index.ts                     # Main apiRouter mounting domain routers
-│   └── modules/{domain}/
+│   └── {domain}/                    # Direct domain route folder (unless multi-surface)
 │       ├── {action}.route.ts        # Atomic endpoint (<60 lines)
 │       └── {domain}.router.ts       # Domain assembly router (<50 lines)
 ├── dtos/{domain}/                   # Valibot schemas (<50 lines)
-├── actions/{domain}/                # Atomic business logic (<100 lines)
-└── types/                           # Isolated domain contracts (<50 lines)
+├── actions/{domain}/                # Atomic business logic (<100 lines, 1 function/file)
+├── errors/{domain}/                 # Domain-specific AppError subclasses
+└── types/{domain}/                  # Isolated domain contracts (<50 lines, 1 type/file)
 ```
 
 ---
 
-## 3. Thin Route Pattern Example
+## 3. Thin Route Patterns
+
+### Pattern A: Direct Action Execution (Single Action)
+
+```ts
+import { Hono } from "hono";
+import type { AppContext } from "@/types/context/app-context.type";
+import type { UserProfile } from "@/types/users/user-profile.type";
+import { UserResponseDto } from "@/dtos/users/user-response.dto";
+import { getUserByIdAction } from "@/actions/users/get-user-by-id.action";
+import { createRouteHandler } from "@/common/utils/route-handler";
+
+export const getUserByIdRoute = new Hono<AppContext>().get(
+  "/:userId",
+  createRouteHandler<unknown, typeof UserResponseDto, void, { userId: string }>(
+    { outputSchema: UserResponseDto, status: 200 },
+    async ({ db, ctx }) => {
+      const userId = ctx.req.param("userId");
+      const userProfile: UserProfile = await getUserByIdAction({ db, userId });
+      return userProfile;
+    }
+  )
+);
+```
+
+### Pattern B: Pipeline Execution (Multi-Action Orchestration)
 
 ```ts
 import { Hono } from "hono";
 import { vValidator } from "@hono/valibot-validator";
 import type { AppContext } from "@/types/context/app-context.type";
 import type { CreateUserInput } from "@/types/users/create-user-input.type";
+import type { UserRegistrationContext } from "@/types/users/user-registration-context.type";
 import { CreateUserDto } from "@/dtos/users/create-user.dto";
 import { UserResponseDto } from "@/dtos/users/user-response.dto";
-import { registerUserAction } from "@/actions/users/register-user.action";
+import { sanitizeUserAction } from "@/actions/users/sanitize-user.action";
+import { ensureEmailAvailableAction } from "@/actions/users/ensure-email-available.action";
+import { persistUserAction } from "@/actions/users/persist-user.action";
+import { Pipeline } from "@/common/pipeline/pipeline";
 import { createRouteHandler } from "@/common/utils/route-handler";
 import { validationHook } from "@/common/utils/validation";
 
@@ -74,7 +115,21 @@ export const createUserRoute = new Hono<AppContext>().post(
   createRouteHandler<unknown, typeof UserResponseDto, CreateUserInput>(
     { outputSchema: UserResponseDto, status: 201 },
     async ({ db, input }) => {
-      return await registerUserAction(db, input!);
+      const initialContext: UserRegistrationContext = {
+        db,
+        input: input!,
+        sanitizedInput: null,
+        createdUser: null,
+      };
+
+      const resultContext = await Pipeline.send(initialContext)
+        .through([
+          sanitizeUserAction,
+          ensureEmailAvailableAction,
+          persistUserAction,
+        ]);
+
+      return resultContext.createdUser!;
     }
   )
 );

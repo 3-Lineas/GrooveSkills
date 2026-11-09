@@ -46,7 +46,8 @@ export async function withD1Transaction<TSchema extends Record<string, unknown>,
 ## 2. Cloudflare Queues Adapter
 
 ```ts
-import type { QueuePort, QueueJob } from "@/domains/queue/queue.port";
+import type { QueuePort } from "@/types/queue/queue-port.type";
+import type { QueueJob } from "@/types/queue/queue-job.type";
 import { AppError } from "@/errors/app-error";
 
 export class CloudflareQueueAdapter implements QueuePort {
@@ -78,7 +79,8 @@ export class CloudflareQueueAdapter implements QueuePort {
 
 ```ts
 import { Queue as BullQueue } from "bullmq";
-import type { QueuePort, QueueJob } from "@/domains/queue/queue.port";
+import type { QueuePort } from "@/types/queue/queue-port.type";
+import type { QueueJob } from "@/types/queue/queue-job.type";
 import { AppError } from "@/errors/app-error";
 
 export class BullMQAdapter implements QueuePort {
@@ -118,7 +120,8 @@ export class BullMQAdapter implements QueuePort {
 ## 4. In-Memory Queue Adapter (Testing Fake)
 
 ```ts
-import type { QueuePort, QueueJob } from "@/domains/queue/queue.port";
+import type { QueuePort } from "@/types/queue/queue-port.type";
+import type { QueueJob } from "@/types/queue/queue-job.type";
 
 export class MemoryQueueAdapter implements QueuePort {
   public jobs: QueueJob[] = [];

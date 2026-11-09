@@ -13,8 +13,8 @@ Architectural pattern for standardizing third-party integrations (payments, emai
 
 | Component | Responsibility | Location | Dependencies |
 | :--- | :--- | :--- | :--- |
-| **Domain Port (Interface)** | Defines the contract needed by our business domain (pure domain types). | `src/domains/<domain>/` | Zero external SDKs |
-| **Vendor Wrapper (Client)** | Encapsulates vendor SDK initialization, raw authentication, and direct API calls. | `src/infrastructure/<vendor>/` | Vendor SDK / HTTP client |
+| **Domain Port (Interface)** | Defines the contract needed by our business domain (pure domain types). | `src/types/<domain>/` | Zero external SDKs |
+| **Vendor Wrapper (Client)** | Encapsulates vendor SDK initialization, raw authentication, and direct API calls. | `src/infrastructure/wrappers/<vendor>/` | Vendor SDK / HTTP client |
 | **Service Adapter** | Implements the Domain Port by calling the Vendor Wrapper and translating inputs/outputs. | `src/infrastructure/adapters/` | Port + Vendor Wrapper |
 | **Business Action** | Executes use case logic depending ONLY on the Domain Port. | `src/actions/<domain>/` | Domain Port only |
 
@@ -23,9 +23,9 @@ Architectural pattern for standardizing third-party integrations (payments, emai
 ## 2. The 4 Non-Negotiable Rules
 
 1. **Actions Depend on Ports, Never Vendors**:
-   - Business actions must type-hint the domain port interface (`EmailSender`, `PaymentGateway`), never `Stripe`, `Resend`, or `aws-sdk`.
+   - Business actions must type-hint the domain port interface (`EmailSenderPort`, `PaymentGatewayPort`), never `Stripe`, `Resend`, or `aws-sdk`.
 2. **Standardized Domain Contracts**:
-   - Input payloads and return values must use application domain types (e.g., `SendEmailInput`, `SendEmailResult`, `PaymentChargeResult`).
+   - Input payloads and return values must use application domain types (e.g., `SendEmailPayload`, `SendEmailOutput`, `PaymentChargeResult`).
    - Third-party SDK response shapes must never leak into actions or domain modules.
 3. **Isolate SDK Quirks in Wrappers**:
    - HTTP errors, retries, header formatting, and API keys stay inside the vendor wrapper.
@@ -42,22 +42,24 @@ src/
 ├── actions/
 │   └── billing/
 │       └── process-payment.action.ts       # Consumes PaymentGateway port (<80 lines)
-├── domains/
+├── types/
 │   ├── billing/
-│   │   ├── payment-gateway.port.ts         # Domain interface contract (<40 lines)
-│   │   └── billing.types.ts                # ChargeInput, ChargeResult (<50 lines)
+│   │   ├── payment-gateway-port.type.ts    # Domain interface contract (<40 lines)
+│   │   ├── charge-input.type.ts            # ChargeInput (<30 lines)
+│   │   └── charge-result.type.ts           # ChargeResult (<30 lines)
 │   └── email/
-│       ├── email-sender.port.ts            # Domain interface contract (<40 lines)
-│       └── email.types.ts                  # SendEmailInput, SendEmailResult (<50 lines)
+│       ├── email-sender-port.type.ts       # Domain interface contract (<40 lines)
+│       ├── send-email-payload.type.ts      # SendEmailPayload (<30 lines)
+│       └── send-email-output.type.ts       # SendEmailOutput (<30 lines)
 └── infrastructure/
     ├── adapters/
     │   ├── email/
-    │   │   ├── resend-email.adapter.ts     # Implements EmailSender (<80 lines)
-    │   │   ├── ses-email.adapter.ts        # Implements EmailSender (<80 lines)
-    │   │   └── smtp-email.adapter.ts       # Implements EmailSender (<80 lines)
+    │   │   ├── resend-email.adapter.ts     # Implements EmailSenderPort (<80 lines)
+    │   │   ├── ses-email.adapter.ts        # Implements EmailSenderPort (<80 lines)
+    │   │   └── smtp-email.adapter.ts       # Implements EmailSenderPort (<80 lines)
     │   └── payment/
-    │       ├── stripe-payment.adapter.ts   # Implements PaymentGateway (<90 lines)
-    │       └── mercadopago-payment.adapter.ts # Implements PaymentGateway (<90 lines)
+    │       ├── stripe-payment.adapter.ts   # Implements PaymentGatewayPort (<90 lines)
+    │       └── mercadopago-payment.adapter.ts # Implements PaymentGatewayPort (<90 lines)
     └── wrappers/
         ├── aws/
         │   └── ses-client.wrapper.ts       # Raw AWS SES client wrapper (<70 lines)
@@ -71,21 +73,11 @@ src/
 
 ## 4. Implementation Blueprint (Email Example)
 
-### Step 1: Pure Domain Port (`src/domains/email/email-sender.port.ts`)
+### Step 1: Pure Domain Port (`src/types/email/email-sender-port.type.ts`)
 ```ts
-export interface SendEmailPayload {
-  to: string | string[];
-  subject: string;
-  htmlContent: string;
-  from?: string;
-  replyTo?: string;
-}
-
-export interface SendEmailOutput {
-  id: string;
-  delivered: boolean;
-  timestamp: Date;
-}
+// src/types/email/email-sender-port.type.ts
+import type { SendEmailPayload } from "@/types/email/send-email-payload.type";
+import type { SendEmailOutput } from "@/types/email/send-email-output.type";
 
 export interface EmailSenderPort {
   sendEmail(payload: SendEmailPayload): Promise<SendEmailOutput>;
@@ -111,7 +103,9 @@ export class ResendWrapper {
 
 ### Step 3: Domain Adapter (`src/infrastructure/adapters/email/resend-email.adapter.ts`)
 ```ts
-import type { EmailSenderPort, SendEmailPayload, SendEmailOutput } from "@/domains/email/email-sender.port";
+import type { EmailSenderPort } from "@/types/email/email-sender-port.type";
+import type { SendEmailPayload } from "@/types/email/send-email-payload.type";
+import type { SendEmailOutput } from "@/types/email/send-email-output.type";
 import type { ResendWrapper } from "@/infrastructure/wrappers/resend/resend.wrapper";
 import { AppError } from "@/errors/app-error";
 

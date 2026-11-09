@@ -10,7 +10,11 @@ Reference implementations for S3, Cloudflare R2, Supabase Storage, and In-Memory
 // src/infrastructure/adapters/storage/s3-storage.adapter.ts
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import type { StoragePort, PutFileInput, PutFileOutput, StorageFile, PresignedUrlInput } from "@/domains/storage/storage.port";
+import type { StoragePort } from "@/types/storage/storage-port.type";
+import type { PutFileInput } from "@/types/storage/put-file-input.type";
+import type { PutFileOutput } from "@/types/storage/put-file-output.type";
+import type { StorageFile } from "@/types/storage/storage-file.type";
+import type { PresignedUrlInput } from "@/types/storage/presigned-url-input.type";
 import { AppError } from "@/errors/app-error";
 
 export class S3StorageAdapter implements StoragePort {
@@ -79,7 +83,11 @@ export function createR2StorageAdapter(accountId: string, accessKeyId: string, s
 ```ts
 // src/infrastructure/adapters/storage/supabase-storage.adapter.ts
 import type { StorageClient } from "@supabase/storage-js";
-import type { StoragePort, PutFileInput, PutFileOutput, StorageFile, PresignedUrlInput } from "@/domains/storage/storage.port";
+import type { StoragePort } from "@/types/storage/storage-port.type";
+import type { PutFileInput } from "@/types/storage/put-file-input.type";
+import type { PutFileOutput } from "@/types/storage/put-file-output.type";
+import type { StorageFile } from "@/types/storage/storage-file.type";
+import type { PresignedUrlInput } from "@/types/storage/presigned-url-input.type";
 import { AppError } from "@/errors/app-error";
 
 export class SupabaseStorageAdapter implements StoragePort {
@@ -132,7 +140,11 @@ export class SupabaseStorageAdapter implements StoragePort {
 
 ```ts
 // src/infrastructure/adapters/storage/memory-storage.adapter.ts
-import type { StoragePort, PutFileInput, PutFileOutput, StorageFile, PresignedUrlInput } from "@/domains/storage/storage.port";
+import type { StoragePort } from "@/types/storage/storage-port.type";
+import type { PutFileInput } from "@/types/storage/put-file-input.type";
+import type { PutFileOutput } from "@/types/storage/put-file-output.type";
+import type { StorageFile } from "@/types/storage/storage-file.type";
+import type { PresignedUrlInput } from "@/types/storage/presigned-url-input.type";
 import { AppError } from "@/errors/app-error";
 
 export class MemoryStorageAdapter implements StoragePort {

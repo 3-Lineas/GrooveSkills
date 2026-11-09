@@ -4,22 +4,40 @@ Complete helpers and handlers for high-precision arithmetic, JS proxy conversion
 
 ---
 
-## 1. Pure Decimal Arithmetic (`src/core/money.py`)
+## 1. Pure Decimal Arithmetic Actions (1 Function per File)
 
 ```python
-from decimal import Decimal, ROUND_HALF_UP
+# src/actions/finance/to_decimal.py
+from decimal import Decimal
 
 def to_decimal(val) -> Decimal:
     return Decimal(str(val))
+```
+
+```python
+# src/actions/finance/round_currency.py
+from decimal import Decimal, ROUND_HALF_UP
 
 def round_currency(amount: Decimal, decimals: int = 2) -> Decimal:
     exponent = Decimal("10") ** -decimals
     return amount.quantize(exponent, rounding=ROUND_HALF_UP)
+```
+
+```python
+# src/actions/finance/compute_item_total.py
+from decimal import Decimal
+from actions.finance.round_currency import round_currency
 
 def compute_item_total(unit_price: Decimal, quantity: int, discount_pct: Decimal = Decimal(0)) -> Decimal:
     subtotal = unit_price * quantity
     discount = subtotal * (discount_pct / Decimal(100))
     return round_currency(subtotal - discount)
+```
+
+```python
+# src/actions/finance/compute_tax.py
+from decimal import Decimal
+from actions.finance.round_currency import round_currency
 
 def compute_tax(amount: Decimal, tax_rate_pct: Decimal) -> Decimal:
     return round_currency(amount * (tax_rate_pct / Decimal(100)))
@@ -27,13 +45,16 @@ def compute_tax(amount: Decimal, tax_rate_pct: Decimal) -> Decimal:
 
 ---
 
-## 2. Safe Pyodide JS Proxy Handler (`src/domains/finance/calculate_totals.py`)
+## 2. Safe Pyodide JS Proxy Handler (`src/actions/finance/calculate_totals.py`)
 
 ```python
 import json
 from decimal import Decimal
 from typing import Any
-from core.money import to_decimal, compute_item_total, compute_tax, round_currency
+from actions.finance.to_decimal import to_decimal
+from actions.finance.compute_item_total import compute_item_total
+from actions.finance.compute_tax import compute_tax
+from actions.finance.round_currency import round_currency
 
 try:
     from js import JSON  # type: ignore

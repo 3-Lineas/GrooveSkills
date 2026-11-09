@@ -6,27 +6,11 @@ Reference implementations illustrating the Wrapper + Adapter pattern across emai
 
 ## 1. Transactional Email System
 
-### 1.1 Pure Domain Port (`src/domains/email/email-sender.port.ts`)
+### 1.1 Pure Domain Port (`src/types/email/email-sender-port.type.ts`)
 ```ts
-export interface EmailRecipient {
-  email: string;
-  name?: string;
-}
-
-export interface SendEmailInput {
-  to: EmailRecipient[];
-  subject: string;
-  html: string;
-  text?: string;
-  from?: EmailRecipient;
-  replyTo?: string;
-}
-
-export interface SendEmailResult {
-  messageId: string;
-  provider: "smtp" | "resend" | "aws-ses" | "cloudflare";
-  sentAt: Date;
-}
+// src/types/email/email-sender-port.type.ts
+import type { SendEmailInput } from "@/types/email/send-email-input.type";
+import type { SendEmailResult } from "@/types/email/send-email-result.type";
 
 export interface EmailSenderPort {
   send(input: SendEmailInput): Promise<SendEmailResult>;
@@ -36,7 +20,9 @@ export interface EmailSenderPort {
 ### 1.2 SMTP Adapter (`nodemailer`)
 ```ts
 // src/infrastructure/adapters/email/smtp-email.adapter.ts
-import type { EmailSenderPort, SendEmailInput, SendEmailResult } from "@/domains/email/email-sender.port";
+import type { EmailSenderPort } from "@/types/email/email-sender-port.type";
+import type { SendEmailInput } from "@/types/email/send-email-input.type";
+import type { SendEmailResult } from "@/types/email/send-email-result.type";
 import type { SmtpWrapper } from "@/infrastructure/wrappers/smtp/smtp.wrapper";
 import { AppError } from "@/errors/app-error";
 
@@ -119,21 +105,12 @@ export class CloudflareEmailAdapter implements EmailSenderPort {
 
 ## 2. Payment Gateways (Stripe & MercadoPago)
 
-### 2.1 Domain Port (`src/domains/billing/payment-gateway.port.ts`)
+### 2.1 Domain Port (`src/types/billing/payment-gateway-port.type.ts`)
+*(Note: `ChargeInput` and `ChargeResult` each live in their own atomic file under `@/types/billing/`)*
 ```ts
-export interface ChargeInput {
-  amountInCents: number;
-  currency: "usd" | "clp" | "mxn" | "eur";
-  customerId: string;
-  sourceToken?: string;
-  idempotencyKey: string;
-}
-
-export interface ChargeResult {
-  transactionId: string;
-  status: "succeeded" | "pending" | "failed";
-  provider: "stripe" | "mercadopago";
-}
+// src/types/billing/payment-gateway-port.type.ts
+import type { ChargeInput } from "@/types/billing/charge-input.type";
+import type { ChargeResult } from "@/types/billing/charge-result.type";
 
 export interface PaymentGatewayPort {
   createCharge(input: ChargeInput): Promise<ChargeResult>;
@@ -143,7 +120,9 @@ export interface PaymentGatewayPort {
 ### 2.2 Stripe & MercadoPago Adapters
 ```ts
 // src/infrastructure/adapters/payment/stripe-payment.adapter.ts
-import type { PaymentGatewayPort, ChargeInput, ChargeResult } from "@/domains/billing/payment-gateway.port";
+import type { PaymentGatewayPort } from "@/types/billing/payment-gateway-port.type";
+import type { ChargeInput } from "@/types/billing/charge-input.type";
+import type { ChargeResult } from "@/types/billing/charge-result.type";
 import type Stripe from "stripe";
 import { AppError } from "@/errors/app-error";
 
@@ -169,7 +148,9 @@ export class StripePaymentAdapter implements PaymentGatewayPort {
 ```
 ```ts
 // src/infrastructure/adapters/payment/mercadopago-payment.adapter.ts
-import type { PaymentGatewayPort, ChargeInput, ChargeResult } from "@/domains/billing/payment-gateway.port";
+import type { PaymentGatewayPort } from "@/types/billing/payment-gateway-port.type";
+import type { ChargeInput } from "@/types/billing/charge-input.type";
+import type { ChargeResult } from "@/types/billing/charge-result.type";
 import { Payment, type MercadoPagoConfig } from "mercadopago";
 import { AppError } from "@/errors/app-error";
 

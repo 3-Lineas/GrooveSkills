@@ -14,22 +14,29 @@ Opinionated architectural standard decoupling authentication identity extraction
 | Dimension | Authentication (AuthN) | Authorization (AuthZ) |
 | :--- | :--- | :--- |
 | **Question** | *Who is calling the system?* | *Is this actor permitted to perform this action on this resource?* |
-| **Layer** | Infrastructure Adapter (`src/infrastructure/adapters/auth/`) | Pure Domain Policy (`src/domains/<domain>/policies/`) |
-| **Mechanism** | JWT verify, Clerk/Supabase session token parser | Pure boolean logic: `(actor, resource) => boolean` |
+| **Layer** | Infrastructure Adapter (`src/infrastructure/adapters/auth/`) | Pure Atomic Policy (`src/actions/{domain}/can-{action}-{resource}.action.ts`) |
+| **Mechanism** | JWT verify, Clerk/Supabase session token parser | Pure boolean logic: `(actor, resource) => boolean` (1 function per file) |
 | **Side Effects** | I/O, network tokens, crypto signature checks | Zero I/O, deterministic, 100% testable without mocks |
 
 ---
 
 ## 2. Standardized AuthenticatedActor Contract
 
+Contracts live in `@/types/auth/` (1 interface per file).
+
 ```ts
-// src/domains/auth/authenticated-actor.ts
+// src/types/auth/authenticated-actor.type.ts
 export interface AuthenticatedActor {
   readonly id: string;
   readonly role: "admin" | "member" | "viewer" | "guest";
   readonly permissions: readonly string[];
   readonly organizationId?: string;
 }
+```
+
+```ts
+// src/types/auth/auth-adapter-port.type.ts
+import type { AuthenticatedActor } from "@/types/auth/authenticated-actor.type";
 
 export interface AuthAdapterPort {
   authenticateBearerToken(headerValue?: string): Promise<AuthenticatedActor>;
@@ -38,37 +45,41 @@ export interface AuthAdapterPort {
 
 ---
 
-## 3. Pure Authorization Policies (Zero Side Effects)
+## 3. Pure Authorization Policies (1 Function per File)
 
-Policies must be standalone pure functions. Never instantiate an external database or call network APIs inside a policy.
+Policies must be standalone pure functions exporting exactly ONE function per file under `src/actions/{domain}/`. Never instantiate an external database or call network APIs inside a policy.
 
 ```ts
-// src/domains/documents/policies/document.policy.ts
-import type { AuthenticatedActor } from "@/domains/auth/authenticated-actor";
+// src/actions/documents/can-view-document.action.ts
+import type { AuthenticatedActor } from "@/types/auth/authenticated-actor.type";
+import type { DocumentResource } from "@/types/documents/document-resource.type";
 
-export interface DocumentResource {
-  id: string;
-  authorId: string;
-  organizationId: string;
-  isPublished: boolean;
+export function canViewDocumentAction(actor: AuthenticatedActor, doc: DocumentResource): boolean {
+  if (actor.role === "admin") return true;
+  if (doc.isPublished && actor.organizationId === doc.organizationId) return true;
+  return actor.id === doc.authorId;
 }
+```
 
-export const DocumentPolicy = {
-  canView(actor: AuthenticatedActor, doc: DocumentResource): boolean {
-    if (actor.role === "admin") return true;
-    if (doc.isPublished && actor.organizationId === doc.organizationId) return true;
-    return actor.id === doc.authorId;
-  },
+```ts
+// src/actions/documents/can-edit-document.action.ts
+import type { AuthenticatedActor } from "@/types/auth/authenticated-actor.type";
+import type { DocumentResource } from "@/types/documents/document-resource.type";
 
-  canEdit(actor: AuthenticatedActor, doc: DocumentResource): boolean {
-    if (actor.role === "admin") return true;
-    return actor.id === doc.authorId;
-  },
+export function canEditDocumentAction(actor: AuthenticatedActor, doc: DocumentResource): boolean {
+  if (actor.role === "admin") return true;
+  return actor.id === doc.authorId;
+}
+```
 
-  canDelete(actor: AuthenticatedActor, doc: DocumentResource): boolean {
-    return actor.role === "admin" || actor.id === doc.authorId;
-  },
-};
+```ts
+// src/actions/documents/can-delete-document.action.ts
+import type { AuthenticatedActor } from "@/types/auth/authenticated-actor.type";
+import type { DocumentResource } from "@/types/documents/document-resource.type";
+
+export function canDeleteDocumentAction(actor: AuthenticatedActor, doc: DocumentResource): boolean {
+  return actor.role === "admin" || actor.id === doc.authorId;
+}
 ```
 
 ---
@@ -76,12 +87,14 @@ export const DocumentPolicy = {
 ## 4. Enforcement in Actions or Route Middleware
 
 ```ts
+// src/actions/documents/authorize-document-edit.action.ts
 import { AppError } from "@/errors/app-error";
-import { DocumentPolicy, type DocumentResource } from "@/domains/documents/policies/document.policy";
-import type { AuthenticatedActor } from "@/domains/auth/authenticated-actor";
+import { canEditDocumentAction } from "@/actions/documents/can-edit-document.action";
+import type { DocumentResource } from "@/types/documents/document-resource.type";
+import type { AuthenticatedActor } from "@/types/auth/authenticated-actor.type";
 
-export function authorizeOrThrow(actor: AuthenticatedActor, resource: DocumentResource): void {
-  const allowed = DocumentPolicy.canEdit(actor, resource);
+export function authorizeDocumentEditAction(actor: AuthenticatedActor, resource: DocumentResource): void {
+  const allowed = canEditDocumentAction(actor, resource);
   if (!allowed) {
     throw new AppError({
       message: "No tienes permiso para modificar este documento.",

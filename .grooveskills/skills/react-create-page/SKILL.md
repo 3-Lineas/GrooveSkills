@@ -74,17 +74,22 @@ src/
 
 ### A. Valibot Schema & Domain Action
 ```ts
-// src/pages/profile/schemas/profile.schema.ts
+// src/dtos/profile/profile.dto.ts
 import * as v from "valibot";
 
 export const profileSchema = v.object({
   fullName: v.pipe(v.string(), v.minLength(2, "Name must have at least 2 characters.")),
   email: v.pipe(v.string(), v.email("Please provide a valid email.")),
 });
-export type ProfileFormValues = v.InferOutput<typeof profileSchema>;
+```
 
+*(Note: `ProfileFormValues` lives in `@/types/profile/profile-form-values.type.ts` and `ActionResponse<T>` lives in `@/types/common/action-response.type.ts`)*
+
+```ts
 // src/actions/profile/update-profile.action.ts
-export interface ActionResponse<T> { success: boolean; data?: T; error?: string; }
+import type { ProfileFormValues } from "@/types/profile/profile-form-values.type";
+import type { ActionResponse } from "@/types/common/action-response.type";
+
 export async function updateProfileAction(data: ProfileFormValues): Promise<ActionResponse<ProfileFormValues>> {
   try {
     const res = await fetch("/api/profile", { method: "PUT", body: JSON.stringify(data) });
