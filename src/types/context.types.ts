@@ -5,6 +5,7 @@ export interface ProjectContext {
   targetPath: string;
   detectedDependencies: string[];
   suggestedSkillIds: string[];
+  installedSkillIds: string[];
   detectedAgents: AgentId[];
   packageJsonExists: boolean;
   harnessExists: boolean;

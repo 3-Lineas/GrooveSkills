@@ -18,6 +18,8 @@ import { installSkills } from "@/domains/installer/install-orchestrator";
 import { runSafeFsIntegrationTests } from "./safe-fs-integration.test";
 import { runNormalizeTaskFilenamesTests } from "@/domains/harness/normalize-task-filenames.test";
 import { runSecurityAuditTests } from "@/domains/audit/run-security-audit.test";
+import { runProjectDetectorTests } from "@/domains/detector/project-detector.test";
+import { runRemoveSkillsTests } from "@/domains/installer/remove-skills.test";
 
 console.log("▶ Starting verification suite: Defensive Permissions, Atomic Replace & Transactional Rollback...");
 
@@ -252,6 +254,12 @@ try {
 
   // 12. Test standalone zero-footprint security audit
   await runSecurityAuditTests();
+
+  // 13. Test project detector Next.js / pure React exclusivity
+  runProjectDetectorTests();
+
+  // 14. Test installSkills with skillsToRemove (complete uninstallation)
+  await runRemoveSkillsTests(testBaseDir);
 
   console.log("\n✅ ALL RESILIENCE, ATOMIC REPLACE, AND ROLLBACK TESTS PASSED.");
 } finally {

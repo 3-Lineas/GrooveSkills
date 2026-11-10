@@ -184,4 +184,12 @@ export const SKILL_CATALOG: SkillMetadata[] = [
     dependencies: ["react", "react-dom"],
     directoryName: "react-create-page",
   },
+  {
+    id: "nextjs-architecture",
+    name: "Next.js & Vinext Server Architecture",
+    description: "Server-first Next.js & Vinext (Cloudflare): 100% server pages, initial data via Server Actions, loading.tsx skeletons, URL state, and GroovePack flow",
+    dependencies: ["next", "vinext", "@vinext/cloudflare"],
+    directoryName: "nextjs-architecture",
+  },
 ];
+

@@ -3,61 +3,18 @@ import picocolors from "picocolors";
 import { renderBanner } from "@/domains/ui/banners";
 import { promptSkills } from "@/domains/ui/prompt-skills";
 import { promptAgents } from "@/domains/ui/prompt-agents";
-import { promptLanguage } from "@/domains/ui/prompt-language";
-import { promptConfirmOverwrite } from "@/domains/ui/prompt-confirm-overwrite";
-import { verifySkillExists } from "@/domains/installer/verify-skill-exists";
+import { promptConfirmUninstall } from "@/domains/ui/prompt-confirm-uninstall";
+import {
+  resolveLanguageSelection,
+  resolveOverwriteConfirmation,
+} from "@/domains/ui/ui-resolvers";
 import { installSkills } from "@/domains/installer/install-orchestrator";
-import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
 import { formatOnboardingPrompt } from "@/domains/ui/render-onboarding-prompt";
 import { formatReplacedFileNotes, renderInstallFailure } from "@/domains/ui/render-install-report";
 import { getTerminalWidth, wrapText } from "@/domains/ui/terminal-layout";
 import { InstallTransactionError } from "@/errors/install-transaction-error";
 import type { ProjectContext } from "@/types/context.types";
 import type { AgentId } from "@/types/agent.types";
-import type { ProjectLanguage } from "@/types/harness.types";
-
-async function resolveLanguageSelection(
-  harnessExists: boolean,
-  configuredLanguage?: ProjectLanguage,
-  forceOnboarding?: boolean
-): Promise<ProjectLanguage> {
-  if (harnessExists && !forceOnboarding) {
-    return configuredLanguage ?? "es";
-  }
-
-  const languageSelection = await promptLanguage(configuredLanguage ?? "es");
-  if (prompts.isCancel(languageSelection)) {
-    prompts.cancel("Installation cancelled. Have a wonderful day!");
-    process.exit(0);
-  }
-
-  return languageSelection as ProjectLanguage;
-}
-
-async function resolveOverwriteConfirmation(
-  targetPath: string,
-  selectedSkills: string[],
-  selectedAgents: AgentId[]
-): Promise<boolean> {
-  const anyExists = selectedSkills.some((skillId) => {
-    const skillMetadata = SKILL_CATALOG.find((skill) => skill.id === skillId);
-    return skillMetadata
-      ? verifySkillExists(targetPath, skillMetadata.directoryName, selectedAgents)
-      : false;
-  });
-
-  if (!anyExists) {
-    return true;
-  }
-
-  const overwriteConfirmed = await promptConfirmOverwrite();
-  if (prompts.isCancel(overwriteConfirmed) || !overwriteConfirmed) {
-    prompts.cancel("Installation stopped to protect existing skills.");
-    process.exit(0);
-  }
-
-  return Boolean(overwriteConfirmed);
-}
 
 export async function runInteractiveUi(
   context: ProjectContext,
@@ -97,10 +54,30 @@ export async function runInteractiveUi(
     prompts.note(environmentNote, "Project Environment");
   }
 
-  const selectedSkills = await promptSkills(context.suggestedSkillIds);
+  const selectedSkills = await promptSkills(
+    context.suggestedSkillIds,
+    context.installedSkillIds
+  );
   if (prompts.isCancel(selectedSkills)) {
     prompts.cancel("Installation cancelled. Have a wonderful day!");
     process.exit(0);
+  }
+
+  const selectedSkillIds = selectedSkills as string[];
+  const deselectedSkills = context.installedSkillIds.filter(
+    (skillId) => !selectedSkillIds.includes(skillId)
+  );
+
+  let skillsToRemove: string[] = [];
+  if (deselectedSkills.length > 0) {
+    const confirmRemoval = await promptConfirmUninstall(deselectedSkills);
+    if (prompts.isCancel(confirmRemoval)) {
+      prompts.cancel("Installation cancelled. Have a wonderful day!");
+      process.exit(0);
+    }
+    if (confirmRemoval) {
+      skillsToRemove = deselectedSkills;
+    }
   }
 
   const selectedAgents = await promptAgents(context.detectedAgents);
@@ -117,7 +94,7 @@ export async function runInteractiveUi(
 
   const forceOverwrite = await resolveOverwriteConfirmation(
     context.targetPath,
-    selectedSkills as string[],
+    selectedSkillIds,
     selectedAgents as AgentId[]
   );
 
@@ -127,13 +104,14 @@ export async function runInteractiveUi(
   try {
     const installResult = await installSkills({
       targetPath: context.targetPath,
-      selectedSkillIds: selectedSkills as string[],
+      selectedSkillIds,
       selectedAgents: selectedAgents as AgentId[],
       forceOverwrite,
       enableHarness: true,
       detectedDependencies: context.detectedDependencies,
       language: selectedLanguage,
       forceOnboarding,
+      skillsToRemove,
     });
 
     installSpinner.stop(
@@ -153,6 +131,16 @@ export async function runInteractiveUi(
 
     const summaryLines = [
       wrapText(`Configured skills: ${formattedInstalledSkills}`, safeMaxWidth),
+      ...(installResult.removedSkills && installResult.removedSkills.length > 0
+        ? [
+            wrapText(
+              `Removed skills: ${installResult.removedSkills
+                .map((skillId) => picocolors.red(skillId))
+                .join(", ")}`,
+              safeMaxWidth
+            ),
+          ]
+        : []),
       `Target agents: ${formattedConfiguredAgents}`,
       `GrooveSkills Harness: ${harnessStatus}`,
       ...formatReplacedFileNotes(installResult.replacedFiles).map((note) =>

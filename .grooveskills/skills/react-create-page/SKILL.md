@@ -1,17 +1,18 @@
 ---
 name: react-create-page
-description: Use when creating, refactoring, or extending React pages, views, screens, dashboards, or forms. Enforces clean page architecture with zero logic in page components, domain custom hooks, isolated API actions, atomic co-location, Valibot validation, and @formisch/react forms. TRIGGER when creating or modifying files in src/pages/ or src/features/, or when building React views with API actions. Always adhere to 'best-practices' and pair with 'react-core' and 'react-advanced'.
+description: Use when creating, refactoring, or extending pure React pages (SPAs without Next.js). Enforces clean page architecture with declarative coordinators, domain hooks, isolated API actions, atomic co-location, and Formisch forms. TRIGGER for React SPAs in src/pages/ or src/features/. For Next.js/Vinext, use 'nextjs-architecture'.
 ---
 
 # React Page & View Architecture (`react-create-page`)
 
-Standardized architectural pattern for building maintainable, enterprise-grade React pages and views. Enforces declarative page coordinators, isolated domain hooks, pure API actions, atomic co-location, and type-safe forms.
+Standardized architectural pattern for building maintainable, enterprise-grade React pages and views in pure React SPAs (without Next.js). Enforces declarative page coordinators, isolated domain hooks, pure API actions, atomic co-location, and type-safe forms.
 
 ---
 
 ## 1. Golden Architectural Rules (Non-negotiable)
 
-1. **Zero Logic in Page Components (`use<Domain>Page` Hook)**:
+1. **Pure React Scope & Zero Logic in Page (`use<Domain>Page` Hook)**:
+   - This skill applies **exclusively to pure React SPAs** (Vite, SPA without Next.js). For Next.js or Vinext, use **`nextjs-architecture`**.
    - The main page component (`<domain>-page.tsx` or `page.tsx`) must be strictly declarative.
    - **All state, effects, transitions, and submit handlers must live in a dedicated domain custom hook** (`use-<domain>-page.ts`).
    - The page component only calls the hook and passes state/handlers to atomic subcomponents.
@@ -26,9 +27,10 @@ Standardized architectural pattern for building maintainable, enterprise-grade R
    - Every file must be under **200 lines**.
 5. **No Prop Drilling (Consume Hooks Directly)**:
    - If an atomic component requires deep state, let it consume the domain hook or a domain context directly instead of passing props through intermediary components.
-6. **API Communication Exclusively via Domain Actions (`src/actions/<domain>/`)**:
+6. **API Communication via Actions & Zero Manual GroovePack Modules**:
    - Direct `fetch` calls or raw HTTP requests inside components or hooks are **strictly forbidden**.
-   - Encapsulate all network requests in pure async action functions under `src/actions/<domain>/<action-name>.action.ts` returning typed `ActionResponse<T>`.
+   - Encapsulate all network requests in pure async action functions returning typed `ActionResponse<T>`.
+   - **Never create GroovePack files** (`api-client`, `api-toast`, `api-action`) manually; always ask the developer to install them via GroovePack (`npx @3lineas/groovepack`).
 7. **Zero Mocks in Production Views**:
    - Never render mock arrays or fallback mock data in production views.
    - Bind views to real action calls; provide realistic `<Skeleton />` loaders and polite empty states.
@@ -189,4 +191,5 @@ export function ProfileForm({ defaultValues, onSubmit }: ProfileFormProps) {
 | Monolithic view file (> 200 lines) | Hard to navigate, maintain, and review | Atomize into `components/` subcomponents (< 200 lines each) |
 | Hardcoded mock arrays in views | Creates false assumptions and leaks mocks to production | Use real action bindings, `<Skeleton />`, and polite empty states |
 | Manual toasts or native `alert()` | Inconsistent async feedback and poor UX | Wrap all async mutations strictly in `toast.promise` |
+| Using `react-create-page` in Next.js / Vinext | Fails server components and server-side data fetching | Use `nextjs-architecture` for Next.js / Vinext |
 | Re-exporting via `index.ts` barrel files | Defeats tree-shaking and causes circular dependency traps | Import directly using `@/` path aliases |

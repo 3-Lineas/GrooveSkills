@@ -25,7 +25,7 @@ export function buildContextTemplate(
   const commandsSection =
     commandLines.length > 0
       ? commandLines.join("\n")
-      : `- Build: Refer to \`package.json\` scripts.\n- Typecheck: Refer to TypeScript configuration.\n- Tests: Refer to test runner configuration.`;
+      : `- Build: Refer to \`package.json\` scripts.\n- Tests & Typecheck: Refer to repository configuration.`;
 
   const aliasLines: string[] = [];
   if (profile?.pathAliases) {
@@ -58,8 +58,7 @@ ${dependenciesFormatted}
 - 1 DB Call per Action & Pipeline Chaining: Every database query or mutation lives in an isolated atomic Action (max 1 DB query per Action). Monolithic use-case actions are forbidden; routes chain actions using \`Pipeline.send(context).through([...actions])\`.
 - Type Isolation: Never declare data interfaces inline. Only a UI component's own \`Props\` interface can be inline in its \`.tsx\` file; all other domain/data types live in \`@/types/{domain}/{name}.type.ts\`.
 - Domain within Technical Layers: Organize code by \`{domain}\` subfolders inside each technical layer (\`src/actions/{domain}/\`, \`src/routes/{domain}/\`, \`src/dtos/{domain}/\`, \`src/types/{domain}/\`, \`src/errors/{domain}/\`). Never create root \`src/domains/\` or \`src/controllers/\` folders.
-- Maintain direct imports with path aliases; avoid barrel files.
-- Keep domain boundaries explicit and clean.
+- Direct imports with path aliases; zero barrel files; explicit domain boundaries.
 ${aliasesSection}${directoriesSection}
 ## 3. Communication & User Copy Language
 - **Configured Language**: ${languageConfig.nativeName} (\`${language}\`).
@@ -127,7 +126,6 @@ createdAt: \${CURRENT_DATE}
 # Feature / Task Title
 
 ## Outcome Hypothesis
-Describe the expected behavioral outcome:
 By [Output / Technical Change], [Outcome / Verifiable Behavior] will occur, proven by [Evidence / Test / Build Command].
 
 ## Scope
@@ -194,10 +192,9 @@ YYYY-MM-DD
 
 ## 6. Strict Architectural Non-Negotiables
 - **1 Function/Method per File (100% Atomic)**: Every code file must export at most ONE function, method, action, route handler, component, hook, schema, or type. Never group multiple helpers or methods in one file.
-- **1 DB Call per Action & Pipeline Chaining**: Every database query or mutation lives in an isolated atomic Action (max 1 DB query per Action). Never create monolithic use-case actions (\`register-user.action.ts\`); routes must chain atomic actions via \`Pipeline.send(context).through([...actions])\`.
-- **Type Isolation**: Never declare data interfaces or types inline. Only a UI component's own \`Props\` interface can be declared inline in its \`.tsx\` file; all other domain/data types must live in \`@/types/{domain}/{name}.type.ts\`.
-- **Domain within Technical Layers**: Always organize by \`{domain}\` subfolders inside each technical layer (\`src/actions/{domain}/\`, \`src/routes/{domain}/\`, \`src/dtos/{domain}/\`, \`src/types/{domain}/\`, \`src/errors/{domain}/\`). Never create root \`src/domains/\` or \`src/controllers/\` folders.
-- **Hono Route Architecture**: Endpoints live in \`src/routes/{domain}/{action}.route.ts\` and only delegate to atomic Actions (direct call for 1 single-read action, or via \`Pipeline\` for multi-step flows). Subfolders like \`src/routes/{surface}/{domain}/\` are only allowed if serving 2+ distinct surfaces (e.g. \`web\` and \`mobile\`).
+- **1 DB Call per Action & Pipeline Chaining**: Every database query or mutation lives in an isolated atomic Action (max 1 DB query per Action). Monolithic use-case actions are forbidden; routes chain atomic actions via \`Pipeline.send(context).through([...actions])\`.
+- **Type Isolation**: Never declare data interfaces or types inline. Only a UI component's own \`Props\` interface can be inline in its \`.tsx\` file; all other domain/data types live in \`@/types/{domain}/{name}.type.ts\`.
+- **Domain within Technical Layers**: Organize by \`{domain}\` subfolders inside each technical layer (\`src/actions/{domain}/\`, \`src/routes/{domain}/\`, \`src/dtos/{domain}/\`, \`src/types/{domain}/\`, \`src/errors/{domain}/\`). Never create root \`src/domains/\` or \`src/controllers/\` folders.
+- **Hono Route Architecture**: Endpoints live in \`src/routes/{domain}/{action}.route.ts\` and delegate to atomic Actions (direct call for 1 single-read action, or via \`Pipeline\` for multi-step flows). Subfolders like \`src/routes/{surface}/{domain}/\` are only allowed if serving 2+ distinct surfaces (e.g. \`web\` and \`mobile\`).
 <!-- grooveskills:harness:end -->`;
 }
-

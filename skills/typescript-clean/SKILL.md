@@ -18,6 +18,7 @@ Guidelines for writing safe, expressive, strictly typed TypeScript with zero uns
 2. **Strict Type Isolation (`@/types/{domain}/`)**:
    - In modular domain architectures, **NEVER** write `interface` or `type` definitions inside DTOs, Actions, Routes, Hooks, or Utility helpers.
    - **Exclusive Exception for UI Props**: In React UI components (`.tsx`), only the component's own `Props` interface (e.g., `interface ButtonProps { ... }`) may be declared inline. Any other domain model, entity, or data structure must live in `@/types/{domain}/{name}.type.ts`.
+   - **Next.js Page Co-location**: In Next.js/Vinext pages, types exclusive to a route live co-located in `src/app/<route>/types/{name}.type.ts` (1 type per file).
    - Every contract has its own dedicated file: `@/types/{domain}/{name}.type.ts` (1 type/interface per file).
    - Organize into domains: `common/`, `context/`, `db/`, `pipeline/`, `services/`, and `{domain}/`.
 

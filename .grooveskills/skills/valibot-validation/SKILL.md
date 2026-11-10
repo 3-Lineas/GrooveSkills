@@ -16,6 +16,7 @@ Guidelines for high-performance, modular schema validation at system boundaries 
 
 2. **Schema & DTO Isolation (1 Schema per File)**:
    - DTO and Schema files (`@/dtos/{domain}/{name}.dto.ts` or `@/schemas/{domain}/`) contain **ONLY** Valibot schemas (`v.object({...})`).
+   - In Next.js/Vinext pages, schemas exclusive to a route live co-located in `src/app/<route>/schemas/{name}.schema.ts` (1 schema per file).
    - **NEVER** declare TypeScript `type` or `interface` inside a DTO/Schema file. Inferred types belong in `@/types/{domain}/`.
 
 3. **Bidirectional Validation (Input + Output Whitelisting)**:

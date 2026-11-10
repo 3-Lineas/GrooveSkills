@@ -11,6 +11,7 @@ export interface InstallOptions {
   detectedDependencies?: string[];
   language?: ProjectLanguage;
   forceOnboarding?: boolean;
+  skillsToRemove?: string[];
 }
 
 export interface InstallResult {
@@ -20,4 +21,5 @@ export interface InstallResult {
   harnessInitialized: boolean;
   language?: ProjectLanguage;
   replacedFiles?: ReplacedFileNotice[];
+  removedSkills?: string[];
 }

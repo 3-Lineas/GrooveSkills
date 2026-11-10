@@ -7,6 +7,7 @@ import { syncProjectStore } from "@/domains/project-store/sync-project-store";
 import { getProjectSkillsDir } from "@/domains/project-store/project-paths";
 import { installHarness } from "@/domains/harness/install-harness";
 import { writeProjectConfig } from "@/domains/harness/write-project-config";
+import { removeSkillsFromProject } from "@/domains/installer/remove-skills";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
 import { InstallTransaction } from "@/domains/fs/install-transaction";
 import { runPreflightWriteCheck } from "@/domains/fs/preflight-write-check";
@@ -38,13 +39,18 @@ function formatSuggestedFix(cause: unknown): string | undefined {
 
 export async function installSkills(options: InstallOptions): Promise<InstallResult> {
   const transaction = new InstallTransaction();
-  const skillsToInstall = [...options.selectedSkillIds];
+  const skillsToRemove = (options.skillsToRemove ?? []).filter(
+    (skillId) => skillId !== "groove-harness"
+  );
+  const skillsToInstall = [...options.selectedSkillIds].filter(
+    (skillId) => !skillsToRemove.includes(skillId)
+  );
 
   if (!skillsToInstall.includes("groove-harness")) {
     skillsToInstall.push("groove-harness");
   }
 
-  if (!skillsToInstall.includes("odd-ai")) {
+  if (!skillsToInstall.includes("odd-ai") && !skillsToRemove.includes("odd-ai")) {
     skillsToInstall.push("odd-ai");
   }
 
@@ -54,6 +60,11 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
       targetPath: options.targetPath,
       selectedAgents: options.selectedAgents,
     });
+
+    if (skillsToRemove.length > 0) {
+      currentStage = "Removing deselected skills from project";
+      removeSkillsFromProject(options.targetPath, skillsToRemove);
+    }
 
     currentStage = "Syncing skills store (.grooveskills/skills)";
     syncProjectStore(options.targetPath, skillsToInstall, options.selectedAgents, transaction);
@@ -105,7 +116,8 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
       options.selectedAgents,
       true,
       options.language,
-      transaction
+      transaction,
+      skillsToRemove
     );
     createdFiles.push(configPath);
 
@@ -116,6 +128,7 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
       harnessInitialized: harnessResult.onboardingInitialized,
       language: options.language,
       replacedFiles: transaction.getReplacedFiles(),
+      removedSkills: skillsToRemove,
     };
   } catch (cause) {
     const rollbackReport = transaction.rollback();

@@ -44,7 +44,8 @@ export function writeProjectConfig(
   newAgents: AgentId[],
   harnessEnabled: boolean,
   language?: ProjectLanguage,
-  transaction?: InstallTransaction
+  transaction?: InstallTransaction,
+  skillsToRemove: string[] = []
 ): string {
   const configPath = getProjectConfigPath(targetPath);
   if (transaction) {
@@ -52,8 +53,11 @@ export function writeProjectConfig(
   }
 
   const existing = readExistingConfig(configPath);
+  const removalSet = new Set(skillsToRemove);
 
-  const mergedSkills = Array.from(new Set([...existing.skills, ...newSkills]));
+  const mergedSkills = Array.from(new Set([...existing.skills, ...newSkills])).filter(
+    (skillId) => !removalSet.has(skillId)
+  );
   const mergedAgents = Array.from(new Set([...existing.agents, ...newAgents]));
   const resolvedLanguage = language ?? existing.language ?? "es";
   const isHarnessActive = existing.harness || harnessEnabled;

@@ -1,0 +1,14 @@
+---
+description: Standardized Next.js & Vinext (Cloudflare) architecture: 100% server pages, initial data fetching via Server Actions, client components restricted to interactive logic, loading.tsx skeletons, URL searchParams state, cookie auth, and GroovePack pipeline (apiToast -> Action -> apiAction -> apiClient). TRIGGER when the project uses Next.js, Vinext, or app router (src/app/), or when creating Next.js pages, actions, or client components.
+globs: ["**/*"]
+alwaysApply: false
+---
+
+# Next.js & Vinext Server Architecture — Rule Reference
+
+Canonical rule specification stored in `.grooveskills/`.
+
+- **Specification**: `.grooveskills/skills/nextjs-architecture/SKILL.md`
+- **References & Templates**: `.grooveskills/skills/nextjs-architecture/`
+
+> **Instruction**: Read `.grooveskills/skills/nextjs-architecture/SKILL.md` before executing tasks matching this rule.

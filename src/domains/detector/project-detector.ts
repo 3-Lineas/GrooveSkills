@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { detectAgents } from "@/domains/detector/detect-agents";
 import { detectDependencies } from "@/domains/detector/detect-dependencies";
+import { detectInstalledSkills } from "@/domains/detector/detect-installed-skills";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
 import type { AgentId } from "@/types/agent.types";
 import type { ProjectContext } from "@/types/context.types";
@@ -51,8 +52,15 @@ export function detectProjectContext(targetPath: string): ProjectContext {
     "env-feature-flags",
   ];
 
+  const isNextOrVinext = dependencies.some((dependencyName) =>
+    ["next", "vinext", "@vinext/cloudflare"].includes(dependencyName)
+  );
+
   for (const skill of SKILL_CATALOG) {
     if (skill.dependencies.length === 0) {
+      continue;
+    }
+    if (isNextOrVinext && skill.id === "react-create-page") {
       continue;
     }
     const hasMatch = skill.dependencies.some((dependencyName) =>
@@ -65,6 +73,7 @@ export function detectProjectContext(targetPath: string): ProjectContext {
 
   const harnessExists = existsSync(join(targetPath, ".grooveskills", "memory", "context.md"));
   const configuredState = readConfiguredState(targetPath);
+  const installedSkillIds = detectInstalledSkills(targetPath, configuredState.skills);
 
   const initialAgents =
     configuredState.agents && configuredState.agents.length > 0
@@ -80,6 +89,7 @@ export function detectProjectContext(targetPath: string): ProjectContext {
     targetPath,
     detectedDependencies: dependencies,
     suggestedSkillIds: mergedSuggestedSkills,
+    installedSkillIds,
     detectedAgents: initialAgents,
     packageJsonExists: exists,
     harnessExists,
