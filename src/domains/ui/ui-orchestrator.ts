@@ -12,6 +12,7 @@ import { installSkills } from "@/domains/installer/install-orchestrator";
 import { formatOnboardingPrompt } from "@/domains/ui/render-onboarding-prompt";
 import { formatReplacedFileNotes, renderInstallFailure } from "@/domains/ui/render-install-report";
 import { getTerminalWidth, wrapText } from "@/domains/ui/terminal-layout";
+import { resolveGrooveSkillsVersion } from "@/domains/harness/resolve-grooveskills-version";
 import { InstallTransactionError } from "@/errors/install-transaction-error";
 import type { ProjectContext } from "@/types/context.types";
 import type { AgentId } from "@/types/agent.types";
@@ -28,18 +29,29 @@ export async function runInteractiveUi(
   );
 
   const safeMaxWidth = Math.max(getTerminalWidth(80) - 10, 50);
+  const currentCliVersion = resolveGrooveSkillsVersion();
 
-  if (context.detectedDependencies.length > 0) {
-    const harnessInfo =
-      context.harnessExists && !forceOnboarding
-        ? picocolors.green(
-            `Active (.grooveskills/memory, lang: ${context.configuredLanguage ?? "es"})`
-          )
-        : picocolors.cyan("Will be initialized");
+  if (context.detectedDependencies.length > 0 || context.harnessExists || context.installedVersion) {
+    let harnessInfo = picocolors.cyan("Will be initialized");
+    if (context.harnessExists && !forceOnboarding) {
+      const versionTag = context.installedVersion
+        ? `v${context.installedVersion}`
+        : context.hasLegacyConfigVersion
+          ? "legacy v1"
+          : "unversioned";
+      const upgradeHint =
+        context.installedVersion && context.installedVersion !== currentCliVersion
+          ? ` -> CLI v${currentCliVersion}`
+          : "";
+      harnessInfo = picocolors.green(
+        `Active (${versionTag}${upgradeHint}, .grooveskills/memory, lang: ${context.configuredLanguage ?? "es"})`
+      );
+    }
 
-    const formattedDependencies = context.detectedDependencies
-      .map((dependencyName) => picocolors.bold(dependencyName))
-      .join(", ");
+    const formattedDependencies =
+      context.detectedDependencies.length > 0
+        ? context.detectedDependencies.map((dependencyName) => picocolors.bold(dependencyName)).join(", ")
+        : "None";
     const formattedAgents =
       context.detectedAgents.map((agentName) => picocolors.green(agentName)).join(", ") ||
       "None (will be created)";
@@ -130,6 +142,7 @@ export async function runInteractiveUi(
       .join(", ");
 
     const summaryLines = [
+      `GrooveSkills Version: v${installResult.installedVersion}`,
       wrapText(`Configured skills: ${formattedInstalledSkills}`, safeMaxWidth),
       ...(installResult.removedSkills && installResult.removedSkills.length > 0
         ? [

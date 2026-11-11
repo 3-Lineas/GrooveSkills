@@ -84,6 +84,7 @@ export async function runSafeFsIntegrationTests(testBaseDir: string): Promise<vo
     join(projectRoot, "src/domains/ui/prompt-skills.ts"),
     join(projectRoot, "src/domains/ui/prompt-confirm-uninstall.ts"),
     join(projectRoot, "src/domains/ui/render-install-report.ts"),
+    join(projectRoot, "src/domains/ui/render-onboarding-prompt.ts"),
     join(projectRoot, "src/domains/installer/install-orchestrator.ts"),
     join(projectRoot, "src/domains/installer/remove-skills.ts"),
     join(projectRoot, "src/domains/detector/detect-installed-skills.ts"),
@@ -91,6 +92,8 @@ export async function runSafeFsIntegrationTests(testBaseDir: string): Promise<vo
     join(projectRoot, "src/domains/fs/safe-file-writer.ts"),
     join(projectRoot, "src/domains/fs/preflight-write-check.ts"),
     join(projectRoot, "src/domains/fs/install-transaction.ts"),
+    join(projectRoot, "src/domains/ui/render-project-status.ts"),
+    join(projectRoot, "src/domains/harness/resolve-grooveskills-version.ts"),
     join(projectRoot, "src/errors/file-permission-error.ts"),
     join(projectRoot, "src/errors/install-transaction-error.ts"),
   ];

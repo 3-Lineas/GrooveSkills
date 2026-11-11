@@ -8,7 +8,7 @@
 
 Empower **Antigravity**, **Claude Code**, **Cursor**, and **Gemini** to collaborate like seasoned members of your engineering team—aligned with your clean code standards, aware of your architectural decisions, and ready to deliver verified code from the very first prompt.
 
-[Overview](#-overview) • [How It Works](#-how-it-works) • [Quick Start](#-quick-start) • [Project Structure](#-project-structure) • [Skills Catalog](#-skills-catalog)
+[Overview](#-overview) • [How It Works](#-how-it-works) • [Quick Start](#-quick-start) • [Status & Versioning](#-status--versioning) • [Project Structure](#-project-structure) • [Skills Catalog](#-skills-catalog)
 
 </div>
 
@@ -80,6 +80,12 @@ npx @3lineas/grooveskills
 npx @3lineas/grooveskills update
 ```
 
+### Inspect Installed Version & Status (`status`)
+```bash
+npx @3lineas/grooveskills status
+npx @3lineas/grooveskills status ./my-project --json
+```
+
 ### Force Full Project Re-Onboarding (`init`)
 ```bash
 npx @3lineas/grooveskills init
@@ -97,9 +103,11 @@ npx @3lineas/grooveskills audit [path] --output ./audit-results
 
 | Command / Flag | Description | Example |
 | :--- | :--- | :--- |
+| `status [path]` | Inspect installed version, health & upgrade status (supports `--json`) | `npx @3lineas/grooveskills status --json` |
 | `audit [path]` | Zero-footprint multi-domain security audit (alias: `security-audit`) | `npx @3lineas/grooveskills audit ./src` |
 | `update` | In-place update of harness rules, bitacora directory, and active skills | `npx @3lineas/grooveskills update` |
 | `init` | Force re-run of project onboarding, stack scan & memory context | `npx @3lineas/grooveskills init` |
+| `--json` | Output machine-readable JSON status (for `status` command) | `status --json` |
 | `-o, --output <dir>` | Export audit artifacts (`coverage-ledger.json`, `findings.json`, `REPORT.md`) | `audit --output ./reports` |
 | `-s, --skills <skills...>` | Space-separated list of skill IDs to install | `--skills odd-ai best-practices` |
 | `-a, --agents <agents...>` | Target AI assistants (`antigravity`, `claude`, `cursor`, `gemini`) | `--agents antigravity cursor` |
@@ -113,9 +121,9 @@ npx @3lineas/grooveskills audit [path] --output ./audit-results
 ```text
 my-project/
 ├── .grooveskills/
-│   ├── config.json                  # Manifest of active skills, agents, language & harness state
+│   ├── config.json                  # Manifest of version ("1.18.0"), skills, agents & language
 │   ├── skills/                      # Canonical single source of truth for installed skills
-│   ├── bitacora/                    # Monthly markdown summaries (YYYY-MM.md) for Jira/Trello sync
+│   ├── bitacora/                    # Monthly summaries (YYYY-MM.md, <= 10 items/day) for Jira sync
 │   └── memory/                      # Persistent project memory (Core Harness control plane)
 │       ├── context.md               # Auto-scanned stack, scripts, aliases & architecture map
 │       ├── decisions.md             # Architecture Decision Records (ADR)

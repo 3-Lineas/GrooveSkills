@@ -56,7 +56,7 @@ Every request is governed by the 7-step ODD protocol (*Authorize, Explore, Resol
 - **Storage**: One file per month located at `.grooveskills/bitacora/YYYY-MM.md` (e.g., `.grooveskills/bitacora/2026-11.md`).
 - **Order**: Reverse chronological (most recent day at the top of the file).
 - **Update Frequency**: Update on every agent interaction that delivers progress (code changes, fixes, specs, or audits).
-- **Rewrite Rule**: Rewrite and compress the day's bullets if they get too long; do NOT link or reference internal task files.
+- **Max 10 Items per Day (Compaction Rule)**: Each date section (`YYYY-MM-DD`) MUST NOT exceed **10 list items** (flat `- ...` bullets only, zero nested sub-bullets). If adding progress would exceed 10 items for a day, rewrite and compact/merge related bullets into concise high-level summaries so the day stays at **<= 10 items** without losing key outcomes. Do NOT link or reference internal task files.
 
 ---
 

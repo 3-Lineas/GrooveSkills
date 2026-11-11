@@ -9,6 +9,7 @@ import { installHarness } from "@/domains/harness/install-harness";
 import { writeProjectConfig } from "@/domains/harness/write-project-config";
 import { removeSkillsFromProject } from "@/domains/installer/remove-skills";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
+import { resolveGrooveSkillsVersion } from "@/domains/harness/resolve-grooveskills-version";
 import { InstallTransaction } from "@/domains/fs/install-transaction";
 import { runPreflightWriteCheck } from "@/domains/fs/preflight-write-check";
 import { InstallTransactionError } from "@/errors/install-transaction-error";
@@ -129,6 +130,7 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
       language: options.language,
       replacedFiles: transaction.getReplacedFiles(),
       removedSkills: skillsToRemove,
+      installedVersion: resolveGrooveSkillsVersion(),
     };
   } catch (cause) {
     const rollbackReport = transaction.rollback();

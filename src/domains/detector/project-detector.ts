@@ -12,6 +12,9 @@ function readConfiguredState(targetPath: string): {
   language?: ProjectLanguage;
   agents?: AgentId[];
   skills?: string[];
+  installedVersion?: string;
+  configuredUpdatedAt?: string;
+  hasLegacyConfigVersion?: boolean;
 } {
   const configPath = join(targetPath, ".grooveskills", "config.json");
   if (!existsSync(configPath)) {
@@ -20,12 +23,31 @@ function readConfiguredState(targetPath: string): {
 
   try {
     const raw = readFileSync(configPath, "utf-8");
-    const parsed = JSON.parse(raw) as Partial<GrooveSkillsConfig>;
+    const parsed = JSON.parse(raw) as Partial<GrooveSkillsConfig> & { version?: string | number };
     const language =
       typeof parsed.language === "string" ? (parsed.language as ProjectLanguage) : undefined;
     const agents = Array.isArray(parsed.agents) ? (parsed.agents as AgentId[]) : undefined;
     const skills = Array.isArray(parsed.skills) ? (parsed.skills as string[]) : undefined;
-    return { language, agents, skills };
+    const configuredUpdatedAt =
+      typeof parsed.updatedAt === "string" ? parsed.updatedAt : undefined;
+
+    let installedVersion: string | undefined;
+    let hasLegacyConfigVersion = false;
+
+    if (typeof parsed.version === "string" && parsed.version.trim().length > 0) {
+      installedVersion = parsed.version.trim();
+    } else if (typeof parsed.version === "number") {
+      hasLegacyConfigVersion = true;
+    }
+
+    return {
+      language,
+      agents,
+      skills,
+      installedVersion,
+      configuredUpdatedAt,
+      hasLegacyConfigVersion,
+    };
   } catch {
     return {};
   }
@@ -96,5 +118,8 @@ export function detectProjectContext(targetPath: string): ProjectContext {
     configuredLanguage: configuredState.language,
     configuredSkills: configuredState.skills,
     configuredAgents: configuredState.agents,
+    installedVersion: configuredState.installedVersion,
+    configuredUpdatedAt: configuredState.configuredUpdatedAt,
+    hasLegacyConfigVersion: configuredState.hasLegacyConfigVersion,
   };
 }

@@ -22,4 +22,5 @@ export interface InstallResult {
   language?: ProjectLanguage;
   replacedFiles?: ReplacedFileNotice[];
   removedSkills?: string[];
+  installedVersion: string;
 }

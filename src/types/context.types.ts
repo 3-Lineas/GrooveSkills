@@ -12,5 +12,8 @@ export interface ProjectContext {
   configuredLanguage?: ProjectLanguage;
   configuredSkills?: string[];
   configuredAgents?: AgentId[];
+  installedVersion?: string;
+  configuredUpdatedAt?: string;
+  hasLegacyConfigVersion?: boolean;
 }
 

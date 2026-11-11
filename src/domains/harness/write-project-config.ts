@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { getProjectConfigPath } from "@/domains/project-store/project-paths";
 import { safeWriteFileSync } from "@/domains/fs/safe-file-writer";
+import { resolveGrooveSkillsVersion } from "@/domains/harness/resolve-grooveskills-version";
 import type { InstallTransaction } from "@/domains/fs/install-transaction";
 import type { GrooveSkillsConfig, ProjectLanguage } from "@/types/harness.types";
 import type { AgentId } from "@/types/agent.types";
@@ -25,7 +26,7 @@ function readExistingConfig(configPath: string): ParsedConfigState {
 
   try {
     const raw = readFileSync(configPath, "utf-8");
-    const parsed = JSON.parse(raw) as Partial<GrooveSkillsConfig>;
+    const parsed = JSON.parse(raw) as Partial<GrooveSkillsConfig> & { version?: string | number };
 
     return {
       skills: Array.isArray(parsed.skills) ? parsed.skills : [],
@@ -63,7 +64,7 @@ export function writeProjectConfig(
   const isHarnessActive = existing.harness || harnessEnabled;
 
   const config: GrooveSkillsConfig = {
-    version: 1,
+    version: resolveGrooveSkillsVersion(),
     harness: isHarnessActive,
     ...(isHarnessActive ? { language: resolvedLanguage } : {}),
     agents: mergedAgents,

@@ -12,6 +12,7 @@ interface CliRawOptions {
   yes?: boolean;
   language?: string;
   output?: string;
+  json?: boolean;
 }
 
 const program = new Command();
@@ -20,18 +21,20 @@ program
   .name("grooveskills")
   .description("Multi-agent AI skills, ODD workflow, and persistent project harness installer")
   .version(__VERSION__)
-  .argument("[command]", "Optional command: 'init', 'update', 'audit', or 'security-audit'")
-  .argument("[target]", "Target path (for audit command, defaults to current directory)")
+  .argument("[command]", "Optional command: 'init', 'update', 'status', 'audit', or 'security-audit'")
+  .argument("[target]", "Target path (for status/audit commands, defaults to current directory)")
   .option("-s, --skills <skills...>", "Specific skill IDs to install (e.g. odd-ai best-practices hono)")
   .option("-a, --agents <agents...>", "Target AI agents (antigravity claude cursor gemini)")
   .option("-y, --yes", "Automatically confirm overwrite of existing skills", false)
   .option("-l, --language <lang>", "Project user copy language (es, en, pt, it, fr)")
   .option("-o, --output <dir>", "Output directory for exported audit artifacts (coverage-ledger.json, findings.json, REPORT.md)")
+  .option("--json", "Output project status as JSON (for status command)", false)
   .action(async (command: string | undefined, target: string | undefined, options: CliRawOptions) => {
     try {
       const isAudit = command === "audit" || command === "security-audit";
       const forceOnboarding = command === "init";
       const isUpdate = command === "update";
+      const isStatus = command === "status";
       await runGrooveSkills({
         skills: options.skills,
         agents: options.agents as AgentId[] | undefined,
@@ -43,6 +46,9 @@ program
         isAudit,
         auditTarget: isAudit ? target : undefined,
         outputDirectory: options.output,
+        isStatus,
+        statusTarget: isStatus ? target : undefined,
+        json: Boolean(options.json),
       });
     } catch (error) {
       if (error instanceof InstallTransactionError) {

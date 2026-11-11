@@ -1,4 +1,4 @@
-import { basename } from "node:path";
+import { basename, resolve } from "node:path";
 import { userInfo } from "node:os";
 import picocolors from "picocolors";
 import { detectProjectContext } from "@/domains/detector/project-detector";
@@ -6,6 +6,8 @@ import { runInteractiveUi } from "@/domains/ui/ui-orchestrator";
 import { installSkills } from "@/domains/installer/install-orchestrator";
 import { formatOnboardingPrompt } from "@/domains/ui/render-onboarding-prompt";
 import { formatOwnerName } from "@/domains/fs/inspect-file-access";
+import { resolveGrooveSkillsVersion } from "@/domains/harness/resolve-grooveskills-version";
+import { renderProjectStatus } from "@/domains/ui/render-project-status";
 import type { AgentId } from "@/types/agent.types";
 import type { ProjectLanguage } from "@/types/harness.types";
 
@@ -20,6 +22,9 @@ export interface CliOptions {
   isAudit?: boolean;
   auditTarget?: string;
   outputDirectory?: string;
+  isStatus?: boolean;
+  statusTarget?: string;
+  json?: boolean;
 }
 
 function resolveUsername(): string {
@@ -40,6 +45,18 @@ export async function runGrooveSkills(options: CliOptions = {}): Promise<void> {
   const isDirectInit = Boolean(options.forceOnboarding) && hasAgents;
   const isUpdateMode = Boolean(options.isUpdate);
   const isAuditMode = Boolean(options.isAudit);
+  const isStatusMode = Boolean(options.isStatus);
+  const currentCliVersion = resolveGrooveSkillsVersion();
+
+  if (isStatusMode) {
+    const resolvedTargetPath = options.statusTarget
+      ? resolve(process.cwd(), options.statusTarget)
+      : targetPath;
+    const statusContext =
+      resolvedTargetPath === targetPath ? context : detectProjectContext(resolvedTargetPath);
+    renderProjectStatus(statusContext, currentCliVersion, Boolean(options.json));
+    return;
+  }
 
   if (isAuditMode) {
     const { runSecurityAudit } = await import("@/domains/audit/run-security-audit");
@@ -69,10 +86,15 @@ export async function runGrooveSkills(options: CliOptions = {}): Promise<void> {
           : context.suggestedSkillIds;
 
     const language = options.language ?? context.configuredLanguage ?? "es";
+    const installedVersionLabel = context.installedVersion
+      ? `v${context.installedVersion}`
+      : context.hasLegacyConfigVersion
+        ? "legacy v1"
+        : "unversioned";
 
     console.log(
       picocolors.cyan(
-        `Updating GrooveSkills harness and ${skillsToUpdate.length} skills in-place...`
+        `Updating GrooveSkills harness (${installedVersionLabel} -> v${currentCliVersion}) and ${skillsToUpdate.length} skills in-place...`
       )
     );
 
@@ -89,7 +111,7 @@ export async function runGrooveSkills(options: CliOptions = {}): Promise<void> {
 
     console.log(
       picocolors.green(
-        `✔ Updated harness instructions, bitacora directory, and ${result.installedSkills.length} skills!`
+        `✔ Updated harness instructions (v${result.installedVersion}), bitacora directory, and ${result.installedSkills.length} skills!`
       )
     );
     return;

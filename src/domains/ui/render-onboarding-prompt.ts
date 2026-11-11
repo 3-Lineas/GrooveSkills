@@ -1,6 +1,6 @@
 import picocolors from "picocolors";
 import { SUPPORTED_LANGUAGES } from "@/domains/harness/harness-languages";
-import { getTerminalWidth, wrapText } from "@/domains/ui/terminal-layout";
+import { getTerminalWidth } from "@/domains/ui/terminal-layout";
 import type { ProjectLanguage } from "@/types/harness.types";
 
 export interface OnboardingPromptRender {
@@ -18,28 +18,25 @@ export function formatOnboardingPrompt(
 
   const boxWidth = Math.max(getTerminalWidth(80) - 4, 50);
   const contentWidth = boxWidth - 4;
-  const wrappedPromptLines = wrapText(prompt, contentWidth).split("\n");
-
   const borderHorizontal = "─".repeat(boxWidth - 2);
   const badgeText = " COPY & PASTE PROMPT FOR YOUR AI AGENT ";
   const badgePadded = badgeText.padEnd(contentWidth, " ");
 
   const topBorder = picocolors.cyan(`╭${borderHorizontal}╮`);
   const badgeLine = `${picocolors.cyan("│ ")}${picocolors.bold(picocolors.bgCyan(picocolors.black(badgePadded)))}${picocolors.cyan(" │")}`;
-  const dividerLine = picocolors.cyan(`├${borderHorizontal}┤`);
-  const promptLines = wrappedPromptLines.map((line) => {
-    const paddedLine = line.padEnd(contentWidth, " ");
-    return `${picocolors.cyan("│ ")}${picocolors.bold(picocolors.white(paddedLine))}${picocolors.cyan(" │")}`;
-  });
-  const bottomBorder = picocolors.cyan(`╰${borderHorizontal}╯`);
+  const titleBottomBorder = picocolors.cyan(`╰${borderHorizontal}╯`);
+  const promptBlock = picocolors.bold(picocolors.white(prompt));
+  const closingRule = picocolors.cyan("─".repeat(boxWidth));
 
   const formattedOutput = [
     "",
     topBorder,
     badgeLine,
-    dividerLine,
-    ...promptLines,
-    bottomBorder,
+    titleBottomBorder,
+    "",
+    promptBlock,
+    "",
+    closingRule,
     "",
   ].join("\n");
 
@@ -49,3 +46,4 @@ export function formatOnboardingPrompt(
     formattedOutput,
   };
 }
+

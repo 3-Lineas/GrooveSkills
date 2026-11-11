@@ -20,6 +20,8 @@ import { runNormalizeTaskFilenamesTests } from "@/domains/harness/normalize-task
 import { runSecurityAuditTests } from "@/domains/audit/run-security-audit.test";
 import { runProjectDetectorTests } from "@/domains/detector/project-detector.test";
 import { runRemoveSkillsTests } from "@/domains/installer/remove-skills.test";
+import { runHarnessVersionAndBitacoraTests } from "@/domains/harness/harness-version-and-bitacora.test";
+import { runOnboardingPromptRenderTests } from "@/domains/ui/render-onboarding-prompt.test";
 
 console.log("▶ Starting verification suite: Defensive Permissions, Atomic Replace & Transactional Rollback...");
 
@@ -260,6 +262,12 @@ try {
 
   // 14. Test installSkills with skillsToRemove (complete uninstallation)
   await runRemoveSkillsTests(testBaseDir);
+
+  // 15. Test version resolution, config persistence, bitacora limits, and status
+  await runHarnessVersionAndBitacoraTests();
+
+  // 16. Test clean copyable onboarding prompt rendering
+  runOnboardingPromptRenderTests();
 
   console.log("\n✅ ALL RESILIENCE, ATOMIC REPLACE, AND ROLLBACK TESTS PASSED.");
 } finally {

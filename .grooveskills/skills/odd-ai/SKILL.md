@@ -57,7 +57,7 @@ Before modifying source files for substantial tasks, record the **Outcome Hypoth
 - **Post-Task Security Gate**: If the task touched trust boundaries (routes, schemas, auth, DB/RLS, payments, webhooks, IPC, or agent skills/rules), verify defenses (no BOLA/BOPLA, injection, or secrets leakage). If skills/rules were modified, run `node skills/security-audit/scripts/scan-skill-integrity.mjs`.
 - Record exact outputs under `## Evidence` in the task document.
 - Update `## Next` so work can be resumed seamlessly across agent turns.
-- **Daily Bitacora Entry**: If the interaction delivers progress, append or update the concise summary in `.grooveskills/bitacora/YYYY-MM.md` (`YYYY-MM-DD` bullets, reverse chronological, no tables).
+- **Daily Bitacora Entry**: If the interaction delivers progress, append or update the concise summary in `.grooveskills/bitacora/YYYY-MM.md` (`YYYY-MM-DD` bullets, reverse chronological, max 10 items per day with compaction when exceeded, no tables).
 
 ---
 

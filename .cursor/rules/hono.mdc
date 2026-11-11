@@ -1,5 +1,5 @@
 ---
-description: Use when building or modifying Hono APIs, endpoints, middlewares, or actions. TRIGGER when the project imports 'hono', when modifying routes in src/modules/ or actions in src/actions/, or when the user mentions Hono, API endpoints, or routing. Always validate with Valibot (* as v from 'valibot') and adhere to the 'best-practices' skill.
+description: Use when building or modifying Hono APIs, endpoints, middlewares, or actions. TRIGGER when the project imports 'hono', when modifying routes in src/routes/ or actions in src/actions/, or when the user mentions Hono, API endpoints, or routing. Always validate with Valibot (* as v from 'valibot') and adhere to the 'best-practices' skill.
 globs: ["**/*"]
 alwaysApply: false
 ---

@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { buildAgentHarnessBlock } from "@/domains/harness/harness-templates";
+import { buildAgentHarnessBlock } from "@/domains/harness/build-agent-harness-block";
 import { safeWriteFileSync } from "@/domains/fs/safe-file-writer";
 import type { InstallTransaction } from "@/domains/fs/install-transaction";
 import type { AgentId } from "@/types/agent.types";
