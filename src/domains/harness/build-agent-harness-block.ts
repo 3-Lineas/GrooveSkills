@@ -21,7 +21,7 @@ This project uses the **GrooveSkills Harness** (\`v${version}\`) located in \`.g
 - **Zero Full-Project Re-Scanning**: DO NOT re-scan the entire codebase, file tree, or directory structure on every interaction. The architecture and conventions are already indexed in \`.grooveskills/\`. Read only the specific target files needed for the active task.
 
 ## 2. Three-Lane ODD Protocol
-- **Onboarding Check**: If \`.grooveskills/memory/tasks/00-onboarding.md\` has \`status: pending\`, complete its checklist to enrich \`context.md\` and set its status to \`completed\`.
+- **Onboarding Check**: If \`.grooveskills/memory/tasks/00-onboarding.md\` has \`status: pending\`, complete its checklist to enrich \`context.md\` and \`decisions.md\`, set its status to \`completed\`, and STOP to wait for the user's next prompt (never implement project code or features during onboarding).
 - **Authorize & Explore**: Follow the 7-step ODD protocol (Authorize, Explore, Resolve, Classify, Track & Hypothesize, Execute, Verify).
 - **Lane 1 (Answer)**: Explanations, audits, or questions. Read-only; write zero code.
 - **Lane 2 (Task)**: Direct implementation. Declare Outcome Hypothesis and checklist in \`.grooveskills/memory/tasks/YY-MM-DD-<slug>.md\` (e.g. \`26-11-08-auth-flow.md\`). Maintain chronological order; if any task files do not follow this pattern, correct them. Only check off tasks with observed evidence under \`Evidence\` (including Post-Task Security Gate on trust boundary changes).

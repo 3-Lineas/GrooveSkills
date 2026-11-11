@@ -96,24 +96,25 @@ createdAt: ${currentDate}
 ## Outcome Hypothesis
 By scanning dependencies, entry points, configuration manifests, and module layout, the AI agent will gain a verified architectural understanding of \`${projectName}\`, proven by filling out \`.grooveskills/memory/context.md\`, formulating interactive alignment questions with the user, and validating the essential build/typecheck commands.
 
-## Scope
-- In scope: Inspect project manifests, entry points, directory conventions, ask interactive alignment questions, and verify script execution.
-- Out of scope: Refactoring business logic or modifying functional code before alignment.
+## Scope & Strict Boundaries
+- **In scope**: Inspect project manifests, entry points, and directory conventions; ask step-by-step interactive alignment questions; document project architecture and decisions inside \`.grooveskills/memory/context.md\` and \`.grooveskills/memory/decisions.md\`; and verify script execution.
+- **Out of scope (STRICT BOUNDARY)**: Do NOT create, modify, scaffold, or implement any application code, business logic, UI components, routes, schemas, or project features. During this task, you may ONLY edit files inside \`.grooveskills/\` (\`context.md\`, \`decisions.md\`, \`tasks/00-onboarding.md\`, and \`bitacora/\`).
+- **Completion Stop Rule**: This task's sole purpose is completing project onboarding. Once the user answers your alignment questions and \`.grooveskills/memory/\` is updated, set \`status: completed\`, present a concise summary of the documented context, and **STOP**. Wait for the user to request their first feature or task in a new prompt.
 
 ## Checklist
 - [ ] Verify package manager and essential scripts (\`build\`, \`test\`, \`typecheck\`).
 - [ ] Map high-level module architecture and data flow in \`.grooveskills/memory/context.md\`.
-- [ ] Ask the user step-by-step interactive questions to clarify goals, domain scope, and adapt project conventions.
+- [ ] Ask the user step-by-step interactive questions to clarify goals, domain scope, and architectural conventions.
 - [ ] Document agreed technical decisions in \`.grooveskills/memory/decisions.md\`.
 - [ ] Verify test runner or static checks pass cleanly.
-- [ ] Switch status to \`completed\` once project context is fully verified.
+- [ ] Switch status to \`completed\` once project context is fully documented, then STOP and wait for the user's next instruction.
 
 ## Evidence
 - Observed command runs and outputs during the initial onboarding pass.
-- User answers to alignment questions captured in memory.
+- User answers to alignment questions captured in \`.grooveskills/memory/\`.
 
 ## Next
-- Once onboarding is marked completed, proceed with domain tasks following the 3-lane ODD protocol.
+- Stop immediately after marking onboarding as \`completed\` and wait for the user to request a specific feature or task. Never start implementing project features as part of onboarding.
 `;
 }
 

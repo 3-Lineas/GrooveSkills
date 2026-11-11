@@ -1,6 +1,7 @@
 import assert from "node:assert";
 import { formatOnboardingPrompt } from "./render-onboarding-prompt";
 import { SUPPORTED_LANGUAGES } from "@/domains/harness/harness-languages";
+import { buildOnboardingTaskTemplate } from "@/domains/harness/harness-templates";
 import type { ProjectLanguage } from "@/types/harness.types";
 
 function stripAnsi(text: string): string {
@@ -9,7 +10,7 @@ function stripAnsi(text: string): string {
 }
 
 export function runOnboardingPromptRenderTests(): void {
-  console.log("▶ Starting verification suite: Onboarding Prompt Clean Rendering...");
+  console.log("▶ Starting verification suite: Onboarding Prompt Clean Rendering & Boundaries...");
 
   const languages: ProjectLanguage[] = ["es", "en", "pt", "it", "fr"];
 
@@ -19,6 +20,24 @@ export function runOnboardingPromptRenderTests(): void {
 
     assert.strictEqual(rendered.title, languageConfig.onboardingPromptTitle);
     assert.strictEqual(rendered.prompt, languageConfig.onboardingPrompt);
+
+    // Verify prompt does NOT contain ambiguous phrase that triggered eager implementation
+    assert.strictEqual(
+      rendered.prompt.toLowerCase().includes("adapt the project to my needs"),
+      false,
+      "Prompt must not contain old ambiguous phrase 'adapt the project to my needs'"
+    );
+    assert.strictEqual(
+      rendered.prompt.toLowerCase().includes("adaptar el proyecto a mis necesidades"),
+      false,
+      "Prompt must not contain old ambiguous phrase 'adaptar el proyecto a mis necesidades'"
+    );
+
+    // Verify prompt finishes by mentioning onboarding completion in friendly language
+    assert.ok(
+      rendered.prompt.toLowerCase().includes("onboarding"),
+      "Prompt must mention onboarding in its closing goal"
+    );
 
     const cleanOutput = stripAnsi(rendered.formattedOutput);
     const lines = cleanOutput.split("\n");
@@ -58,6 +77,22 @@ export function runOnboardingPromptRenderTests(): void {
     assert.strictEqual(lines[8], "");
   }
 
+  // Verify onboarding task template contains strict boundaries and completion stop rule
+  const taskTemplate = buildOnboardingTaskTemplate("TestApp");
+  assert.ok(
+    taskTemplate.includes("Out of scope (STRICT BOUNDARY)"),
+    "00-onboarding template must contain strict boundary heading"
+  );
+  assert.ok(
+    taskTemplate.includes("Completion Stop Rule"),
+    "00-onboarding template must contain Completion Stop Rule"
+  );
+  assert.ok(
+    taskTemplate.includes("STOP and wait for the user's next instruction"),
+    "00-onboarding template checklist must contain explicit stop instruction"
+  );
+
   console.log("  ✔ Onboarding prompt renders as clean copyable text without side borders across all languages.");
+  console.log("  ✔ Onboarding task template strictly defines out-of-scope boundaries and stop rule.");
   console.log("✅ ALL ONBOARDING PROMPT RENDER TESTS PASSED.");
 }
