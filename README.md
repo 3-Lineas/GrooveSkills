@@ -8,7 +8,7 @@
 
 Empower **Antigravity**, **Claude Code**, **Cursor**, and **Gemini** to collaborate like seasoned members of your engineering team—aligned with your clean code standards, aware of your architectural decisions, and ready to deliver verified code from the very first prompt.
 
-[Overview](#-overview) • [How It Works](#-how-it-works) • [Quick Start](#-quick-start) • [Status & Versioning](#-status--versioning) • [Project Structure](#-project-structure) • [Skills Catalog](#-skills-catalog)
+[Overview](#-overview) • [How It Works](#-how-it-works) • [Quick Start](#-quick-start) • [Status & Versioning](#-status--versioning) • [Project Structure](#-project-structure) • [Recent Releases](#-recent-release-highlights) • [Skills Catalog](#-skills-catalog)
 
 </div>
 
@@ -121,7 +121,8 @@ npx @3lineas/grooveskills audit [path] --output ./audit-results
 ```text
 my-project/
 ├── .grooveskills/
-│   ├── config.json                  # Manifest of version ("1.18.0"), skills, agents & language
+│   ├── config.json                  # Manifest of version ("1.18.1"), skills, agents & language
+│   ├── VERSIONS.md                  # Structured changelog of recent releases for AI agents & developers
 │   ├── skills/                      # Canonical single source of truth for installed skills
 │   ├── bitacora/                    # Monthly summaries (YYYY-MM.md, <= 10 items/day) for Jira sync
 │   └── memory/                      # Persistent project memory (Core Harness control plane)
@@ -134,6 +135,33 @@ my-project/
 ├── .cursor/rules/<skill>.mdc        # Lightweight reference rule -> .grooveskills/skills/<skill>/SKILL.md
 └── AGENTS.md / CLAUDE.md            # Concise harness pointer <!-- grooveskills:harness -->
 ```
+
+---
+
+## 🚀 Recent Release Highlights
+
+For an in-depth changelog maintained automatically in every project, refer to `.grooveskills/VERSIONS.md`.
+
+- **v1.18.1**:
+  - **Strict Onboarding Scope & Stop Rule**: Added strict boundaries in `00-onboarding.md` forbidding feature/application code changes during onboarding, and mandating that the agent stop immediately once context is verified.
+  - **Clean Copyable Onboarding & Update Prompts**: Redesigned CLI terminal prompts with an isolated top badge and raw copyable plain text without side border artifacts.
+- **v1.18.0**:
+  - **Semantic Version Traceability**: Persisted semantic version strings (e.g. `"1.18.0"`) in `.grooveskills/config.json`, keeping them updated on every run.
+  - **Project Status CLI**: Added `grooveskills status [path] [--json]` to inspect installation health and detect version drift.
+  - **Bitacora Daily Limit**: Enforced strict `<= 10 items per day` in `.grooveskills/bitacora/YYYY-MM.md` with mandatory bullet compaction.
+- **v1.17.0**:
+  - **Next.js & Vinext Server Architecture**: Added `nextjs-architecture` skill (100% Server Pages, initial data fetching via Server Actions, loading skeletons, and GroovePack pipeline).
+  - **Interactive Skill Uninstallation**: Added automatic preselection of installed skills and clean removal of deselected skills across all agent directories.
+- **v1.16.0**:
+  - **1 DB Query/Mutation per Action**: Enforced isolated atomic Actions for all database queries.
+  - **Mandatory Pipeline Chaining**: Replaced monolithic use-case actions with `Pipeline.send(context).through([...actions])` in routes.
+- **v1.15.0**:
+  - **Strict Atomicity Standard**: Enforced 1 method/function per file (<200 lines) and isolated domain types in `@/types/{domain}/`.
+  - **Technical Layers with Domain Subfolders**: Banned monolithic root `src/domains/` or `src/controllers/` folders.
+- **v1.14.0**:
+  - **Standalone Zero-Footprint Security Audit**: Introduced `npx @3lineas/grooveskills audit` with 5 coverage units combining OWASP API and 17 NVIDIA SkillSpector categories without writing files to disk.
+- **v1.13.0**:
+  - **Relative Symlinks for Agent Skills**: Converted copied skill directories in `.agents/`, `.claude/`, and `.gemini/` to relative symbolic links (`../../.grooveskills/skills/<skill>`), preserving custom user skills.
 
 ---
 

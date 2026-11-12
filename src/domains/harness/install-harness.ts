@@ -5,12 +5,14 @@ import {
   getProjectMemoryDir,
   getProjectTasksDir,
 } from "@/domains/project-store/project-paths";
+import { getProjectVersionsPath } from "@/domains/project-store/get-project-versions-path";
 import {
   buildContextTemplate,
   buildDecisionsTemplate,
   buildOnboardingTaskTemplate,
   buildTaskTemplate,
 } from "@/domains/harness/harness-templates";
+import { buildVersionsTemplate } from "@/domains/harness/build-versions-template";
 import { scanProjectOnboarding } from "@/domains/harness/scan-project-onboarding";
 import { normalizeTaskFileNames } from "@/domains/harness/normalize-task-filenames";
 import { upsertAgentInstructions } from "@/domains/harness/upsert-agent-instructions";
@@ -58,6 +60,11 @@ export function installHarness(options: HarnessInstallOptions): HarnessInstallRe
   }
 
   const createdFiles: string[] = [];
+
+  const versionsPath = getProjectVersionsPath(options.targetPath);
+  writeTrackedFile(versionsPath, buildVersionsTemplate(), transaction);
+  createdFiles.push(versionsPath);
+
   const contextPath = join(memoryDir, "context.md");
   const shouldWriteContext = !existsSync(contextPath) || forceOnboarding;
 

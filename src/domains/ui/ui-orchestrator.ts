@@ -10,6 +10,7 @@ import {
 } from "@/domains/ui/ui-resolvers";
 import { installSkills } from "@/domains/installer/install-orchestrator";
 import { formatOnboardingPrompt } from "@/domains/ui/render-onboarding-prompt";
+import { formatUpdatePrompt } from "@/domains/ui/render-update-prompt";
 import { formatReplacedFileNotes, renderInstallFailure } from "@/domains/ui/render-install-report";
 import { getTerminalWidth, wrapText } from "@/domains/ui/terminal-layout";
 import { resolveGrooveSkillsVersion } from "@/domains/harness/resolve-grooveskills-version";
@@ -165,6 +166,9 @@ export async function runInteractiveUi(
 
     if (installResult.harnessInitialized) {
       const promptRender = formatOnboardingPrompt(selectedLanguage);
+      console.log(promptRender.formattedOutput);
+    } else {
+      const promptRender = formatUpdatePrompt(selectedLanguage);
       console.log(promptRender.formattedOutput);
     }
 

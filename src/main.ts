@@ -5,6 +5,7 @@ import { detectProjectContext } from "@/domains/detector/project-detector";
 import { runInteractiveUi } from "@/domains/ui/ui-orchestrator";
 import { installSkills } from "@/domains/installer/install-orchestrator";
 import { formatOnboardingPrompt } from "@/domains/ui/render-onboarding-prompt";
+import { formatUpdatePrompt } from "@/domains/ui/render-update-prompt";
 import { formatOwnerName } from "@/domains/fs/inspect-file-access";
 import { resolveGrooveSkillsVersion } from "@/domains/harness/resolve-grooveskills-version";
 import { renderProjectStatus } from "@/domains/ui/render-project-status";
@@ -114,6 +115,9 @@ export async function runGrooveSkills(options: CliOptions = {}): Promise<void> {
         `✔ Updated harness instructions (v${result.installedVersion}), bitacora directory, and ${result.installedSkills.length} skills!`
       )
     );
+
+    const updatePromptRender = formatUpdatePrompt(language);
+    console.log(`\n${updatePromptRender.formattedOutput}\n`);
     return;
   }
 
@@ -145,6 +149,9 @@ export async function runGrooveSkills(options: CliOptions = {}): Promise<void> {
 
     if (result.harnessInitialized) {
       const promptRender = formatOnboardingPrompt(language);
+      console.log(`\n${promptRender.formattedOutput}\n`);
+    } else {
+      const promptRender = formatUpdatePrompt(language);
       console.log(`\n${promptRender.formattedOutput}\n`);
     }
 

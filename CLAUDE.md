@@ -1,7 +1,7 @@
 <!-- grooveskills:harness:start -->
 # GrooveSkills Harness — Agent Rules & Memory
 
-This project uses the **GrooveSkills Harness** (`v1.18.1`) located in `.grooveskills/`.
+This project uses the **GrooveSkills Harness** (`v1.19.0`) located in `.grooveskills/`.
 
 ## 1. Mandatory .grooveskills-First Read (Zero Project Re-Scanning)
 - **First Step**: On EVERY turn or prompt, the agent MUST immediately read `.grooveskills/` FIRST:

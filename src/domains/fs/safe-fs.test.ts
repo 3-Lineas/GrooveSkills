@@ -22,6 +22,7 @@ import { runProjectDetectorTests } from "@/domains/detector/project-detector.tes
 import { runRemoveSkillsTests } from "@/domains/installer/remove-skills.test";
 import { runHarnessVersionAndBitacoraTests } from "@/domains/harness/harness-version-and-bitacora.test";
 import { runOnboardingPromptRenderTests } from "@/domains/ui/render-onboarding-prompt.test";
+import { runUpdatePromptRenderTests } from "@/domains/ui/render-update-prompt.test";
 
 console.log("▶ Starting verification suite: Defensive Permissions, Atomic Replace & Transactional Rollback...");
 
@@ -268,6 +269,9 @@ try {
 
   // 16. Test clean copyable onboarding prompt rendering
   runOnboardingPromptRenderTests();
+
+  // 17. Test dynamic update prompt clean rendering & VERSIONS.md
+  runUpdatePromptRenderTests();
 
   console.log("\n✅ ALL RESILIENCE, ATOMIC REPLACE, AND ROLLBACK TESTS PASSED.");
 } finally {
