@@ -8,7 +8,12 @@ import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
 export function runProjectDetectorTests(): void {
   console.log("▶ Starting verification suite: Project Detector & Next.js Architecture Exclusivity...");
 
-  // 1. Verify SKILL_CATALOG contains nextjs-architecture
+  // 1. Verify SKILL_CATALOG contains nextjs-architecture & world-class-engineering
+  const worldClassSkill = SKILL_CATALOG.find((item) => item.id === "world-class-engineering");
+  assert.ok(worldClassSkill, "SKILL_CATALOG must include 'world-class-engineering'");
+  assert.strictEqual(worldClassSkill.directoryName, "world-class-engineering");
+  assert.deepStrictEqual(worldClassSkill.dependencies, []);
+
   const nextSkill = SKILL_CATALOG.find((item) => item.id === "nextjs-architecture");
   assert.ok(nextSkill, "SKILL_CATALOG must include 'nextjs-architecture'");
   assert.strictEqual(nextSkill.directoryName, "nextjs-architecture");
@@ -29,6 +34,10 @@ export function runProjectDetectorTests(): void {
     writeFileSync(join(tempProjectDir, "package.json"), JSON.stringify(reactPkgJson), "utf-8");
 
     const reactContext = detectProjectContext(tempProjectDir);
+    assert.ok(
+      reactContext.suggestedSkillIds.includes("world-class-engineering"),
+      "Project detector must suggest 'world-class-engineering' by default"
+    );
     assert.ok(
       reactContext.suggestedSkillIds.includes("react-create-page"),
       "Pure React project must suggest 'react-create-page'"

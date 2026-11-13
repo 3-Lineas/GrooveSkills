@@ -101,3 +101,21 @@ import { AppError } from "@/errors/app-error.ts";
 // ❌ FORBIDDEN (Barrel import & relative path):
 import { persistUserAction } from "../../actions/auth";
 ```
+
+---
+
+## 4. Golden Rule #10: World-Business-Grade Standard (Zero Tech-Debt Patches)
+
+Never introduce permissive fallbacks, optional auth bypasses, or silent compatibility shims to avoid updating existing tests or legacy clients. Always implement the clean root-cause solution and update affected callers/tests—or stop and ask the user before scoping down.
+
+```ts
+// ✅ CORRECT (Strict auth & clean root-cause fix):
+const authenticatedUser = ctx.get("user");
+if (!authenticatedUser) {
+  throw new UnauthorizedError("Authentication required");
+}
+const records = await listRecordsByCrewAction({ crewId: authenticatedUser.crewId });
+
+// ❌ FORBIDDEN (Permissive fallback to untrusted query param to keep legacy tests green):
+const crewId = ctx.get("user")?.crewId ?? ctx.req.query("crewId");
+```

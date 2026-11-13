@@ -60,6 +60,7 @@ export function detectProjectContext(targetPath: string): ProjectContext {
   const suggestedSkillIds: string[] = [
     "odd-ai",
     "best-practices",
+    "world-class-engineering",
     "ux-writing",
     "docs-standards",
     "security-audit",

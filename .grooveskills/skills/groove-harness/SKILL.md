@@ -80,4 +80,5 @@ Every request is governed by the 7-step ODD protocol (*Authorize, Explore, Resol
 6. **Domain within Technical Layers**: Always organize by `{domain}` subfolders inside each technical layer (`src/actions/{domain}/`, `src/routes/{domain}/`, `src/dtos/{domain}/`, `src/types/{domain}/`, `src/errors/{domain}/`). Never create root `src/domains/` or `src/controllers/` folders.
 7. **1 DB Call per Action & Mandatory Pipeline Chaining**: Every database query or mutation must live in its own dedicated Action (max 1 DB query per Action). Monolithic use-case actions (like `register-user.action.ts`) are strictly forbidden; routes must chain atomic actions via `Pipeline`.
 8. **Respect Best Practices**: All code must follow strict typing, guard clauses, SRP, direct imports (no barrels), and file limits (<200 lines).
+9. **World-Business-Grade Standard (Zero Tech-Debt Workarounds)**: Deliver production-grade root-cause solutions by default. Never propose or implement permissive fallbacks, optional auth bypasses, or silent compatibility shims in `Lane 2 (Task)` or `Lane 3 (Spec)` to avoid updating existing tests or callers, unless the user explicitly approves a reduced scope.
 

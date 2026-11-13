@@ -5,6 +5,12 @@ This document provides a concise, structured changelog of recent GrooveSkills re
 
 ---
 
+## [v1.20.0]
+- **Dedicated \`world-class-engineering\` Skill**: Added universal skill (auto-selected by default) enforcing World-Business-Grade root-cause solutions, clean ripple updates, and an explicit scope-down gate.
+- **Zero Tech-Debt Patches Rule**: Integrated mandatory **World-Business-Grade by Default (Zero Tech-Debt Patches)** directive into \`AGENTS.md\`/\`CLAUDE.md\`, \`groove-harness\`, \`best-practices\`, and \`odd-ai\`, banning permissive fallbacks, optional auth bypasses, and silent compatibility shims unless explicitly approved by the user.
+
+---
+
 ## [v1.19.0]
 - **Canonical Versions File & Dynamic Update Prompt**: Introduced \`.grooveskills/VERSIONS.md\` and dynamic, unambiguous copy-and-paste update prompt instructing AI agents to review recent changes and propose an alignment plan before modifying code.
 - **Automated Update Notification**: Integrated update prompt emission into \`grooveskills update\`, direct options, and interactive CLI wizards when updating projects with an existing harness.

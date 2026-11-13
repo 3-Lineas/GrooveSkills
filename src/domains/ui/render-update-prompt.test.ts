@@ -83,6 +83,7 @@ export function runUpdatePromptRenderTests(): void {
 
   // Check buildVersionsTemplate contents
   const versionsContent = buildVersionsTemplate();
+  assert.ok(versionsContent.includes("[v1.20.0]"), "VERSIONS.md must contain v1.20.0");
   assert.ok(versionsContent.includes("[v1.19.0]"), "VERSIONS.md must contain v1.19.0");
   assert.ok(versionsContent.includes("[v1.18.0]"), "VERSIONS.md must contain v1.18.0");
   assert.ok(versionsContent.includes("[v1.17.0]"), "VERSIONS.md must contain v1.17.0");

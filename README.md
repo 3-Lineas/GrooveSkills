@@ -142,6 +142,9 @@ my-project/
 
 For an in-depth changelog maintained automatically in every project, refer to `.grooveskills/VERSIONS.md`.
 
+- **v1.20.0**:
+  - **Dedicated `world-class-engineering` Skill**: Added universal skill (auto-selected by default) enforcing World-Business-Grade root-cause solutions, clean ripple updates, and an explicit scope-down gate.
+  - **Zero Tech-Debt Patches Rule**: Integrated mandatory **World-Business-Grade by Default (Zero Tech-Debt Patches)** directive into `AGENTS.md`/`CLAUDE.md`, `groove-harness`, `best-practices`, and `odd-ai`.
 - **v1.18.1**:
   - **Strict Onboarding Scope & Stop Rule**: Added strict boundaries in `00-onboarding.md` forbidding feature/application code changes during onboarding, and mandating that the agent stop immediately once context is verified.
   - **Clean Copyable Onboarding & Update Prompts**: Redesigned CLI terminal prompts with an isolated top badge and raw copyable plain text without side border artifacts.
@@ -172,6 +175,7 @@ For an in-depth changelog maintained automatically in every project, refer to `.
 | `groove-harness` | **GrooveSkills Harness** | ODD 3-lane workflow (Answer, Task, Spec), onboarding protocol, ADR logging, and `.grooveskills/memory/`. | **Core Harness (Always Installed)** |
 | `odd-ai` | **Organic & Outcome-Driven (ODD)** | 7-step ODD protocol for AI agents: authorize, explore, classify, outcome hypotheses, and evidence receipts. | **Default (Universal)** |
 | `best-practices` | **Universal Best Practices** | Multi-language clean code, strict 1 method/function per file, strict typing (zero `any`), guard clauses, and `<200` lines per file. | **Default (Universal)** |
+| `world-class-engineering` | **World-Class Engineering & Zero Tech-Debt** | Enforces world-business-grade root-cause solutions, banning permissive fallbacks, auth bypasses, and silent compatibility hacks. | **Default (Universal)** |
 | `ux-writing` | **UX Writing & Microcopy** | Warm, empathetic, conversion-oriented microcopy for validations, CTAs, toasts, and empty states. | **Default (Universal)** |
 | `docs-standards` | **Documentation & ADR Standards** | English documentation rule, relative POSIX links, resilient Mermaid diagrams, ADR lifecycle, and intent docstrings. | **Default (Universal)** |
 | `security-audit` | **Adversarial Security Audit & Trust Boundaries** | 6-phase adversarial audit (Cloudflare), Agent/MCP scanner (NVIDIA SkillSpector), OWASP API BOLA/BOPLA & PoC remediation (Strix). | **Default (Universal)** |

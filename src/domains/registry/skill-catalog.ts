@@ -24,6 +24,13 @@ export const SKILL_CATALOG: SkillMetadata[] = [
     directoryName: "best-practices",
   },
   {
+    id: "world-class-engineering",
+    name: "World-Class Engineering & Zero Tech-Debt",
+    description: "Enforces world-business-grade root-cause solutions by default, banning permissive fallbacks, auth bypasses, and silent compatibility hacks unless explicitly scoped down by the user",
+    dependencies: [],
+    directoryName: "world-class-engineering",
+  },
+  {
     id: "ux-writing",
     name: "UX Writing & Microcopy Standards",
     description: "Persuasive, empathetic, professional bilingual microcopy (ES/EN) for error messages, forms, CTAs, toasts, and empty states",

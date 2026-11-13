@@ -36,7 +36,7 @@ A hybrid software engineering methodology tailored for AI coding assistants. It 
 
 ### Step 3: Resolve Uncertainty Early
 - Disambiguate technical choices directly from codebase inspection.
-- Ask the user focused questions only when facing genuine product or architectural crossroads.
+- Ask the user focused questions only when facing genuine product or architectural crossroads, or when enforcing the World-Business-Grade standard requires updating dependents beyond the expected scope. Never silently downgrade security or correctness to avoid breaking legacy callers.
 
 ### Step 4: Classify Semantic Scope
 - Classify tasks by semantic complexity and reversibility, never by superficial line counts:
@@ -51,6 +51,7 @@ Before modifying source files for substantial tasks, record the **Outcome Hypoth
 ### Step 6: Execute Proportionate Clean Code
 - Apply strict typing (zero `any`), guard clauses (no nested `if`s), SRP, and file limit (<200 lines).
 - Avoid premature optimizations; implement exactly what the outcome demands.
+- **Zero Tech-Debt Patches**: Update broken tests, fixtures, and callers cleanly to match the strict contract. Never introduce permissive fallbacks or optional auth bypasses to keep legacy tests green unless explicitly approved by the user.
 
 ### Step 7: Verify Against Outcomes (Security Gate, Receipt of Evidence & Bitacora)
 - Run automated verification: typecheck, tests, linter, or build.

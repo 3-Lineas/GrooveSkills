@@ -1,5 +1,5 @@
 {
-  "version": "1.19.0",
+  "version": "1.20.0",
   "harness": true,
   "language": "es",
   "agents": [
@@ -10,6 +10,7 @@
   ],
   "skills": [
     "best-practices",
+    "world-class-engineering",
     "groove-harness",
     "ux-writing",
     "error-handling-logging",
@@ -36,5 +37,5 @@
     "react-create-page",
     "frontend-design"
   ],
-  "updatedAt": "2026-11-11T12:13:36.608Z"
+  "updatedAt": "2026-11-13T13:32:41.563Z"
 }

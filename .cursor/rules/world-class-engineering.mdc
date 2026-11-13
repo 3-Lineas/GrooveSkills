@@ -1,0 +1,14 @@
+---
+description: Enforces world-business-grade root-cause solutions by default, banning permissive fallbacks, auth bypasses, and silent compatibility hacks unless explicitly scoped down by the user.
+globs: ["**/*"]
+alwaysApply: false
+---
+
+# World-Class Engineering & Zero Tech-Debt — Rule Reference
+
+Canonical rule specification stored in `.grooveskills/`.
+
+- **Specification**: `.grooveskills/skills/world-class-engineering/SKILL.md`
+- **References & Templates**: `.grooveskills/skills/world-class-engineering/`
+
+> **Instruction**: Read `.grooveskills/skills/world-class-engineering/SKILL.md` before executing tasks matching this rule.
