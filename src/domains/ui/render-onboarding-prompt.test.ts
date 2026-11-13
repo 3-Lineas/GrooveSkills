@@ -21,19 +21,29 @@ export function runOnboardingPromptRenderTests(): void {
     assert.strictEqual(rendered.title, languageConfig.onboardingPromptTitle);
     assert.strictEqual(rendered.prompt, languageConfig.onboardingPrompt);
 
-    // Verify prompt does NOT contain ambiguous phrase that triggered eager implementation
-    assert.strictEqual(
-      rendered.prompt.toLowerCase().includes("adapt the project to my needs"),
-      false,
-      "Prompt must not contain old ambiguous phrase 'adapt the project to my needs'"
-    );
-    assert.strictEqual(
-      rendered.prompt.toLowerCase().includes("adaptar el proyecto a mis necesidades"),
-      false,
-      "Prompt must not contain old ambiguous phrase 'adaptar el proyecto a mis necesidades'"
-    );
+    // Verify prompt does NOT contain ambiguous phrases that triggered eager implementation or roadmap questions
+    const forbiddenPhrases = [
+      "adapt the project to my needs",
+      "adaptar el proyecto a mis necesidades",
+      "aclarar objetivos",
+      "clarify priorities",
+      "alinhar prioridades",
+      "allineare le priorità",
+      "préciser les priorités",
+    ];
+    for (const phrase of forbiddenPhrases) {
+      assert.strictEqual(
+        rendered.prompt.toLowerCase().includes(phrase),
+        false,
+        `Prompt (${lang}) must not contain ambiguous phrase '${phrase}'`
+      );
+    }
 
-    // Verify prompt finishes by mentioning onboarding completion in friendly language
+    // Verify prompt points to .grooveskills/skills/ and includes explicit stop/no-code guardrails
+    assert.ok(
+      rendered.prompt.includes(".grooveskills/skills/"),
+      `Prompt (${lang}) must reference .grooveskills/skills/`
+    );
     assert.ok(
       rendered.prompt.toLowerCase().includes("onboarding"),
       "Prompt must mention onboarding in its closing goal"
@@ -84,11 +94,23 @@ export function runOnboardingPromptRenderTests(): void {
     "00-onboarding template must contain strict boundary heading"
   );
   assert.ok(
+    taskTemplate.includes("User Answers & Future Work Rule"),
+    "00-onboarding template must contain User Answers & Future Work Rule"
+  );
+  assert.ok(
+    taskTemplate.includes("YY-MM-DD-*.md"),
+    "00-onboarding template must forbid creating YY-MM-DD-*.md tasks during onboarding"
+  );
+  assert.ok(
+    taskTemplate.includes("ONLY IF"),
+    "00-onboarding template must condition static checks on already-installed dependencies"
+  );
+  assert.ok(
     taskTemplate.includes("Completion Stop Rule"),
     "00-onboarding template must contain Completion Stop Rule"
   );
   assert.ok(
-    taskTemplate.includes("STOP and wait for the user's next instruction"),
+    taskTemplate.includes("STOP immediately and wait for the user's next instruction"),
     "00-onboarding template checklist must contain explicit stop instruction"
   );
 

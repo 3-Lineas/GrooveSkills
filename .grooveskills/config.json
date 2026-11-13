@@ -1,5 +1,5 @@
 {
-  "version": "1.20.0",
+  "version": "1.21.1",
   "harness": true,
   "language": "es",
   "agents": [
@@ -37,5 +37,5 @@
     "react-create-page",
     "frontend-design"
   ],
-  "updatedAt": "2026-11-13T13:32:41.563Z"
+  "updatedAt": "2026-11-13T18:39:00.955Z"
 }

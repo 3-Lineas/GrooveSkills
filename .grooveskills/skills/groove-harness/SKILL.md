@@ -64,7 +64,7 @@ Every request is governed by the 7-step ODD protocol (*Authorize, Explore, Resol
 
 - **`.grooveskills/memory/context.md`**: Stores project stack, architectural patterns, conventions, and key commands. Read this when starting work on a domain; update it when new dependencies or architectural standards are introduced.
 - **`.grooveskills/memory/decisions.md`**: An append-only Architecture Decision Record (ADR). Log significant technical decisions (`Date`, `Context`, `Decision`, `Consequences`).
-- **`.grooveskills/memory/tasks/00-onboarding.md`**: Initial onboarding task. If `status: pending`, complete its checklist to enrich `context.md` and `decisions.md`, set status to `completed`, and stop to wait for user instructions. Never write project code or implement features during onboarding.
+- **`.grooveskills/memory/tasks/00-onboarding.md`**: Initial onboarding task. If `status: pending`, complete its checklist to enrich `context.md` and `decisions.md`, set status to `completed`, summarize what was documented, and stop to wait for user instructions. During onboarding, ONLY edit `context.md`, `decisions.md`, `00-onboarding.md`, and `bitacora/`; NEVER install dependencies, create `YY-MM-DD-*.md` tasks, or start implementing features or migrations mentioned in Q&A answers.
 - **`.grooveskills/memory/tasks/`**: Individual feature records holding outcome hypotheses, checklists, and observed proof.
 - **`.grooveskills/bitacora/`**: Monthly markdown summaries for daily developer progress tracking.
 

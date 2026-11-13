@@ -97,17 +97,18 @@ createdAt: ${currentDate}
 By scanning dependencies, entry points, configuration manifests, and module layout, the AI agent will gain a verified architectural understanding of \`${projectName}\`, proven by filling out \`.grooveskills/memory/context.md\`, formulating interactive alignment questions with the user, and validating the essential build/typecheck commands.
 
 ## Scope & Strict Boundaries
-- **In scope**: Inspect project manifests, entry points, and directory conventions; ask step-by-step interactive alignment questions; document project architecture and decisions inside \`.grooveskills/memory/context.md\` and \`.grooveskills/memory/decisions.md\`; and verify script execution.
-- **Out of scope (STRICT BOUNDARY)**: Do NOT create, modify, scaffold, or implement any application code, business logic, UI components, routes, schemas, or project features. During this task, you may ONLY edit files inside \`.grooveskills/\` (\`context.md\`, \`decisions.md\`, \`tasks/00-onboarding.md\`, and \`bitacora/\`).
-- **Completion Stop Rule**: This task's sole purpose is completing project onboarding. Once the user answers your alignment questions and \`.grooveskills/memory/\` is updated, set \`status: completed\`, present a concise summary of the documented context, and **STOP**. Wait for the user to request their first feature or task in a new prompt.
+- **In scope**: Inspect project manifests, entry points, and directory conventions; ask step-by-step interactive alignment questions; document project architecture and decisions inside \`.grooveskills/memory/context.md\` and \`.grooveskills/memory/decisions.md\`; and verify existing script execution if dependencies are already installed.
+- **Out of scope (STRICT BOUNDARY)**: Do NOT create, modify, scaffold, or implement any application code, business logic, UI components, routes, schemas, or project features. Do NOT create feature/spec task files (\`YY-MM-DD-*.md\`), run dependency installations (\`npm/pnpm/bun install\`), modify config files (\`package.json\`, \`tsconfig.json\`, \`drizzle.config.ts\`, etc.), or start migrations/plans found in the repo (such as \`PLAN_*.md\`). During this task, you may ONLY edit files inside \`.grooveskills/\` (\`context.md\`, \`decisions.md\`, \`tasks/00-onboarding.md\`, and \`bitacora/\`).
+- **User Answers & Future Work Rule**: Any pending migration, refactor, or tooling addition mentioned by the user during Q&A (e.g., migrating frameworks or adding a test runner) must **ONLY** be documented in \`decisions.md\` and \`context.md\`. NEVER execute or plan it as an active implementation during onboarding.
+- **Completion Stop Rule**: This task's sole purpose is completing project onboarding. Once the user answers your alignment questions and \`.grooveskills/memory/\` is updated, set \`status: completed\`, present a concise summary of the documented context, and **STOP** immediately without further exploration or commands. Wait for the user to request their first feature or task in a new prompt.
 
 ## Checklist
 - [ ] Verify package manager and essential scripts (\`build\`, \`test\`, \`typecheck\`).
 - [ ] Map high-level module architecture and data flow in \`.grooveskills/memory/context.md\`.
-- [ ] Ask the user step-by-step interactive questions to clarify goals, domain scope, and architectural conventions.
-- [ ] Document agreed technical decisions in \`.grooveskills/memory/decisions.md\`.
-- [ ] Verify test runner or static checks pass cleanly.
-- [ ] Switch status to \`completed\` once project context is fully documented, then STOP and wait for the user's next instruction.
+- [ ] Ask the user step-by-step interactive questions to align on technical conventions, domain boundaries, and architectural decisions (do NOT ask what the first milestone or feature to implement now is).
+- [ ] Document agreed technical decisions and any user-mentioned future work in \`.grooveskills/memory/decisions.md\` and \`context.md\`.
+- [ ] Run \`typecheck\` / \`test\` **ONLY IF** dependencies and scripts are already installed; if \`node_modules\` is missing or a runner is absent, document the gap in \`context.md\` without installing anything or modifying files.
+- [ ] Switch status to \`completed\` once project context is fully documented, present a brief summary, then STOP immediately and wait for the user's next instruction.
 
 ## Evidence
 - Observed command runs and outputs during the initial onboarding pass.

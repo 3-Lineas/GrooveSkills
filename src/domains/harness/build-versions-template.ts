@@ -5,6 +5,13 @@ This document provides a concise, structured changelog of recent GrooveSkills re
 
 ---
 
+## [v1.21.1]
+- **Strict Onboarding Guardrails**: Removed ambiguous roadmap/priority triggers from \`onboardingPrompt\` across all 5 languages (\`es\`, \`en\`, \`pt\`, \`it\`, \`fr\`), pointed skills references to \`.grooveskills/skills/\`, and added explicit no-code, no-install, and mandatory stop instructions.
+- **00-onboarding.md Future Work & Static Check Rules**: Added \`User Answers & Future Work Rule\` forbidding \`YY-MM-DD-*.md\` task creation, dependency installation, or starting migrations/plans during onboarding, and conditioned static checks on already-installed dependencies.
+- **Harness & \`groove-harness\` Alignment**: Updated \`Onboarding Check\` in \`AGENTS.md\`/\`CLAUDE.md\` and \`skills/groove-harness/SKILL.md\` to enforce strict \`.grooveskills/\`-only edits and immediate stop after onboarding completion.
+
+---
+
 ## [v1.20.0]
 - **Dedicated \`world-class-engineering\` Skill**: Added universal skill (auto-selected by default) enforcing World-Business-Grade root-cause solutions, clean ripple updates, and an explicit scope-down gate.
 - **Zero Tech-Debt Patches Rule**: Integrated mandatory **World-Business-Grade by Default (Zero Tech-Debt Patches)** directive into \`AGENTS.md\`/\`CLAUDE.md\`, \`groove-harness\`, \`best-practices\`, and \`odd-ai\`, banning permissive fallbacks, optional auth bypasses, and silent compatibility shims unless explicitly approved by the user.
