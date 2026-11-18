@@ -35,29 +35,41 @@ Guide for integrating GroovePack packages (`api-client`, `api-action`, `api-toas
 
 ---
 
-## 2. Server Action Implementation (`src/actions/`)
+## 2. Shared API Client (`src/lib/api-client.ts`) & Server Actions (`src/actions/`)
 
-Server Actions must reside in `src/actions/<domain>/<action-name>.action.ts` with the `"use server"` directive at the top.
+Configure a single shared client in `src/lib/api-client.ts` using `createHonoClient` or `createApiClient` with `baseUrl`, `serviceBinding`, `fallbackBaseUrl`, and async `getHeaders` for session/auth propagation:
+
+```ts
+// src/lib/api-client.ts
+import { cookies } from "next/headers";
+import { createApiClient } from "@3lineas/groovepack/api-client";
+
+export const apiClient = createApiClient({
+  baseUrl: "http://api.local/api",
+  serviceBinding: "API",
+  fallbackBaseUrl: process.env.API_URL ?? "http://127.0.0.1:8787",
+  getHeaders: async () => {
+    const token = (await cookies()).get("session_token")?.value;
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  },
+});
+```
+
+Server Actions must reside in `src/actions/<domain>/<action-name>.action.ts` with the `"use server"` directive at the top. `apiAction` accepts either a factory `() => Promise<...>` or a direct `Promise<...>` in `apiCall`:
 
 ```ts
 // src/actions/products/get-products.action.ts
 "use server";
 
-import { cookies } from "next/headers";
 import { apiAction, type ActionResponse } from "@3lineas/groovepack/api-action";
-import { createApiClient } from "@3lineas/groovepack/api-client";
 import { logger } from "@3lineas/groovepack/logger";
+import { apiClient } from "@/lib/api-client";
 import type { ProductItem } from "@/app/products/types/product-item.type";
-
-const serverApi = createApiClient({
-  baseUrl: process.env.API_URL,
-  getToken: async () => (await cookies()).get("session_token")?.value ?? null,
-});
 
 export async function getProductsAction(query?: string): Promise<ActionResponse<ProductItem[]>> {
   const search = query ? `?query=${encodeURIComponent(query)}` : "";
   return apiAction<ProductItem[]>({
-    apiCall: () => serverApi.get(`/products${search}`),
+    apiCall: apiClient.get(`/products${search}`),
     onError: (message, context) => logger.error(message, context),
   });
 }
@@ -71,19 +83,15 @@ export async function getProductsAction(query?: string): Promise<ActionResponse<
 
 import { cookies } from "next/headers";
 import { apiAction, type ActionResponse } from "@3lineas/groovepack/api-action";
-import { createApiClient } from "@3lineas/groovepack/api-client";
 import { logger } from "@3lineas/groovepack/logger";
+import { apiClient } from "@/lib/api-client";
 import type { LoginInput } from "@/types/auth/login-input.type";
 import type { AuthSession } from "@/types/auth/auth-session.type";
-
-const authApi = createApiClient({
-  baseUrl: process.env.API_URL,
-});
 
 export async function loginAction(credentials: LoginInput): Promise<ActionResponse<AuthSession>> {
   return apiAction<AuthSession>({
     apiCall: async () => {
-      const response = await authApi.post("/auth/login", credentials);
+      const response = await apiClient.post("/auth/login", credentials);
       const session = (await response.json()) as AuthSession;
       const { token, maxAgeSeconds } = session;
 
@@ -158,4 +166,4 @@ export function useCreateProduct(options?: UseCreateProductOptions) {
    - **Default (`ActionResponse<T>`)**: Returns `{ success, data } | { success, error, code }` — ideal for mutations consumed by `apiToast`.
    - **Fallback (`fallback: T`)**: Returns `Promise<T>` directly — ideal for Server Components (`page.tsx`) needing a safe default on failure.
    - **Strict Throw (`throwOnError: true`)**: Throws the `Error` returned by `onError` (e.g. a `createAppError` factory from `@3lineas/groovepack/errors`) or `AppError` `"API_ACTION_FAILED"` — ideal for Error Boundaries (`error.tsx`).
-5. **`apiClient`**: Standard HTTP client preconfigured with baseUrl, timeouts, and auth headers.
+5. **`apiClient`**: Standard HTTP client preconfigured in `src/lib/api-client.ts` with `baseUrl`, `serviceBinding`, `fallbackBaseUrl`, and async `getHeaders` for session/auth propagation.

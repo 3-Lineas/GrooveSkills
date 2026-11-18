@@ -142,6 +142,8 @@ my-project/
 
 For an in-depth changelog maintained automatically in every project, refer to `.grooveskills/VERSIONS.md`.
 
+- **v1.24.0**:
+  - **GroovePack `v1.6.0` Support (`serviceBinding`, `fallbackBaseUrl`, `getHeaders` & `ApiCallInput<T>`)**: Updated `groovepack-api`, `nextjs-architecture`, `groovepack-actions-and-auth.md`, and `vinext-cloudflare.md` to document `createHonoClient<AppType>(config)`, native Cloudflare Service Binding support (`serviceBinding` + `fallbackBaseUrl`), per-request `getHeaders`, and direct `Promise` support in `apiAction`.
 - **v1.23.0**:
   - **Dedicated `GroovePack` Category & 4 Modular Skills**: Added `category` to `SkillMetadata`, grouped `prompts.groupMultiselect` in the CLI wizard, and introduced `groovepack-errors`, `groovepack-pipeline`, `groovepack-api`, and `groovepack-logger` (auto-suggested when `@3lineas/groovepack` is in `package.json`).
   - **GroovePack `v1.5.0` Support**: Replaced manual `AppError` templates with `@3lineas/groovepack/errors` (`createAppError` / `AppError`), documented all 3 `apiAction` modes (`ActionResponse<T>`, `fallback`, `throwOnError: true`), and fixed 3-arg `logger.*` calls and `RestApiClient` generics.

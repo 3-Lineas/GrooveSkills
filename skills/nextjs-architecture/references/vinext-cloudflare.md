@@ -90,9 +90,34 @@ export default defineConfig({
 
 ---
 
-## 4. Accessing Cloudflare Context & Bindings
+## 4. Shared API Client (`src/lib/api-client.ts`) with Service Bindings
 
-In Server Actions and Server Components, access Cloudflare platform bindings (KV, D1, R2, Environment secrets) through the Vinext context helper:
+In Vinext on Cloudflare Workers, configure `src/lib/api-client.ts` using `createHonoClient` (or `createApiClient`) with `serviceBinding`, `fallbackBaseUrl`, and `getHeaders`. This resolves `env[serviceBinding]?.fetch` via `cloudflare:workers` in production and falls back to `fallbackBaseUrl` locally:
+
+```ts
+// src/lib/api-client.ts
+import { createHonoClient } from "@3lineas/groovepack/api-client";
+import type { AppType } from "@repo/api/routes";
+import { verifySession } from "@/lib/session/verify-session";
+
+export const apiClient = createHonoClient<AppType>({
+  baseUrl: "http://api.local/api",
+  serviceBinding: "API",
+  fallbackBaseUrl: process.env.API_URL ?? "http://127.0.0.1:8787",
+  getHeaders: async () => {
+    const session = await verifySession();
+    return session.isAuth && session.userId
+      ? { "x-user-id": session.userId, "x-user-role": session.role ?? "user" }
+      : {};
+  },
+});
+```
+
+---
+
+## 5. Accessing Cloudflare Context & Data Bindings
+
+In Server Actions and Server Components, access Cloudflare data bindings (KV, D1, R2, Environment secrets) through the Vinext context helper. For HTTP calls to other Workers via Service Binding, always use `serviceBinding` + `fallbackBaseUrl` in `createApiClient` / `createHonoClient` instead of `getCloudflareContext()`:
 
 ```ts
 // src/actions/system/get-kv-value.action.ts
@@ -113,7 +138,7 @@ export async function getKvValueAction(key: string): Promise<ActionResponse<stri
 
 ---
 
-## 5. Development & Deployment Commands
+## 6. Development & Deployment Commands
 
 ```bash
 # Local development with Cloudflare Worker runtime simulation

@@ -9,23 +9,32 @@ Unified client/server API pipeline: `createApiClient` / `createHonoClient`, `api
 
 ## 1. HTTP Clients (`@3lineas/groovepack/api-client`)
 
-- `createApiClient(options)` returns a `RestApiClient` whose `.get()`, `.post()`, `.put()`, `.patch()`, and `.delete()` methods return `Promise<Response>` (**do NOT pass type generics to these methods**—parse `await response.json()`).
-- `createHonoClient<AppType>(baseUrl, options)` returns a typed Hono RPC client.
+- `createApiClient(config)` returns a `RestApiClient` whose `.get()`, `.post()`, `.put()`, `.patch()`, and `.delete()` methods return `Promise<Response>` (**do NOT pass type generics to these methods**—parse `await response.json()`).
+- `createHonoClient<AppType>(config)` receives a single `ApiClientConfig` object (never `(baseUrl, options)`) and returns a typed Hono RPC client.
+- **`ApiClientConfig` key options**:
+  - `baseUrl`: Base URL for requests (e.g., `"http://api.local/api"` when using a Service Binding, or `process.env.API_URL`).
+  - `getHeaders?: () => Record<string, string> | Promise<Record<string, string>>`: Resolved per request after `defaultHeaders` and before `init.headers` (ideal for propagating session/auth headers).
+  - `serviceBinding?: string`: Cloudflare Worker Service Binding name (dynamically resolves `env[serviceBinding]?.fetch` via `cloudflare:workers` without breaking Vite, Next.js, or browser builds).
+  - `fallbackBaseUrl?: string`: Automatic fallback to `fetch(fallbackBaseUrl + pathname + search, init)` when running locally outside Cloudflare Workers.
 
 ```typescript
-import { createApiClient } from "@3lineas/groovepack/api-client";
+import { createHonoClient } from "@3lineas/groovepack/api-client";
+import type { AppType } from "@repo/api/routes";
 
-export const backendClient = createApiClient({
-  baseUrl: process.env.API_URL ?? "",
+export const apiClient = createHonoClient<AppType>({
+  baseUrl: "http://api.local/api",
+  serviceBinding: "API",
+  fallbackBaseUrl: process.env.API_URL ?? "http://127.0.0.1:8787",
+  getHeaders: async () => {
+    const token = await getSessionToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  },
 });
-
-const response = await backendClient.post("/auth/login", credentials);
-const data = (await response.json()) as LoginResponse;
 ```
 
 ## 2. `apiAction` — 3 Execution Modes (`@3lineas/groovepack/api-action`)
 
-Always pair `apiAction` with `createAppError` factories from `@3lineas/groovepack/errors` in `onError`:
+`apiCall` accepts `ApiCallInput<T>`: either a factory `() => Promise<ApiCallResult<T>>` **or** a direct `Promise<ApiCallResult<T>>`. Always pair `apiAction` with `createAppError` factories from `@3lineas/groovepack/errors` in `onError`:
 
 1. **Default (`ActionResponse<T>`)** — Ideal for mutations consumed by `apiToast` or form handlers:
    ```typescript
@@ -36,10 +45,10 @@ Always pair `apiAction` with `createAppError` factories from `@3lineas/groovepac
    });
    // result: ActionResponse<User> ({ success: true, data } | { success: false, error, code })
    ```
-2. **Fallback (`Promise<T>`)** — Ideal for Server Components (`page.tsx`) that need a safe default on failure:
+2. **Fallback (`Promise<T>`)** — Ideal for Server Components (`page.tsx`) that need a safe default on failure (accepts a direct `Promise`):
    ```typescript
    const users = await apiAction<User[]>({
-     apiCall: () => backendClient.get("/users").then((r) => r.json()),
+     apiCall: backendClient.get("/users"),
      fallback: [],
    });
    ```
