@@ -77,7 +77,7 @@ Actions represent ONE isolated atomic step (pure transformation, single external
 ```ts
 // src/actions/billing/charge-payment-gateway.action.ts
 import type { BillingContext } from "@/types/billing/billing-context.type";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export async function chargePaymentGatewayAction(
   context: BillingContext

@@ -98,7 +98,7 @@ export interface RateLimiterPort {
 ```ts
 import type { Context } from "hono";
 import type { RateLimiterPort } from "@/types/rate-limit/rate-limiter-port.type";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export async function rateLimitMiddleware(ctx: Context, limiter: RateLimiterPort) {
   const ip = ctx.req.header("cf-connecting-ip") ?? ctx.req.header("x-forwarded-for") ?? "anonymous";

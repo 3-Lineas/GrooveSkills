@@ -48,7 +48,7 @@ export async function executeCheckoutBatch(
 ```ts
 import type { QueuePort } from "@/types/queue/queue-port.type";
 import type { QueueJob } from "@/types/queue/queue-job.type";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class CloudflareQueueAdapter implements QueuePort {
   constructor(private queue: Queue) {}
@@ -81,7 +81,7 @@ export class CloudflareQueueAdapter implements QueuePort {
 import { Queue as BullQueue } from "bullmq";
 import type { QueuePort } from "@/types/queue/queue-port.type";
 import type { QueueJob } from "@/types/queue/queue-job.type";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class BullMQAdapter implements QueuePort {
   constructor(private bullQueue: BullQueue) {}

@@ -102,7 +102,7 @@ export async function updateProfileAction(
   payload: ProfileFormValues,
 ): Promise<ActionResponse<ProfileFormValues>> {
   return apiAction<ProfileFormValues>({
-    apiCall: () => apiClient.put<ProfileFormValues>("/api/profile", payload),
+    apiCall: () => apiClient.put("/api/profile", payload).then((r) => r.json()),
   });
 }
 ```

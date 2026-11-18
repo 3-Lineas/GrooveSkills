@@ -15,7 +15,7 @@ import type { PutFileInput } from "@/types/storage/put-file-input.type";
 import type { PutFileOutput } from "@/types/storage/put-file-output.type";
 import type { StorageFile } from "@/types/storage/storage-file.type";
 import type { PresignedUrlInput } from "@/types/storage/presigned-url-input.type";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class S3StorageAdapter implements StoragePort {
   constructor(private client: S3Client, private publicBaseUrl?: string) {}
@@ -88,7 +88,7 @@ import type { PutFileInput } from "@/types/storage/put-file-input.type";
 import type { PutFileOutput } from "@/types/storage/put-file-output.type";
 import type { StorageFile } from "@/types/storage/storage-file.type";
 import type { PresignedUrlInput } from "@/types/storage/presigned-url-input.type";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class SupabaseStorageAdapter implements StoragePort {
   constructor(private client: StorageClient) {}
@@ -145,7 +145,7 @@ import type { PutFileInput } from "@/types/storage/put-file-input.type";
 import type { PutFileOutput } from "@/types/storage/put-file-output.type";
 import type { StorageFile } from "@/types/storage/storage-file.type";
 import type { PresignedUrlInput } from "@/types/storage/presigned-url-input.type";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class MemoryStorageAdapter implements StoragePort {
   private files = new Map<string, StorageFile>();

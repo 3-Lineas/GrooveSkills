@@ -77,7 +77,7 @@ export interface StoragePort {
 
 ```ts
 import type { StoragePort } from "@/types/storage/storage-port.type";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export async function uploadAvatarAction(
   storage: StoragePort,

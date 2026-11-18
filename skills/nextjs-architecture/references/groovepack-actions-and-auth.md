@@ -83,8 +83,9 @@ const authApi = createApiClient({
 export async function loginAction(credentials: LoginInput): Promise<ActionResponse<AuthSession>> {
   return apiAction<AuthSession>({
     apiCall: async () => {
-      const response = await authApi.post<AuthSession>("/auth/login", credentials);
-      const { token, maxAgeSeconds } = response.data;
+      const response = await authApi.post("/auth/login", credentials);
+      const session = (await response.json()) as AuthSession;
+      const { token, maxAgeSeconds } = session;
 
       const cookieStore = await cookies();
       cookieStore.set("session_token", token, {
@@ -95,7 +96,7 @@ export async function loginAction(credentials: LoginInput): Promise<ActionRespon
         maxAge: maxAgeSeconds,
       });
 
-      return response;
+      return session;
     },
     onError: (message, context) => logger.error(message, context),
   });
@@ -153,5 +154,8 @@ export function useCreateProduct(options?: UseCreateProductOptions) {
 1. **Client Hook**: Handles interactive state; wraps the Server Action invocation in `apiToast`.
 2. **`apiToast`**: Manages toast promises and error notification display automatically.
 3. **Server Action**: Encapsulates server-only logic, secret keys, and cookie storage; delegates network requests to `apiAction`.
-4. **`apiAction`**: Normalizes exceptions, formats structured `ActionResponse<T>`, and handles status codes.
+4. **`apiAction` (3 Modes)**:
+   - **Default (`ActionResponse<T>`)**: Returns `{ success, data } | { success, error, code }` — ideal for mutations consumed by `apiToast`.
+   - **Fallback (`fallback: T`)**: Returns `Promise<T>` directly — ideal for Server Components (`page.tsx`) needing a safe default on failure.
+   - **Strict Throw (`throwOnError: true`)**: Throws the `Error` returned by `onError` (e.g. a `createAppError` factory from `@3lineas/groovepack/errors`) or `AppError` `"API_ACTION_FAILED"` — ideal for Error Boundaries (`error.tsx`).
 5. **`apiClient`**: Standard HTTP client preconfigured with baseUrl, timeouts, and auth headers.

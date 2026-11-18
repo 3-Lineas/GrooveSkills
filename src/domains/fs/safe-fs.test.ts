@@ -215,6 +215,7 @@ try {
     id: "my-skill",
     name: "My Skill",
     description: "Test skill",
+    category: "Core & Methodology" as const,
     dependencies: [],
     directoryName: "my-skill",
   };

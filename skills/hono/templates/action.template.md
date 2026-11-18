@@ -41,7 +41,7 @@ export function sanitizeUserInputAction(
 ## 2. Invariant Check Action with 1 DB Query (`ensure-email-available.action.ts`)
 
 ```ts
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 import { logger } from "@3lineas/groovepack/logger";
 import type { RegisterUserContext } from "@/types/auth/register-user-context.type";
 
@@ -69,7 +69,10 @@ export async function ensureEmailAvailableAction(
       throw caughtError;
     }
 
-    logger.error("Database query failed while checking email availability", { file: "ensure-email-available.action.ts" }, caughtError);
+    logger.error("Database query failed while checking email availability", {
+      file: "ensure-email-available.action.ts",
+      error: caughtError instanceof Error ? caughtError.message : String(caughtError),
+    });
     throw new AppError({
       message: "We encountered an issue checking your email. Please try again shortly.",
       code: "DATABASE_QUERY_ERROR",
@@ -84,7 +87,7 @@ export async function ensureEmailAvailableAction(
 ## 3. Atomic DB Mutation Action (`persist-user.action.ts`)
 
 ```ts
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 import { logger } from "@3lineas/groovepack/logger";
 import type { RegisterUserContext } from "@/types/auth/register-user-context.type";
 
@@ -106,7 +109,10 @@ export async function persistUserAction(
       throw caughtError;
     }
 
-    logger.error("Database insert failed while persisting user", { file: "persist-user.action.ts" }, caughtError);
+    logger.error("Database insert failed while persisting user", {
+      file: "persist-user.action.ts",
+      error: caughtError instanceof Error ? caughtError.message : String(caughtError),
+    });
     throw new AppError({
       message: "We encountered a temporary issue creating your account. Please try again shortly.",
       code: "DATABASE_MUTATION_ERROR",

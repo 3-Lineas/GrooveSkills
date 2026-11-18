@@ -107,7 +107,7 @@ import type { EmailSenderPort } from "@/types/email/email-sender-port.type";
 import type { SendEmailPayload } from "@/types/email/send-email-payload.type";
 import type { SendEmailOutput } from "@/types/email/send-email-output.type";
 import type { ResendWrapper } from "@/infrastructure/wrappers/resend/resend.wrapper";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class ResendEmailAdapter implements EmailSenderPort {
   constructor(

@@ -135,6 +135,37 @@ export function runProjectDetectorTests(): void {
       "installedSkillIds must NOT include core harness 'groove-harness'"
     );
     console.log("  ✔ detectProjectContext detects installedSkillIds from config.json and filesystem.");
+
+    // 6. GroovePack category & auto-suggestion when @3lineas/groovepack is installed
+    const groovepackSkills = SKILL_CATALOG.filter((skill) => skill.category === "GroovePack");
+    const expectedGroovepackIds = [
+      "groovepack-errors",
+      "groovepack-pipeline",
+      "groovepack-api",
+      "groovepack-logger",
+    ];
+    assert.deepStrictEqual(
+      groovepackSkills.map((skill) => skill.id),
+      expectedGroovepackIds,
+      "SKILL_CATALOG must contain all 4 GroovePack skills under category 'GroovePack'"
+    );
+
+    const groovepackProjectDir = join(tempProjectDir, "groovepack-app");
+    mkdirSync(groovepackProjectDir, { recursive: true });
+    writeFileSync(
+      join(groovepackProjectDir, "package.json"),
+      JSON.stringify({ dependencies: { "@3lineas/groovepack": "^1.5.0" } }),
+      "utf-8"
+    );
+
+    const groovepackContext = detectProjectContext(groovepackProjectDir);
+    for (const skillId of expectedGroovepackIds) {
+      assert.ok(
+        groovepackContext.suggestedSkillIds.includes(skillId),
+        `Project with @3lineas/groovepack must auto-suggest '${skillId}'`
+      );
+    }
+    console.log("  ✔ SKILL_CATALOG has 'GroovePack' category and auto-suggests all 4 GroovePack skills.");
   } finally {
     rmSync(tempProjectDir, { recursive: true, force: true });
   }

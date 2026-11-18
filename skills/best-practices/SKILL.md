@@ -96,7 +96,7 @@ export function processTransaction(tx: Transaction) {
 ```ts
 // ✅ CORRECT (Direct import with alias):
 import { persistUserAction } from "@/actions/auth/persist-user.action.ts";
-import { AppError } from "@/errors/app-error.ts";
+import { AppError } from "@3lineas/groovepack/errors";
 
 // ❌ FORBIDDEN (Barrel import & relative path):
 import { persistUserAction } from "../../actions/auth";

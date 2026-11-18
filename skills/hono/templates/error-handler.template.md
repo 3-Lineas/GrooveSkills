@@ -4,8 +4,9 @@ Centralized Hono error handler for AppError, Valibot validation issues, and unex
 
 ```ts
 import type { ErrorHandler } from "hono";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { logger } from "@3lineas/groovepack/logger";
-import { AppError } from "@/errors/app-error.ts";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export const globalErrorHandler: ErrorHandler = (error, ctx) => {
   const logContext = {
@@ -21,12 +22,12 @@ export const globalErrorHandler: ErrorHandler = (error, ctx) => {
         message: error.message,
         error: error.code,
       },
-      error.statusCode
+      error.statusCode as ContentfulStatusCode
     );
   }
 
   if (error.name === "ValiError" || error.message.includes("validation")) {
-    logger.warn("Validation error encountered", logContext, error);
+    logger.warn("Validation error encountered", { ...logContext, error: error.message });
     return ctx.json(
       {
         success: false,
@@ -37,7 +38,10 @@ export const globalErrorHandler: ErrorHandler = (error, ctx) => {
     );
   }
 
-  logger.error("Unhandled server exception caught in router", logContext, error);
+  logger.error("Unhandled server exception caught in router", {
+    ...logContext,
+    error: error instanceof Error ? error.message : String(error),
+  });
 
   return ctx.json(
     {

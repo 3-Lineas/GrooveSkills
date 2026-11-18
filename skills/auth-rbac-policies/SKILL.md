@@ -88,7 +88,7 @@ export function canDeleteDocumentAction(actor: AuthenticatedActor, doc: Document
 
 ```ts
 // src/actions/documents/authorize-document-edit.action.ts
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 import { canEditDocumentAction } from "@/actions/documents/can-edit-document.action";
 import type { DocumentResource } from "@/types/documents/document-resource.type";
 import type { AuthenticatedActor } from "@/types/auth/authenticated-actor.type";

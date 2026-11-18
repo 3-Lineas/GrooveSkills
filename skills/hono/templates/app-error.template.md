@@ -1,44 +1,16 @@
-# AppError Template
+# AppError Template (`@3lineas/groovepack/errors`)
 
-Use this template to create application errors with automatic logging.
+Do **not** create a manual `src/errors/app-error.ts` base class. Import `createAppError` and `AppError` directly from `@3lineas/groovepack/errors` (`v1.5.0+`).
 
 ```ts
-import type { ContentfulStatusCode } from "hono/utils/http-status";
-import { logger } from "@3lineas/groovepack/logger";
+// src/errors/tenants/slug-conflict.error.ts
+import { createAppError } from "@3lineas/groovepack/errors";
 
-export interface AppErrorParams {
-  message: string;
-  statusCode?: ContentfulStatusCode;
-  code?: string;
-  details?: unknown;
-  silent?: boolean;
-}
-
-export class AppError extends Error {
-  public statusCode: ContentfulStatusCode;
-  public code: string;
-  public details?: unknown;
-
-  constructor({
-    message,
-    statusCode = 400,
-    code = "BAD_REQUEST",
-    details,
-    silent = false,
-  }: AppErrorParams) {
-    super(message);
-    this.name = "AppError";
-    this.statusCode = statusCode;
-    this.code = code;
-    this.details = details;
-
-    if (silent) {
-      return;
-    }
-
-    logger.warn(`${this.name} (${code}): ${message}`, {
-      details: details as Record<string, unknown>,
-    });
-  }
-}
+export const slugConflictError = createAppError({
+  name: "SlugConflictError",
+  statusCode: 409,
+  code: "SLUG_CONFLICT",
+  defaultMessage: "This workspace URL is already taken.",
+  silent: true,
+});
 ```

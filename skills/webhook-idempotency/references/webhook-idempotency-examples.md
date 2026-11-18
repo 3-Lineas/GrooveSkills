@@ -11,7 +11,7 @@ Real-world HMAC verification adapters (Stripe, Svix, MercadoPago) and atomic ide
 import Stripe from "stripe";
 import type { WebhookVerifierPort } from "@/types/webhooks/webhook-verifier-port.type";
 import type { WebhookVerifyInput } from "@/types/webhooks/webhook-verify-input.type";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class StripeWebhookVerifierAdapter implements WebhookVerifierPort<Stripe.Event> {
   constructor(private stripe: Stripe) {}
@@ -43,7 +43,7 @@ export class StripeWebhookVerifierAdapter implements WebhookVerifierPort<Stripe.
 import { Webhook } from "svix";
 import type { WebhookVerifierPort } from "@/types/webhooks/webhook-verifier-port.type";
 import type { WebhookVerifyInput } from "@/types/webhooks/webhook-verify-input.type";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class SvixWebhookVerifierAdapter implements WebhookVerifierPort<unknown> {
   async verify(input: WebhookVerifyInput): Promise<unknown> {

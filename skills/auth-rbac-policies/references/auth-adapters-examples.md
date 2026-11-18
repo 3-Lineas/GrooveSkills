@@ -11,7 +11,7 @@ Real adapter implementations (Clerk, Supabase, JWT) converting provider-specific
 import { verifyToken } from "@clerk/backend";
 import type { AuthAdapterPort } from "@/types/auth/auth-adapter-port.type";
 import type { AuthenticatedActor } from "@/types/auth/authenticated-actor.type";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class ClerkAuthAdapter implements AuthAdapterPort {
   constructor(private jwtKey: string) {}
@@ -47,7 +47,7 @@ export class ClerkAuthAdapter implements AuthAdapterPort {
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AuthAdapterPort } from "@/types/auth/auth-adapter-port.type";
 import type { AuthenticatedActor } from "@/types/auth/authenticated-actor.type";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class SupabaseAuthAdapter implements AuthAdapterPort {
   constructor(private supabase: SupabaseClient) {}
@@ -82,7 +82,7 @@ export class SupabaseAuthAdapter implements AuthAdapterPort {
 // src/infrastructure/adapters/auth/memory-auth.adapter.ts
 import type { AuthAdapterPort } from "@/types/auth/auth-adapter-port.type";
 import type { AuthenticatedActor } from "@/types/auth/authenticated-actor.type";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class MemoryAuthAdapter implements AuthAdapterPort {
   private users = new Map<string, AuthenticatedActor>();

@@ -1,52 +1,33 @@
-# Template: AppError Base Class
+# Template: Domain Errors with `@3lineas/groovepack/errors`
 
-Copy or adapt this template when setting up error handling in your project: `src/errors/app-error.ts`.
+Do **not** create a manual `src/errors/app-error.ts` base class. Import `createAppError` and `AppError` directly from `@3lineas/groovepack/errors` (`v1.5.0+`).
+
+## Atomic Error Factory (`src/errors/{domain}/{name}.error.ts`)
 
 ```ts
-import { logger } from "@3lineas/groovepack/logger";
+import { createAppError } from "@3lineas/groovepack/errors";
 
-export interface AppErrorOptions {
-  message: string;
-  statusCode?: number;
-  code?: string;
-  details?: unknown;
-  cause?: unknown;
-  /** When true, suppresses automatic warning logging for expected business conflicts */
-  silent?: boolean;
-}
+export const resourceNotFoundError = createAppError({
+  name: "ResourceNotFoundError",
+  statusCode: 404,
+  code: "RESOURCE_NOT_FOUND",
+  defaultMessage: "The requested resource could not be found.",
+  silent: true,
+});
+```
 
-export class AppError extends Error {
-  readonly statusCode: number;
-  readonly code: string;
-  readonly details?: unknown;
-  readonly timestamp: string;
+## Subclassing `AppError` (Only when custom properties are required)
 
-  constructor(options: AppErrorOptions) {
-    super(options.message, { cause: options.cause });
-    this.name = "AppError";
-    this.statusCode = options.statusCode ?? 500;
-    this.code = options.code ?? "INTERNAL_SERVER_ERROR";
-    this.details = options.details;
-    this.timestamp = new Date().toISOString();
+```ts
+import { AppError } from "@3lineas/groovepack/errors";
 
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, AppError);
-    }
+export class QuotaExceededError extends AppError {
+  public readonly limit: number;
 
-    if (!options.silent) {
-      logger.warn(`${this.name} (${this.code}): ${this.message}`, { details: this.details });
-    }
-  }
-
-  toJSON(): Record<string, unknown> {
-    return {
-      error: this.name,
-      code: this.code,
-      message: this.message,
-      statusCode: this.statusCode,
-      details: this.details,
-      timestamp: this.timestamp,
-    };
+  constructor(limit: number, message = "Plan quota exceeded.") {
+    super(message, 402, "QUOTA_EXCEEDED", true, { limit });
+    this.limit = limit;
+    this.name = "QuotaExceededError";
   }
 }
 ```

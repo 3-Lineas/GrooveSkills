@@ -24,7 +24,7 @@ import type { EmailSenderPort } from "@/types/email/email-sender-port.type";
 import type { SendEmailInput } from "@/types/email/send-email-input.type";
 import type { SendEmailResult } from "@/types/email/send-email-result.type";
 import type { SmtpWrapper } from "@/infrastructure/wrappers/smtp/smtp.wrapper";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class SmtpEmailAdapter implements EmailSenderPort {
   constructor(private wrapper: SmtpWrapper, private defaultSender: string) {}
@@ -52,7 +52,7 @@ export class SmtpEmailAdapter implements EmailSenderPort {
 // src/infrastructure/adapters/email/ses-email.adapter.ts
 import type { EmailSenderPort, SendEmailInput, SendEmailResult } from "@/domains/email/email-sender.port";
 import type { SesWrapper } from "@/infrastructure/wrappers/aws/ses.wrapper";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class SesEmailAdapter implements EmailSenderPort {
   constructor(private wrapper: SesWrapper, private defaultSource: string) {}
@@ -80,7 +80,7 @@ export class SesEmailAdapter implements EmailSenderPort {
 // src/infrastructure/adapters/email/cloudflare-email.adapter.ts
 import type { EmailSenderPort, SendEmailInput, SendEmailResult } from "@/domains/email/email-sender.port";
 import type { CloudflareEmailWrapper } from "@/infrastructure/wrappers/cloudflare/cloudflare-email.wrapper";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class CloudflareEmailAdapter implements EmailSenderPort {
   constructor(private wrapper: CloudflareEmailWrapper, private defaultSender: string) {}
@@ -124,7 +124,7 @@ import type { PaymentGatewayPort } from "@/types/billing/payment-gateway-port.ty
 import type { ChargeInput } from "@/types/billing/charge-input.type";
 import type { ChargeResult } from "@/types/billing/charge-result.type";
 import type Stripe from "stripe";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class StripePaymentAdapter implements PaymentGatewayPort {
   constructor(private stripe: Stripe) {}
@@ -152,7 +152,7 @@ import type { PaymentGatewayPort } from "@/types/billing/payment-gateway-port.ty
 import type { ChargeInput } from "@/types/billing/charge-input.type";
 import type { ChargeResult } from "@/types/billing/charge-result.type";
 import { Payment, type MercadoPagoConfig } from "mercadopago";
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class MercadoPagoPaymentAdapter implements PaymentGatewayPort {
   private client: Payment;

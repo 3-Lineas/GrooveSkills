@@ -58,7 +58,7 @@ src/
 
 ### A. Domain Custom Exception Example (`src/errors/stores/slug-conflict.error.ts`)
 ```ts
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 
 export class SlugConflictError extends AppError {
   constructor(
@@ -79,7 +79,7 @@ export class SlugConflictError extends AppError {
 
 ### B. Universal Catch Normalization Pattern
 ```ts
-import { AppError } from "@/errors/app-error";
+import { AppError } from "@3lineas/groovepack/errors";
 import { InternalServerError } from "@/errors/common/internal-server.error";
 
 export function normalizeError(caughtError: unknown): AppError {

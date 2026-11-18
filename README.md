@@ -142,6 +142,9 @@ my-project/
 
 For an in-depth changelog maintained automatically in every project, refer to `.grooveskills/VERSIONS.md`.
 
+- **v1.23.0**:
+  - **Dedicated `GroovePack` Category & 4 Modular Skills**: Added `category` to `SkillMetadata`, grouped `prompts.groupMultiselect` in the CLI wizard, and introduced `groovepack-errors`, `groovepack-pipeline`, `groovepack-api`, and `groovepack-logger` (auto-suggested when `@3lineas/groovepack` is in `package.json`).
+  - **GroovePack `v1.5.0` Support**: Replaced manual `AppError` templates with `@3lineas/groovepack/errors` (`createAppError` / `AppError`), documented all 3 `apiAction` modes (`ActionResponse<T>`, `fallback`, `throwOnError: true`), and fixed 3-arg `logger.*` calls and `RestApiClient` generics.
 - **v1.22.0**:
   - **GroovePack `v1.3.0` Package Alignment**: Updated Next.js, React, Hono, Controller/D1, Error Handling, Testing, and Clean Architecture skills to use `@3lineas/groovepack` (`pnpm add @3lineas/groovepack`) with subpath exports and `@3lineas/groovepack/vite`.
   - **Complete `sonner` Removal & Direct Primitives**: Standardized on `@3lineas/groovepack/api-toast`, replaced manual `Logger` and `withD1Transaction` templates with direct package imports, and enforced single-runtime env vars (`NEXT_PUBLIC_GROOVEPACK_*` or `GROOVEPACK_*`).
@@ -172,6 +175,14 @@ For an in-depth changelog maintained automatically in every project, refer to `.
 ---
 
 ## 📦 Skills Catalog
+
+### GroovePack (`@3lineas/groovepack`)
+- `groovepack-errors`: Atomic domain exceptions with `@3lineas/groovepack/errors` (`createAppError`, `.is()`, `AppError`, `apiAction` `onError`).
+- `groovepack-pipeline`: Atomic action orchestration with `@3lineas/groovepack/pipeline` and `/pipeline/with-d1-transaction`.
+- `groovepack-api`: Typed HTTP clients, 3-mode `apiAction` (`ActionResponse<T>`, `fallback`, `throwOnError`), `apiToast`, `i18n`, and Vite plugin.
+- `groovepack-logger`: Adaptive structured logging with `@3lineas/groovepack/logger` (2-arg signature, ANSI dev vs JSON prod).
+
+### All Skills
 
 | Skill ID | Name | Architectural Focus | Auto-Selection Rule |
 | :--- | :--- | :--- | :--- |
