@@ -20,7 +20,7 @@ Architectural guidelines for organizing code into decoupled domain modules, isol
    - Actions are **atomic steps**, NOT entire use cases. Never bundle calculation + database lookup + gateway call + database mutation into one monolithic Action.
    - **Every DB Call is an Atomic Action**: All database queries or mutations live in their own dedicated Action (maximum 1 DB query per Action).
    - Exactly ONE function per file. Pure domain logic, transformations, or calculations (e.g. `calculate-prorated-tax.action.ts`) live as atomic Actions.
-   - Routers remain thin and sequence atomic Actions using `Pipeline.send(context).through([...actions])`.
+   - Routers remain thin and sequence atomic Actions using `Pipeline.send(context).through([...actions]).then()` (`@3lineas/groovepack/pipeline`).
 
 3. **Inversion of Dependencies**:
    - Business actions do not depend directly on concrete database drivers or external HTTP clients.

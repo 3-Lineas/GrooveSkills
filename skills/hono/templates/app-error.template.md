@@ -4,7 +4,7 @@ Use this template to create application errors with automatic logging.
 
 ```ts
 import type { ContentfulStatusCode } from "hono/utils/http-status";
-import { Logger } from "@/logger/logger.ts";
+import { logger } from "@3lineas/groovepack/logger";
 
 export interface AppErrorParams {
   message: string;
@@ -36,8 +36,7 @@ export class AppError extends Error {
       return;
     }
 
-    const logger = new Logger(`API:Error:${this.name}`);
-    logger.warn(`${code}: ${message}`, {
+    logger.warn(`${this.name} (${code}): ${message}`, {
       details: details as Record<string, unknown>,
     });
   }

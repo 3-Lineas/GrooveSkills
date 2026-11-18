@@ -41,7 +41,7 @@ import { UserResponseDto } from "@/dtos/auth/user-response.dto";
 import { sanitizeUserAction } from "@/actions/auth/sanitize-user.action";
 import { ensureEmailAvailableAction } from "@/actions/auth/ensure-email-available.action";
 import { persistUserAction } from "@/actions/auth/persist-user.action";
-import { Pipeline } from "@/common/pipeline/pipeline";
+import { Pipeline } from "@3lineas/groovepack/pipeline";
 import { createRouteHandler } from "@/common/utils/route-handler";
 import { validationHook } from "@/common/utils/validation";
 
@@ -62,7 +62,8 @@ export const registerUserRoute = new Hono<AppContext>().post(
           sanitizeUserAction,
           ensureEmailAvailableAction,
           persistUserAction,
-        ]);
+        ])
+        .then();
 
       return resultContext.user!;
     }

@@ -4,40 +4,40 @@ Real-world queue adapters (Cloudflare Queues, BullMQ, AWS SQS, In-Memory) and at
 
 ---
 
-## 1. Cloudflare D1 Atomic Transaction Runner (`withD1Transaction`)
+## 1. Cloudflare D1 Atomic Transaction Runner (`@3lineas/groovepack/pipeline/with-d1-transaction`)
 
-Cloudflare D1 runs SQLite at the edge, where standard multi-statement transactions are executed via `db.batch()`. The `withD1Transaction` pattern allows actions to stage statements and execute them atomically:
+Cloudflare D1 runs SQLite at the edge, where standard multi-statement transactions are executed via `db.batch()`. Do **not** reimplement `withD1Transaction` manually; import `withD1Transaction` and `D1TransactionContext` directly from `@3lineas/groovepack/pipeline/with-d1-transaction` and push statements to `txContext.stagedStatements`:
 
 ```ts
-import type { DrizzleD1Database } from "drizzle-orm/d1";
-import type { BatchItem } from "drizzle-orm/batch";
+import {
+  withD1Transaction,
+  type D1TransactionContext,
+} from "@3lineas/groovepack/pipeline/with-d1-transaction";
+import { ordersTable, inventoryTable } from "@/db/schema";
 
-export interface D1TransactionContext<TSchema extends Record<string, unknown>> {
-  readonly db: DrizzleD1Database<TSchema>;
-  stage: (statement: BatchItem<"sqlite">) => void;
+interface CheckoutTxContext extends D1TransactionContext {
+  orderId: string;
+  productId: string;
 }
 
-export async function withD1Transaction<TSchema extends Record<string, unknown>, TResult>(
-  database: DrizzleD1Database<TSchema>,
-  callback: (transaction: D1TransactionContext<TSchema>) => Promise<TResult>
-): Promise<TResult> {
-  const stagedStatements: BatchItem<"sqlite">[] = [];
-
-  const transactionContext: D1TransactionContext<TSchema> = {
-    db: database,
-    stage: (statement) => {
-      stagedStatements.push(statement);
+export async function executeCheckoutBatch(
+  database: DrizzleD1Database<typeof schema>,
+  orderId: string,
+  productId: string,
+): Promise<CheckoutTxContext> {
+  return withD1Transaction(
+    database,
+    { stagedStatements: [], orderId, productId },
+    async (txContext) => {
+      txContext.stagedStatements.push(
+        database.insert(ordersTable).values({ id: txContext.orderId, productId: txContext.productId }),
+      );
+      txContext.stagedStatements.push(
+        database.update(inventoryTable).set({ reserved: 1 }),
+      );
+      return txContext;
     },
-  };
-
-  const result = await callback(transactionContext);
-
-  if (stagedStatements.length > 0) {
-    // All staged mutations are executed in a single atomic batch
-    await database.batch(stagedStatements as [BatchItem<"sqlite">, ...BatchItem<"sqlite">[]]);
-  }
-
-  return result;
+  );
 }
 ```
 

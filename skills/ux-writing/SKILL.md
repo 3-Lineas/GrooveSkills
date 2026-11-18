@@ -80,16 +80,18 @@ export const signupSchema = v.object({
 
 ---
 
-## 4. Toast Notification Pattern (Sonner & Actions)
+## 4. Toast Notification Pattern (`@3lineas/groovepack/api-toast`)
+
+Use `apiToast` (or `createApiToast`) from `@3lineas/groovepack/api-toast` backed by Shadcn Toast (`@base-ui/react/toast`). Configure **only** one locale env var depending on your runtime (`NEXT_PUBLIC_GROOVEPACK_LOCALE` in Next.js/Vinext, or `GROOVEPACK_LOCALE` in Vite/Node/Workers).
 
 ```tsx
-import { toast } from "sonner";
+import { apiToast } from "@3lineas/groovepack/api-toast";
 
-toast.promise(saveUserData(payload), {
-  loading: "Guardando tu información...",
-  success: "¡Listo! Tu información ha sido actualizada.",
-  error: (err: unknown) =>
-    err instanceof Error ? err.message : "No pudimos guardar los cambios. Inténtalo de nuevo.",
+await apiToast({
+  action: () => saveUserData(payload),
+  loadingMessage: "Guardando tu información...",
+  successMessage: "¡Listo! Tu información ha sido actualizada.",
+  errorMessage: "No pudimos guardar los cambios. Inténtalo de nuevo.",
 });
 ```
 

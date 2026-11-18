@@ -83,7 +83,7 @@ import { Hono } from "hono";
 import { createUserRoute } from "@/routes/users/create-user.route";
 import { testDb } from "@/backend/setup";
 import type { AppContext } from "@/types/context/app-context.type";
-import type { ActionResponse } from "@/types/common/action-response.type";
+import type { ActionResponse } from "@3lineas/groovepack/api-action";
 
 describe("POST /users Route Integration", () => {
   const testApp = new Hono<AppContext>();

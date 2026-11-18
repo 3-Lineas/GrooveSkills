@@ -19,7 +19,7 @@ Architectural standard establishing strict separation of concerns between **Atom
 
 2. **Controllers & Pipelines are Orchestrators (Zero Use-Case God Actions)**:
    - Creating god actions (like `register-user.action.ts` or `checkout-order.action.ts` that bundle verification and persistence) is strictly forbidden.
-   - HTTP route handlers and RPC controllers validate inputs, sequence atomic actions through Pipelines (`Pipeline.send(context).through([...actions])`), wrap transactions, and dispatch background jobs via `QueuePort`.
+   - HTTP route handlers and RPC controllers validate inputs, sequence atomic actions through Pipelines (`Pipeline.send(context).through([...actions]).then()`), wrap transactions, and dispatch background jobs via `QueuePort`.
    - Never call a single monolithic action from a route to execute the entire use case.
 
 3. **Atomic Multi-Mutation Pipelines (`withTransaction` / `withD1Transaction`)**:
@@ -74,7 +74,7 @@ import { OrderResponseDto } from "@/dtos/orders/order-response.dto";
 import { sanitizeOrderAction } from "@/actions/orders/sanitize-order.action";
 import { ensureStockAction } from "@/actions/orders/ensure-stock.action";
 import { persistOrderAction } from "@/actions/orders/persist-order.action";
-import { Pipeline } from "@/common/utils/pipeline";
+import { Pipeline } from "@3lineas/groovepack/pipeline";
 import { createRouteHandler } from "@/common/utils/route-handler";
 import { validationHook } from "@/common/utils/validation";
 
@@ -95,7 +95,8 @@ export const checkoutOrderRoute = new Hono<AppContext>().post(
           sanitizeOrderAction,
           ensureStockAction,
           persistOrderAction,
-        ]);
+        ])
+        .then();
 
       return finalContext.createdOrder!;
     }
@@ -105,18 +106,25 @@ export const checkoutOrderRoute = new Hono<AppContext>().post(
 
 ---
 
-## 4. Cloudflare D1 Staged Batching (`withD1Transaction`)
+## 4. Cloudflare D1 Staged Batching (`withD1Transaction` & `.transactional(db)`)
 
-For Cloudflare D1, wrap mutations in a staged batch to guarantee ACID rollback:
+For Cloudflare D1, use `@3lineas/groovepack/pipeline` (`.transactional(db)`) or `@3lineas/groovepack/pipeline/with-d1-transaction` (`withD1Transaction`) to stage mutations in `context.stagedStatements` and guarantee atomic `db.batch()` execution:
 
 ```ts
+// Pipeline mode:
+const finalContext = await Pipeline.send(initialContext)
+  .transactional(db)
+  .through([sanitizeOrderAction, ensureStockAction, stageOrderMutationAction])
+  .then();
+
+// Inside an atomic pipe:
 export async function stageOrderMutationAction(context: CheckoutContext): Promise<CheckoutContext> {
   const insertStatement = context.database
     .insert(ordersTable)
     .values(context.newOrderRecord);
 
   // Stage statement for atomic db.batch() execution
-  context.transaction?.stage(insertStatement);
+  context.stagedStatements.push(insertStatement);
   return context;
 }
 ```

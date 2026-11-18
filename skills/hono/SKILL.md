@@ -42,14 +42,14 @@ Standardized guide for building robust, scalable Hono applications with isolated
 
 7. **Mandatory Pipeline Chaining in Routes (No Monolithic Route Actions)**:
    - A route **must never** call a single action that performs the entire use-case logic.
-   - When an endpoint performs multiple steps (validation, DB lookup, DB insertion, external call): chain them sequentially using `Pipeline.send(context).through([actionA, actionB, actionC])`.
+   - When an endpoint performs multiple steps (validation, DB lookup, DB insertion, external call): chain them sequentially using `Pipeline.send(context).through([actionA, actionB, actionC]).then()`.
    - When an endpoint performs a simple atomic read: invoke the single query action directly (`const userProfile = await getUserByIdAction({ db, userId });`).
 
 8. **Hard Size Limit: <200 Lines Max**:
    - Keep route endpoints under 60 lines and routers under 50 lines.
 
-9. **Unified Client Response (`ActionResponse<T>`)**:
-   - Every API endpoint response (success or failure) conforms to `ActionResponse<T>` (`success`, `message`, `data`, `error`).
+9. **Unified Client Response (`ActionResponse<T>`) & Logger**:
+   - Every API endpoint response (success or failure) conforms to `ActionResponse<T>` (`@3lineas/groovepack/api-action`) (`success`, `message`, `data`, `error`), and structured logging uses `logger` from `@3lineas/groovepack/logger`.
 
 ---
 
@@ -108,7 +108,7 @@ import { UserResponseDto } from "@/dtos/users/user-response.dto";
 import { sanitizeUserAction } from "@/actions/users/sanitize-user.action";
 import { ensureEmailAvailableAction } from "@/actions/users/ensure-email-available.action";
 import { persistUserAction } from "@/actions/users/persist-user.action";
-import { Pipeline } from "@/common/pipeline/pipeline";
+import { Pipeline } from "@3lineas/groovepack/pipeline";
 import { createRouteHandler } from "@/common/utils/route-handler";
 import { validationHook } from "@/common/utils/validation";
 
@@ -130,7 +130,8 @@ export const createUserRoute = new Hono<AppContext>().post(
           sanitizeUserAction,
           ensureEmailAvailableAction,
           persistUserAction,
-        ]);
+        ])
+        .then();
 
       return resultContext.createdUser!;
     }

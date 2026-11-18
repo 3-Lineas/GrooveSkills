@@ -3,7 +3,7 @@
 Copy or adapt this template when setting up error handling in your project: `src/errors/app-error.ts`.
 
 ```ts
-import { Logger } from "@/utils/logger";
+import { logger } from "@3lineas/groovepack/logger";
 
 export interface AppErrorOptions {
   message: string;
@@ -34,8 +34,7 @@ export class AppError extends Error {
     }
 
     if (!options.silent) {
-      const logger = new Logger(`API:Error:${this.name}`);
-      logger.warn(`${this.code}: ${this.message}`, { details: this.details });
+      logger.warn(`${this.name} (${this.code}): ${this.message}`, { details: this.details });
     }
   }
 

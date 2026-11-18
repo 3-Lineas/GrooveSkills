@@ -34,18 +34,15 @@ afterAll(() => {
 
 ```ts
 import { describe, it, expect } from "vitest";
-import { withD1Transaction } from "@/common/utils/d1-transaction";
+import { withD1Transaction, type BatchCapableDb } from "@3lineas/groovepack/pipeline/with-d1-transaction";
 import { testDb } from "@/backend/setup";
 import { usersTable } from "@/db/schema";
 
 describe("D1 Atomic Batch Transactions", () => {
   it("should rollback all mutations if an error occurs mid-transaction", async () => {
     const executeFailingTransaction = async () => {
-      await withD1Transaction(testDb as any, async (transaction) => {
-        transaction.stage(
-          testDb.insert(usersTable).values({ id: "user_1", email: "first@example.com" }) as any
-        );
-
+      await withD1Transaction(testDb as unknown as BatchCapableDb, { stagedStatements: [] as unknown[] }, async (tx) => {
+        tx.stagedStatements.push(testDb.insert(usersTable).values({ id: "user_1", email: "first@example.com" }));
         throw new Error("Simulated failure mid-transaction");
       });
     };

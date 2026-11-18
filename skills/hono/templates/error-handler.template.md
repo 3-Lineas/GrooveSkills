@@ -4,11 +4,10 @@ Centralized Hono error handler for AppError, Valibot validation issues, and unex
 
 ```ts
 import type { ErrorHandler } from "hono";
+import { logger } from "@3lineas/groovepack/logger";
 import { AppError } from "@/errors/app-error.ts";
-import { Logger } from "@/logger/logger.ts";
 
 export const globalErrorHandler: ErrorHandler = (error, ctx) => {
-  const logger = new Logger("API:GlobalErrorHandler");
   const logContext = {
     file: "error-handler.ts",
     method: ctx.req.method,

@@ -27,19 +27,20 @@ Standardized architectural pattern for building maintainable, enterprise-grade R
    - Every file must be under **200 lines**.
 5. **No Prop Drilling (Consume Hooks Directly)**:
    - If an atomic component requires deep state, let it consume the domain hook or a domain context directly instead of passing props through intermediary components.
-6. **API Communication via Actions & Zero Manual GroovePack Modules**:
+6. **API Communication via Actions & Zero Manual GroovePack Reimplementation**:
    - Direct `fetch` calls or raw HTTP requests inside components or hooks are **strictly forbidden**.
-   - Encapsulate all network requests in pure async action functions returning typed `ActionResponse<T>`.
-   - **Never create GroovePack files** (`api-client`, `api-toast`, `api-action`) manually; always ask the developer to install them via GroovePack (`npx @3lineas/groovepack`).
+   - Encapsulate all network requests in pure async action functions using `apiAction` (`@3lineas/groovepack/api-action`) and `createApiClient` / `createHonoClient` (`@3lineas/groovepack/api-client`), returning typed `ActionResponse<T>`.
+   - **Never reimplement GroovePack primitives** (`api-client`, `api-toast`, `api-action`, `logger`) manually; install `@3lineas/groovepack` (`pnpm add @3lineas/groovepack`).
+   - For Vite applications, register `groovepack()` from `@3lineas/groovepack/vite` in `vite.config.ts` and configure **only** `GROOVEPACK_LOCALE` (and `GROOVEPACK_SHADCN_PATH` or `shadcnPath` in `groovepack()` only if Shadcn UI components do not reside in `/src/components/ui`). Never declare `NEXT_PUBLIC_GROOVEPACK_*` alongside `GROOVEPACK_*`.
 7. **Zero Mocks in Production Views**:
    - Never render mock arrays or fallback mock data in production views.
    - Bind views to real action calls; provide realistic `<Skeleton />` loaders and polite empty states.
 8. **Forms with `@formisch/react`, Valibot & Shadcn UI**:
    - Define validation schemas using **Valibot** (`* as v from "valibot"`).
    - Manage form state via `@formisch/react`'s `useForm` and bind inputs with `<Form>` and `<Field>` render props alongside Shadcn UI primitives.
-9. **Mandatory Async Feedback with `toast.promise`**:
-   - All async operations and form submissions must be wrapped in **`toast.promise`** (from `sonner`).
-   - Define clear `loading`, `success`, and `error` messages. Never rely on manual `toast.success`/`toast.error` branching, and never use browser `alert()`.
+9. **Mandatory Async Feedback with `apiToast` (`@3lineas/groovepack/api-toast`)**:
+   - All async operations and form submissions must be wrapped in **`apiToast`** (or a configured **`createApiToast`** instance) from `@3lineas/groovepack/api-toast` backed by Shadcn Toast (`@base-ui/react/toast`).
+   - Define clear `loadingMessage`, `successMessage`, and `errorMessage` properties. Never use `sonner`, `toast.promise`, manual `toast.success`/`toast.error` branching, or browser `alert()`.
 10. **Code Hygiene & Conventions**:
     - Code, identifiers, and comments strictly in English; UI copy follows target locale.
     - Mandatory `@/...` path aliases and **zero barrel files** (`index.ts`).
@@ -85,51 +86,50 @@ export const profileSchema = v.object({
 });
 ```
 
-*(Note: `ProfileFormValues` lives in `@/types/profile/profile-form-values.type.ts` and `ActionResponse<T>` lives in `@/types/common/action-response.type.ts`)*
+*(Note: `ProfileFormValues` lives in `@/types/profile/profile-form-values.type.ts` and `ActionResponse<T>` is imported from `@3lineas/groovepack/api-action`)*
 
 ```ts
 // src/actions/profile/update-profile.action.ts
+import { apiAction, type ActionResponse } from "@3lineas/groovepack/api-action";
+import { createApiClient } from "@3lineas/groovepack/api-client";
 import type { ProfileFormValues } from "@/types/profile/profile-form-values.type";
-import type { ActionResponse } from "@/types/common/action-response.type";
 
-export async function updateProfileAction(data: ProfileFormValues): Promise<ActionResponse<ProfileFormValues>> {
-  try {
-    const res = await fetch("/api/profile", { method: "PUT", body: JSON.stringify(data) });
-    return res.ok ? { success: true, data } : { success: false, error: "Unable to save profile." };
-  } catch {
-    return { success: false, error: "Network error occurred." };
-  }
+const apiClient = createApiClient({
+  baseUrl: import.meta.env.VITE_API_URL,
+});
+
+export async function updateProfileAction(
+  payload: ProfileFormValues,
+): Promise<ActionResponse<ProfileFormValues>> {
+  return apiAction<ProfileFormValues>({
+    apiCall: () => apiClient.put<ProfileFormValues>("/api/profile", payload),
+  });
 }
 ```
 
 ### B. Domain Custom Hook & Declarative Page
 ```tsx
 // src/pages/profile/hooks/use-profile-page.ts
-import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
+import { apiToast } from "@3lineas/groovepack/api-toast";
 import { updateProfileAction } from "@/actions/profile/update-profile.action";
 import type { ProfileFormValues } from "@/pages/profile/schemas/profile.schema";
 
 export function useProfilePage(initialData: ProfileFormValues) {
   const [profile, setProfile] = useState<ProfileFormValues>(initialData);
 
-  const handleUpdate = (values: ProfileFormValues): void => {
-    toast.promise(
-      async () => {
-        const res = await updateProfileAction(values);
-        if (!res.success || !res.data) {
-          throw new Error(res.error ?? "Failed to update profile.");
-        }
-        setProfile(res.data);
-        return res.data;
+  const handleUpdate = async (values: ProfileFormValues): Promise<void> => {
+    await apiToast({
+      action: () => updateProfileAction(values),
+      loadingMessage: "Saving profile changes...",
+      successMessage: "Profile updated successfully!",
+      errorMessage: "Failed to save profile.",
+      onSuccess: (updatedProfile) => {
+        setProfile(updatedProfile);
       },
-      {
-        loading: "Saving profile changes...",
-        success: "Profile updated successfully!",
-        error: (err: unknown) => (err instanceof Error ? err.message : "Failed to save profile."),
-      }
-    );
+    });
   };
+
   return { profile, handleUpdate };
 }
 
@@ -190,6 +190,6 @@ export function ProfileForm({ defaultValues, onSubmit }: ProfileFormProps) {
 | State/handlers directly in `page.tsx` | Bloats coordinator, breaks SRP, complicates re-renders | Encapsulate in `use<Domain>Page` custom hook |
 | Monolithic view file (> 200 lines) | Hard to navigate, maintain, and review | Atomize into `components/` subcomponents (< 200 lines each) |
 | Hardcoded mock arrays in views | Creates false assumptions and leaks mocks to production | Use real action bindings, `<Skeleton />`, and polite empty states |
-| Manual toasts or native `alert()` | Inconsistent async feedback and poor UX | Wrap all async mutations strictly in `toast.promise` |
+| Manual toasts, `sonner`, or native `alert()` | Inconsistent async feedback and poor UX | Wrap all async mutations strictly in `apiToast` (`@3lineas/groovepack/api-toast`) |
 | Using `react-create-page` in Next.js / Vinext | Fails server components and server-side data fetching | Use `nextjs-architecture` for Next.js / Vinext |
 | Re-exporting via `index.ts` barrel files | Defeats tree-shaking and causes circular dependency traps | Import directly using `@/` path aliases |

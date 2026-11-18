@@ -25,7 +25,7 @@ Enterprise-grade patterns for deterministic error handling, typed domain excepti
 
 4. **Universal Error Normalization in Catch Blocks**:
    - Every top-level catch block or global error handler must normalize unknown or unexpected runtime errors into `AppError` subclasses (e.g. `InternalServerError`).
-   - All HTTP responses are formatted via standardized response serialization (`ActionResponse<never>`).
+   - All HTTP responses are formatted via standardized response serialization (`ActionResponse<never>` from `@3lineas/groovepack/api-action`), and structured logging uses `logger` from `@3lineas/groovepack/logger`.
 
 5. **Separate User-Safe Messages from Internal Diagnostics**:
    - The user receives courteous, empathetic, and actionable feedback in the configured locale (governed by `ux-writing`).

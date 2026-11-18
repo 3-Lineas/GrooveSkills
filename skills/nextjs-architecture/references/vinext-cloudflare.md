@@ -37,9 +37,10 @@ pnpm dlx vinext init --platform=cloudflare
 ```ts
 import { defineConfig } from "vite";
 import vinext from "vinext";
+import { groovepack } from "@3lineas/groovepack/vite";
 
 export default defineConfig({
-  plugins: [vinext()],
+  plugins: [vinext(), groovepack()],
   resolve: {
     alias: {
       "@": "/src",
@@ -98,14 +99,14 @@ In Server Actions and Server Components, access Cloudflare platform bindings (KV
 "use server";
 
 import { getCloudflareContext } from "@vinext/cloudflare";
-import { apiAction } from "@/lib/api-action";
-import type { ActionResponse } from "@/types/common/action-response.type";
+import { apiAction, type ActionResponse } from "@3lineas/groovepack/api-action";
 
 export async function getKvValueAction(key: string): Promise<ActionResponse<string | null>> {
-  return apiAction(async () => {
-    const { env } = getCloudflareContext();
-    const value = await env.CONFIG_KV.get(key);
-    return value;
+  return apiAction<string | null>({
+    apiCall: async () => {
+      const { env } = getCloudflareContext();
+      return env.CONFIG_KV.get(key);
+    },
   });
 }
 ```

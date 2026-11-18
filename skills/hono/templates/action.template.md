@@ -42,13 +42,12 @@ export function sanitizeUserInputAction(
 
 ```ts
 import { AppError } from "@/errors/app-error";
-import { Logger } from "@/logger/logger";
+import { logger } from "@3lineas/groovepack/logger";
 import type { RegisterUserContext } from "@/types/auth/register-user-context.type";
 
 export async function ensureEmailAvailableAction(
   context: RegisterUserContext
 ): Promise<RegisterUserContext> {
-  const logger = new Logger("Auth:Action:EnsureEmailAvailable");
   const targetEmail = context.sanitizedInput?.email ?? context.input.email;
 
   try {
@@ -86,13 +85,12 @@ export async function ensureEmailAvailableAction(
 
 ```ts
 import { AppError } from "@/errors/app-error";
-import { Logger } from "@/logger/logger";
+import { logger } from "@3lineas/groovepack/logger";
 import type { RegisterUserContext } from "@/types/auth/register-user-context.type";
 
 export async function persistUserAction(
   context: RegisterUserContext
 ): Promise<RegisterUserContext> {
-  const logger = new Logger("Auth:Action:PersistUser");
   const payload = context.sanitizedInput ?? context.input;
 
   try {

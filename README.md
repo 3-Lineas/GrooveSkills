@@ -142,6 +142,9 @@ my-project/
 
 For an in-depth changelog maintained automatically in every project, refer to `.grooveskills/VERSIONS.md`.
 
+- **v1.22.0**:
+  - **GroovePack `v1.3.0` Package Alignment**: Updated Next.js, React, Hono, Controller/D1, Error Handling, Testing, and Clean Architecture skills to use `@3lineas/groovepack` (`pnpm add @3lineas/groovepack`) with subpath exports and `@3lineas/groovepack/vite`.
+  - **Complete `sonner` Removal & Direct Primitives**: Standardized on `@3lineas/groovepack/api-toast`, replaced manual `Logger` and `withD1Transaction` templates with direct package imports, and enforced single-runtime env vars (`NEXT_PUBLIC_GROOVEPACK_*` or `GROOVEPACK_*`).
 - **v1.20.0**:
   - **Dedicated `world-class-engineering` Skill**: Added universal skill (auto-selected by default) enforcing World-Business-Grade root-cause solutions, clean ripple updates, and an explicit scope-down gate.
   - **Zero Tech-Debt Patches Rule**: Integrated mandatory **World-Business-Grade by Default (Zero Tech-Debt Patches)** directive into `AGENTS.md`/`CLAUDE.md`, `groove-harness`, `best-practices`, and `odd-ai`.

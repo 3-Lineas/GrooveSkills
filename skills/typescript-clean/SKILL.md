@@ -55,7 +55,7 @@ Guidelines for writing safe, expressive, strictly typed TypeScript with zero uns
 ```text
 src/types/
 ├── common/                           # Global shared contracts
-│   └── action-response.type.ts       # interface ActionResponse<T>
+│   └── action-response.type.ts       # interface ActionResponse<T> (or import from @3lineas/groovepack/api-action if using GroovePack)
 ├── context/                          # Infrastructure & runtime execution context
 │   ├── env.type.ts                   # interface Env (Bindings / Secrets)
 │   └── app-context.type.ts           # Context typing (Bindings, Variables)

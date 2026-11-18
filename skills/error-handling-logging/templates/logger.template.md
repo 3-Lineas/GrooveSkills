@@ -1,41 +1,16 @@
-# Template: Structured Logger
+# Structured Logger (`@3lineas/groovepack/logger`)
 
-Copy or adapt this template when setting up logging in your project: `src/utils/logger.ts`.
+Do **not** reimplement a manual `Logger` class. Install `@3lineas/groovepack` and import the structured `logger` singleton directly:
+
+```bash
+pnpm add @3lineas/groovepack
+```
 
 ```ts
-export type LogLevel = "debug" | "info" | "warn" | "error";
+import { logger } from "@3lineas/groovepack/logger";
 
-export interface LogContext {
-  [key: string]: unknown;
-}
-
-export class Logger {
-  private static format(level: LogLevel, message: string, context?: LogContext): string {
-    const entry = {
-      timestamp: new Date().toISOString(),
-      level: level.toUpperCase(),
-      message,
-      ...(context ? { context } : {}),
-    };
-    return JSON.stringify(entry);
-  }
-
-  static debug(message: string, context?: LogContext): void {
-    if (process.env.NODE_ENV !== "production") {
-      console.debug(this.format("debug", message, context));
-    }
-  }
-
-  static info(message: string, context?: LogContext): void {
-    console.info(this.format("info", message, context));
-  }
-
-  static warn(message: string, context?: LogContext): void {
-    console.warn(this.format("warn", message, context));
-  }
-
-  static error(message: string, context?: LogContext): void {
-    console.error(this.format("error", message, context));
-  }
-}
+logger.info("Operation completed", { action: "processOrder", orderId: "ord_123" });
+logger.warn("Approaching rate limit", { action: "rateLimiter", remaining: 3 });
+logger.error("Unexpected database error", { action: "persistOrder", error });
+logger.debug("Parsed input payload", { action: "validateOrder", itemsCount: 2 });
 ```

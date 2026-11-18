@@ -24,10 +24,10 @@ Standardized architecture for enterprise Next.js and Vinext applications. Enforc
 4. **Targeted Client Hooks (Interactive Logic Only)**:
    - `page.tsx` **NEVER** uses hooks.
    - Custom hooks (`hooks/use-*.ts`) are reserved exclusively for Client Components (`"use client"`) that require interactive logic: forms (`@formisch/react`), local UI state, button actions (mutations), or URL searchParams updates.
-5. **Mandatory GroovePack Flow & Zero Manual GroovePack File Creation**:
-   - **NEVER create or write files manually** for `api-client`, `api-action`, `api-toast`, or `logger`. GroovePack updates centrally. If missing, **instruct the developer to install them via GroovePack** (`https://github.com/3-Lineas/GroovePack` / `npx @3lineas/groovepack`).
-   - **Client mutation chain**: `Client Hook ("use client")` ➔ `apiToast` (`@/lib/api-toast`) ➔ `Server Action ("use server")` ➔ `apiAction` (`@/lib/api-action`) ➔ `apiClient` (`@/lib/api-client`) ➔ `Backend`.
-   - **Server load chain**: `page.tsx (Server)` ➔ `Server Action ("use server")` ➔ `apiAction` ➔ `apiClient` ➔ `Backend`.
+5. **Mandatory GroovePack Flow & Zero Manual GroovePack Reimplementation**:
+   - **NEVER manually reimplement** `api-client`, `api-action`, `api-toast`, `pipeline`, or `logger`. Install `@3lineas/groovepack` (`pnpm add @3lineas/groovepack`, with optional peer dependencies `@base-ui/react >= 1.0.0` and `hono >= 4.0.0`). Only project-configured instances are allowed (e.g. `@/lib/api-client.ts` with `createApiClient`/`createHonoClient`, or `@/lib/app-toast.ts` with `createApiToast`).
+   - **Client mutation chain**: `Client Hook ("use client")` ➔ `apiToast` / `createApiToast` (`@3lineas/groovepack/api-toast`) ➔ `Server Action ("use server")` ➔ `apiAction` (`@3lineas/groovepack/api-action`) ➔ `createApiClient` / `createHonoClient` (`@3lineas/groovepack/api-client`) ➔ `Backend`.
+   - **Server load chain**: `page.tsx (Server)` ➔ `Server Action ("use server")` ➔ `apiAction` ➔ `createApiClient` / `createHonoClient` ➔ `Backend`.
 6. **Strict Page Co-location by Class Folder**:
    - All components, hooks, schemas, and types exclusive to a page live inside that page directory (`src/app/<route>/`), separated into class folders:
      - `components/` (Server Components by default; Client Components only when reactive).
@@ -93,7 +93,7 @@ src/
 | :--- | :--- | :--- |
 | `"use client"` on `page.tsx` | Eliminates SSR/RSC benefits, bundles heavy client JS | Keep `page.tsx` 100% Server; extract client leaves to `components/` |
 | Initial data loading inside hooks or `useEffect` | Causes waterfall, layout shifts, SEO loss | Await Server Action directly in `page.tsx` |
-| Writing manual `api-client` / `api-toast` files | Breaks sync with centralized GroovePack updates | Request user to install GroovePack: `npx @3lineas/groovepack` |
+| Writing manual `api-client` / `api-toast` / `api-action` files | Breaks sync with centralized GroovePack updates | Install `@3lineas/groovepack`: `pnpm add @3lineas/groovepack` |
 | Full-page skeleton in `loading.tsx` | Destroys perceived performance, layout flickers | Render real static headers/containers; skeleton only dynamic data |
 | Client-side token storage in `localStorage` | Vulnerable to XSS token theft | Use server-side `httpOnly` cookies via `cookies()` |
 | Using `react-create-page` in Next.js/Vinext | Forces client-side coordinator hooks onto Next.js | Use `nextjs-architecture` for Next/Vinext; `react-create-page` for pure React |
