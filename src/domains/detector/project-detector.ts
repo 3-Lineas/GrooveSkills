@@ -78,12 +78,13 @@ export function detectProjectContext(targetPath: string): ProjectContext {
   const isNextOrVinext = dependencies.some((dependencyName) =>
     ["next", "vinext", "@vinext/cloudflare"].includes(dependencyName)
   );
+  const isWails = dependencies.includes("wails");
 
   for (const skill of SKILL_CATALOG) {
     if (skill.dependencies.length === 0) {
       continue;
     }
-    if (isNextOrVinext && skill.id === "react-create-page") {
+    if ((isNextOrVinext || isWails) && skill.id === "react-create-page") {
       continue;
     }
     const hasMatch = skill.dependencies.some((dependencyName) =>

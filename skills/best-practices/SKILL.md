@@ -17,6 +17,7 @@ Universal guidelines applicable to **any programming language** and **any file**
    - For Dart: `dynamic` is forbidden. Use generics or `Object`.
    - For PHP: Use strict typing (`declare(strict_types=1);`), typed properties, arguments, and return types.
    - For Rust: Explicit types and structured `Result<T, E>` / `Option<T>`.
+   - For Go: `any` / `interface{}` is forbidden in domain contracts. Use concrete structs, Newtypes, constrained generics, and explicit `error` returns.
 
 2. **Always Use Path Aliases (`@/...`)**:
    - Never use deep relative paths (`../../..`).

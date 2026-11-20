@@ -5,6 +5,13 @@ This document provides a concise, structured changelog of recent GrooveSkills re
 
 ---
 
+## [v1.25.0]
+- **Go 1.27 Skills Suite (\`go-clean\`, \`go-concurrency-safety\`, \`go-testing\`)**: Added 3 Go 1.27 skills under \`Languages & Testing\` covering atomic actions (1 DB query/file), generic \`Pipeline\`, \`encoding/json/v2\`, \`uuid.NewV7()\`, \`errors.AsType[*AppError]\`, \`log/slog\`, \`errgroup\` + \`SetLimit\`, goroutine leak profiling, and 4-tier testing (\`t.Context()\`, \`b.Loop()\`, \`-race\` + \`goleak\`).
+- **Wails v3 Desktop Architecture (\`wails-architecture\`)**: Added unified \`wails-architecture\` skill under \`Frameworks & UI\` (mutually exclusive with \`react-create-page\`) enforcing pure Wails v3 APIs, thin Go bound services, IPC error sanitization, \`@wailsio/runtime\` events, and the GroovePack frontend bridge.
+- **Go & Wails v3 Stack Detection & Onboarding**: Extended \`detect-dependencies.ts\`, \`project-detector.ts\`, and \`scan-project-onboarding.ts\` to auto-detect \`go.mod\`, \`build/config.yml\`, \`frontend/package.json\`, \`frontend/tsconfig.json\`, \`packageManager: "go"\`, and \`wails3\` / \`go test -race -count=1 ./...\` commands.
+
+---
+
 ## [v1.24.0]
 - **GroovePack \`v1.6.0\` Support (\`serviceBinding\`, \`fallbackBaseUrl\`, \`getHeaders\` & \`ApiCallInput<T>\`)**: Updated \`groovepack-api\`, \`nextjs-architecture\`, \`groovepack-actions-and-auth.md\`, and \`vinext-cloudflare.md\` to document the single-object \`createHonoClient<AppType>(config)\` signature, native Cloudflare Service Binding support (\`serviceBinding\` + \`fallbackBaseUrl\`), per-request \`getHeaders\`, and direct \`Promise\` support in \`apiAction\` (\`ApiCallInput<T>\`).
 

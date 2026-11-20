@@ -1,5 +1,9 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
+import {
+  detectGoOrWailsCommands,
+  detectGoOrWailsProjectName,
+} from "@/domains/harness/detect-go-onboarding";
 
 export interface ProjectOnboardingProfile {
   projectName: string;
@@ -49,6 +53,11 @@ function detectProjectName(targetPath: string): string {
     }
   }
 
+  const goOrWailsName = detectGoOrWailsProjectName(targetPath);
+  if (goOrWailsName) {
+    return goOrWailsName;
+  }
+
   return basename(targetPath) || "project";
 }
 
@@ -74,13 +83,16 @@ function detectPackageManager(targetPath: string): string {
   if (existsSync(join(targetPath, "poetry.lock"))) {
     return "poetry";
   }
+  if (existsSync(join(targetPath, "go.mod"))) {
+    return "go";
+  }
   return "npm";
 }
 
 function detectCommands(targetPath: string, packageManager: string): Record<string, string> {
   const packageJsonPath = join(targetPath, "package.json");
   if (!existsSync(packageJsonPath)) {
-    return {};
+    return detectGoOrWailsCommands(targetPath);
   }
 
   try {
@@ -119,7 +131,11 @@ function detectCommands(targetPath: string, packageManager: string): Record<stri
 }
 
 function detectPathAliases(targetPath: string): Record<string, string> {
-  const tsconfigPath = join(targetPath, "tsconfig.json");
+  const rootTsconfigPath = join(targetPath, "tsconfig.json");
+  const frontendTsconfigPath = join(targetPath, "frontend", "tsconfig.json");
+  const tsconfigPath = existsSync(rootTsconfigPath)
+    ? rootTsconfigPath
+    : frontendTsconfigPath;
   if (!existsSync(tsconfigPath)) {
     return {};
   }

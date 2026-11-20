@@ -6,6 +6,27 @@ export interface PackageJsonDetection {
   exists: boolean;
 }
 
+function readPackageJsonDependencies(manifestPath: string): string[] {
+  if (!existsSync(manifestPath)) {
+    return [];
+  }
+
+  try {
+    const raw = readFileSync(manifestPath, "utf-8");
+    const parsed = JSON.parse(raw) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+
+    return [
+      ...Object.keys(parsed.dependencies ?? {}),
+      ...Object.keys(parsed.devDependencies ?? {}),
+    ];
+  } catch {
+    return [];
+  }
+}
+
 export function detectDependencies(targetPath: string): PackageJsonDetection {
   const detected = new Set<string>();
   let hasManifest = false;
@@ -13,21 +34,8 @@ export function detectDependencies(targetPath: string): PackageJsonDetection {
   const packageJsonPath = join(targetPath, "package.json");
   if (existsSync(packageJsonPath)) {
     hasManifest = true;
-    try {
-      const raw = readFileSync(packageJsonPath, "utf-8");
-      const parsed = JSON.parse(raw) as {
-        dependencies?: Record<string, string>;
-        devDependencies?: Record<string, string>;
-      };
-
-      for (const dependencyName of Object.keys(parsed.dependencies ?? {})) {
-        detected.add(dependencyName);
-      }
-      for (const dependencyName of Object.keys(parsed.devDependencies ?? {})) {
-        detected.add(dependencyName);
-      }
-    } catch {
-      // Ignore JSON parse errors gracefully
+    for (const dependencyName of readPackageJsonDependencies(packageJsonPath)) {
+      detected.add(dependencyName);
     }
   }
 
@@ -42,6 +50,37 @@ export function detectDependencies(targetPath: string): PackageJsonDetection {
   if (existsSync(pyprojectPath) || existsSync(requirementsPath)) {
     hasManifest = true;
     detected.add("python");
+  }
+
+  const goModPath = join(targetPath, "go.mod");
+  const hasGoMod = existsSync(goModPath);
+  if (hasGoMod) {
+    hasManifest = true;
+    detected.add("go");
+    try {
+      const goModContent = readFileSync(goModPath, "utf-8");
+      if (goModContent.includes("github.com/wailsapp/wails")) {
+        detected.add("wails");
+      }
+    } catch {
+      // Ignore read errors gracefully
+    }
+  }
+
+  const hasWailsConfig = existsSync(join(targetPath, "build", "config.yml"));
+  const frontendPackageJsonPath = join(targetPath, "frontend", "package.json");
+  if ((hasGoMod || hasWailsConfig) && existsSync(frontendPackageJsonPath)) {
+    const frontendDeps = readPackageJsonDependencies(frontendPackageJsonPath);
+    if (frontendDeps.includes("@wailsio/runtime")) {
+      hasManifest = true;
+      detected.add("wails");
+    }
+    if (detected.has("wails")) {
+      hasManifest = true;
+      for (const dependencyName of frontendDeps) {
+        detected.add(dependencyName);
+      }
+    }
   }
 
   return {
