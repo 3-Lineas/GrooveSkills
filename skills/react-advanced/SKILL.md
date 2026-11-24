@@ -13,6 +13,7 @@ Opinionated reference for **React 19** and **React Compiler 1.0** capabilities, 
 
 1. **React Compiler First — Stop Reflexive Manual Memoization**:
    - Do not wrap every derived value or handler in `useMemo`, `useCallback`, or `React.memo` by reflex in new code.
+   - Strictly avoid `useEffect` by default: compute derived values inline with `const` (the React Compiler optimizes them without reflexive `useMemo`), and reserve `useEffect` solely when no other way exists to synchronize with external systems.
    - Reserve manual `useMemo`/`useCallback` strictly for **effect dependency stability** (`useEffect` identity contracts) or code skipped by the compiler.
    - Never strip existing manual memoization blindly; respect `preserve-manual-memoization` lint warnings.
 2. **React 19 Idioms Only (No Legacy Wrappers)**:
@@ -126,6 +127,7 @@ export async function publishCommentServerAction(formData: FormData) {
 | Calling `use(promise)` inside `try / catch` or creating promises in client render | Suspense throws internal signals; inline promises recreate every render | Use Error Boundaries for rejections; create promises above the component |
 | Using `forwardRef`, `<Context.Provider>`, or `react-helmet` | Deprecated/superseded in React 19 | Pass `ref` as prop, render `<Context value>`, use native `<title>`/`<meta>` |
 | Unvalidated `'use server'` arguments | `'use server'` endpoints are public and untrusted | Validate with Valibot (`* as v from "valibot"`) and check auth first |
+| Using `useEffect` for derived state or event logic | Adds extra render passes and brittle effect chains | Compute inline with `const` or run in event handlers; `useEffect` is last resort |
 
 ---
 

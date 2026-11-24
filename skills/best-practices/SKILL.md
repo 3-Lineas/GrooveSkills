@@ -120,3 +120,9 @@ const records = await listRecordsByCrewAction({ crewId: authenticatedUser.crewId
 // ❌ FORBIDDEN (Permissive fallback to untrusted query param to keep legacy tests green):
 const crewId = ctx.get("user")?.crewId ?? ctx.req.query("crewId");
 ```
+
+---
+
+## 5. Golden Rule #11: Derive Computed State Directly — Avoid Reactive Effect Sync
+
+Always compute derivable values directly (e.g. inline `const` during evaluation/render) instead of duplicating state and synchronizing it with reactive effects. For React projects, see **`react-core`** for the strict prohibition of `useEffect` by default (permitted only as a last resort when no other way exists to synchronize with an external system).

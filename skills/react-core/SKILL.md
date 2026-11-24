@@ -40,6 +40,14 @@ Canonical reference for React fundamentals in GrooveSkills projects: function co
 7. **Stable Identity Keys in Lists**:
    - Always provide a stable, unique `key` derived from domain identity (`item.id`), never the array index (`i`) for dynamic or reorderable lists.
 
+8. **Strictly Avoid `useEffect` by Default (Last Resort Only)**:
+   - Never use `useEffect` when a declarative or event-based alternative exists:
+     - **Derived/computed values**: compute inline with `const` during render (`const doubleCount = count * 2`), never duplicate state with `useState` + `useEffect`.
+     - **Event-driven logic**: execute directly inside the event handler, never react to state changes in an effect.
+     - **Resetting state on prop change**: pass a stable `key` to the child component or derive the value during render.
+     - **Effect chains**: compute the entire next state transition once inside the originating event handler.
+   - **Strict exception**: `useEffect` is a **last resort only**, permitted **solely** when no other way exists to synchronize with an external system (imperative DOM APIs, browser/WebSocket/Wails subscriptions, timers, or imperative third-party widgets), always with a cleanup function.
+
 ---
 
 ## 2. Component Typing Standards (1 Component per File)
@@ -92,7 +100,53 @@ export function EmptyState() {
 
 ---
 
-## 3. Anti-Patterns to Avoid
+## 3. Avoid `useEffect` — Example: Derived Values with `const`
+
+```tsx
+// ❌ FORBIDDEN: Redundant state + useEffect causes an extra render pass
+import { useEffect, useState } from "react";
+
+export function Counter() {
+  const [count, setCount] = useState<number>(0);
+  const [doubleCount, setDoubleCount] = useState<number>(0);
+
+  useEffect(() => {
+    setDoubleCount(count * 2);
+  }, [count]);
+
+  return (
+    <div>
+      <button onClick={() => setCount((previousCount) => previousCount + 1)}>
+        Increment
+      </button>
+      <p>Number: {count}</p>
+      <p>Double Number: {doubleCount}</p>
+    </div>
+  );
+}
+
+// ✅ CORRECT: Compute derived values inline with const during render
+import { useState } from "react";
+
+export function Counter() {
+  const [count, setCount] = useState<number>(0);
+  const doubleCount = count * 2;
+
+  return (
+    <div>
+      <button onClick={() => setCount((previousCount) => previousCount + 1)}>
+        Increment
+      </button>
+      <p>Number: {count}</p>
+      <p>Double Number: {doubleCount}</p>
+    </div>
+  );
+}
+```
+
+---
+
+## 4. Anti-Patterns to Avoid
 
 | Anti-Pattern | Why It Fails | Correct Pattern |
 | :--- | :--- | :--- |
@@ -101,10 +155,11 @@ export function EmptyState() {
 | Calling hooks after `if` or inside loops | Breaks React's deterministic hook call order | Call hooks unconditionally at top level |
 | Using array index `key={i}` on dynamic lists | Misattributes component state on insert, delete, or sort | Use a stable domain identifier: `key={item.id}` |
 | Re-exporting components via `components/index.ts` | Violates Zero Barrel Files and harms tree-shaking | Import directly from `@/components/ui/card` |
+| Using `useEffect` for derived state, event logic, or prop resets | Causes extra render passes, stale state, and effect chains | Compute inline with `const`, run in event handlers, or use `key` |
 
 ---
 
-## 4. Sibling Skills
+## 5. Sibling Skills
 
 - **`best-practices`**: Universal clean architecture, `< 200` lines limit, `@/` path aliases, strict typing, and courteous user feedback.
 - **`react-advanced`**: React 19 platform features, React Compiler auto-memoization, concurrent rendering, and RSC boundaries.

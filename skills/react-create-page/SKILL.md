@@ -14,7 +14,7 @@ Standardized architectural pattern for building maintainable, enterprise-grade R
 1. **Pure React Scope & Zero Logic in Page (`use<Domain>Page` Hook)**:
    - This skill applies **exclusively to pure React SPAs** (Vite, SPA without Next.js or Wails). For Next.js or Vinext, use **`nextjs-architecture`**. For Wails v3 desktop applications, use **`wails-architecture`**.
    - The main page component (`<domain>-page.tsx` or `page.tsx`) must be strictly declarative.
-   - **All state, effects, transitions, and submit handlers must live in a dedicated domain custom hook** (`use-<domain>-page.ts`).
+   - **All state, handlers, and unavoidable external-sync effects must live in a dedicated domain custom hook** (`use-<domain>-page.ts`). Avoid `useEffect` unless strictly inevitable: compute derived data inline with `const` and run interaction logic in handlers.
    - The page component only calls the hook and passes state/handlers to atomic subcomponents.
 2. **Early Returns for UI States in Page**:
    - Handle loading, error, and empty states at the top level with guard clauses (`if (isLoading) return <PageSkeleton />;`).
@@ -194,3 +194,4 @@ export function ProfileForm({ defaultValues, onSubmit }: ProfileFormProps) {
 | Using `react-create-page` in Next.js / Vinext | Fails server components and server-side data fetching | Use `nextjs-architecture` for Next.js / Vinext |
 | Using `react-create-page` in Wails v3 desktop apps | Bypasses IPC bridge sanitization, `@wailsio/runtime` events, and Go service boundaries | Use `wails-architecture` for Wails v3 desktop apps |
 | Re-exporting via `index.ts` barrel files | Defeats tree-shaking and causes circular dependency traps | Import directly using `@/` path aliases |
+| `useEffect` in `use<Domain>Page` for derived state or handlers | Causes extra renders and brittle effect chains | Compute derived data inline with `const`; run logic in handlers |

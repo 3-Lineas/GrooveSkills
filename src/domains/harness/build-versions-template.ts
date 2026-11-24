@@ -5,6 +5,11 @@ This document provides a concise, structured changelog of recent GrooveSkills re
 
 ---
 
+## [v1.27.1]
+- **Strict \`useEffect\` Prohibition & Inline Derived State**: Added Golden Rule #11 in \`best-practices\`, Golden Rule #8 + Before/After \`const\` derived-state example in \`react-core\`, and reinforced \`react-advanced\` and \`react-create-page\` to strictly forbid \`useEffect\` by default (deriving state inline with \`const\`, running logic in event handlers, and reserving \`useEffect\` solely as a last resort for external systems).
+
+---
+
 ## [v1.27.0]
 - **Modern Web Guidance (\`modern-web-guidance\`)**: Added Google Chrome's \`modern-web-guidance\` skill under \`Frameworks & UI\` combining the live \`pnpx modern-web-guidance@latest\` catalog (200+ Baseline-verified HTML, CSS, CWV, and client JS guides) with 2 offline local references (\`modern-web-primitives-and-baseline.md\`, \`grooveskills-web-adaptation.md\`) enforcing zero \`as any\`, SSR guards, and \`useId()\`.
 - **Web Auto-Detection & Cross-References**: Auto-suggests \`modern-web-guidance\` for web frontend dependencies (\`react\`, \`next\`, \`vinext\`, \`vue\`, \`svelte\`, \`astro\`, \`tailwindcss\`, \`vite\`) and adds concise cross-references in \`frontend-design\` and \`react-core\`.
