@@ -5,6 +5,8 @@ description: Distinctive, opinionated visual design guidance for building new UI
 
 # Frontend Visual Design & Identity
 
+> **Modern Web Primitives**: Before implementing dialogs, popovers, container queries, anchor positioning, view transitions, scroll-driven animations, or Core Web Vitals optimizations, consult the `modern-web-guidance` skill (`pnpx modern-web-guidance@latest search "..."`) for Baseline-verified native HTML/CSS/DOM APIs.
+
 Approach this as the design lead at a design studio known for giving every client a distinct visual identity that is never mistaken for anyone else's. The client has already rejected proposals that felt cliché or templated, and is paying for a distinctive point of view: make deliberate, opinionated choices about palette, typography, and layout that are specific to this brief, and take aesthetic risk if justified.
 
 ---

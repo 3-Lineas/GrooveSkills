@@ -18,8 +18,10 @@ import { installSkills } from "@/domains/installer/install-orchestrator";
 import { runSafeFsIntegrationTests } from "./safe-fs-integration.test";
 import { runNormalizeTaskFilenamesTests } from "@/domains/harness/normalize-task-filenames.test";
 import { runSecurityAuditTests } from "@/domains/audit/run-security-audit.test";
+import { runModernWebGuidanceDetectorTests } from "@/domains/detector/modern-web-guidance-detector.test";
 import { runProjectDetectorTests } from "@/domains/detector/project-detector.test";
 import { runGoAndWailsDetectorTests } from "@/domains/detector/go-wails-detector.test";
+import { runDartAndFlutterDetectorTests } from "@/domains/detector/dart-flutter-detector.test";
 import { runRemoveSkillsTests } from "@/domains/installer/remove-skills.test";
 import { runHarnessVersionAndBitacoraTests } from "@/domains/harness/harness-version-and-bitacora.test";
 import { runOnboardingPromptRenderTests } from "@/domains/ui/render-onboarding-prompt.test";
@@ -265,6 +267,12 @@ try {
 
   // 13b. Test Go 1.27 & Wails v3 stack detection & onboarding
   runGoAndWailsDetectorTests();
+
+  // 13c. Test Dart & Flutter stack detection & onboarding
+  runDartAndFlutterDetectorTests();
+
+  // 13d. Test Modern Web Guidance detection & assets
+  await runModernWebGuidanceDetectorTests();
 
   // 14. Test installSkills with skillsToRemove (complete uninstallation)
   await runRemoveSkillsTests(testBaseDir);

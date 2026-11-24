@@ -36,7 +36,7 @@ The **GrooveSkills Harness** is installed automatically as the foundation of you
 - **Re-Onboarding on Demand (`init`)**: Run `npx @3lineas/grooveskills init` anytime to re-scan your project stack and refresh the onboarding context.
 
 ### 2. Smart Stack Detection & Symbolic Links to Canonical Skills
-GrooveSkills inspects your project manifests (`package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, `build/config.yml`, and `frontend/package.json`) to pre-select recommended skills. All canonical skill files live in `.grooveskills/skills/<skill>/`. For agent folders (`.agents/skills/`, `.claude/skills/`, `.gemini/skills/`), each installed skill is created as a **relative symbolic link** pointing directly into `.grooveskills/skills/<skill>/`. This eliminates duplicated content while leaving the skills folder open for users to add their own custom skills:
+GrooveSkills inspects your project manifests (`package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, `pubspec.yaml`, `build/config.yml`, and `frontend/package.json`) to pre-select recommended skills. All canonical skill files live in `.grooveskills/skills/<skill>/`. For agent folders (`.agents/skills/`, `.claude/skills/`, `.gemini/skills/`), each installed skill is created as a **relative symbolic link** pointing directly into `.grooveskills/skills/<skill>/`. This eliminates duplicated content while leaving the skills folder open for users to add their own custom skills:
 - **Antigravity**: `.agents/skills/<skill>` -> `../../.grooveskills/skills/<skill>`
 - **Claude Code**: `.claude/skills/<skill>` -> `../../.grooveskills/skills/<skill>`
 - **Gemini Code Assist**: `.gemini/skills/<skill>` -> `../../.grooveskills/skills/<skill>`
@@ -142,6 +142,12 @@ my-project/
 
 For an in-depth changelog maintained automatically in every project, refer to `.grooveskills/VERSIONS.md`.
 
+- **v1.27.0**:
+  - **Modern Web Guidance (`modern-web-guidance`)**: Added Google Chrome's `modern-web-guidance` skill under `Frameworks & UI` combining the live `pnpx modern-web-guidance@latest` catalog (200+ Baseline-verified HTML, CSS, CWV, and client JS guides) with 2 offline local references (`modern-web-primitives-and-baseline.md`, `grooveskills-web-adaptation.md`) enforcing zero `as any`, SSR guards, and `useId()`.
+  - **Web Auto-Detection & Cross-References**: Auto-suggests `modern-web-guidance` for web frontend dependencies (`react`, `next`, `vinext`, `vue`, `svelte`, `astro`, `tailwindcss`, `vite`) and adds concise cross-references in `frontend-design` and `react-core`.
+- **v1.26.0**:
+  - **Dart & Flutter Skills Suite (`dart-clean`, `dart-testing`, `flutter-architecture`, `flutter-ui-layout`)**: Added 4 cohesive skills with deep `references/` consolidating Google's official `dart-lang/skills` and `flutter/agent-plugins` patterns with GrooveSkills rules: strict `dart analyze`, `sealed` ADTs, `extension type const`, Primary Constructors, `package:checks`, Riverpod (`Notifier`/`AsyncNotifier`) with pure atomic Actions, `go_router`, `l10n`, adaptive layouts, and WCAG `Semantics`.
+  - **Dart & Flutter Stack Detection & Onboarding**: Added auto-detection for `pubspec.yaml` (`dart` and `flutter`), `lib/` source directories, and `dart` / `flutter` CLI commands.
 - **v1.25.0**:
   - **Go 1.27 Skills Suite (`go-clean`, `go-concurrency-safety`, `go-testing`)**: Added 3 Go 1.27 skills covering atomic actions (1 DB query/file), generic `Pipeline`, `encoding/json/v2`, `uuid.NewV7()`, `errors.AsType[*AppError]`, `log/slog`, `errgroup` + `SetLimit`, goroutine leak profiling, and 4-tier testing (`t.Context()`, `b.Loop()`, `-race` + `goleak`).
   - **Wails v3 Desktop Architecture (`wails-architecture`)**: Added unified `wails-architecture` skill (mutually exclusive with `react-create-page`) enforcing pure Wails v3 APIs, thin Go bound services, IPC error sanitization, `@wailsio/runtime` events, and the GroovePack frontend bridge.
@@ -214,16 +220,21 @@ For an in-depth changelog maintained automatically in every project, refer to `.
 | `go-clean` | **Go Clean Code (Go 1.27)** | Atomic actions (1 DB query/file), generic `Pipeline`, `encoding/json/v2`, `uuid.NewV7()`, `errors.AsType`, `log/slog`, and strict descriptive naming. | `go.mod` in project root |
 | `go-concurrency-safety` | **Go Concurrency & Runtime Safety (Go 1.27)** | Structured concurrency (`errgroup` + `SetLimit`), `context.Context` propagation, Go 1.27 goroutine leak profiling, timer hygiene, and runtime safety. | `go.mod` in project root |
 | `go-testing` | **Go Testing Standards (Go 1.27)** | 4-tier testing pyramid, AAA table-driven tests, `t.Context()`, `b.Loop()`, in-memory fakes, `-race` + `goleak`, and fuzz targets. | `go.mod` in project root |
+| `dart-clean` | **Dart Clean Code (Dart 3.x)** | Zero `dynamic`, guard clauses, `sealed` ADTs, `extension type const`, Primary Constructors, 1 DB/API call per Action + `Pipeline`, and type-safe JSON. | `pubspec.yaml` in project root |
+| `dart-testing` | **Dart & Flutter Testing (`checks` + `WidgetTester`)** | 4-tier testing pyramid, AAA, `package:checks` assertions, in-memory fakes, Riverpod `ProviderContainer` overrides, `WidgetTester`, and LCOV. | `pubspec.yaml` in project root |
 | `valibot-validation` | **Valibot Schema Validation** | Boundary validation with modular Valibot schemas (`* as v from "valibot"`), isolated types, and courteous errors. | `valibot` in `package.json` |
 | `testing-vitest` | **Vitest Testing Standards** | Fast, deterministic test suites using Arrange-Act-Assert (AAA) and in-memory fakes. | `vitest` in `package.json` |
 | `hono` | **Hono Architecture (Valibot)** | Scalable Hono APIs with atomic routes in `src/routes/{domain}/`, 1 DB query per Action, mandatory Pipeline chaining, and Valibot. | `hono` in `package.json` |
 | `workers-rpc-precision` | **Workers RPC & Precision Calculations** | Cloudflare Workers native RPC (`WorkerEntrypoint` / `Service<T>`) and decimal arithmetic (`Decimal` + `ROUND_HALF_UP`). | `wrangler` / `@cloudflare/workers-types` |
 | `frontend-design` | **Frontend Visual Design & Identity** | Distinctive, opinionated visual UI design avoiding AI clichés: bespoke tokens, intentional typography, and layout wireframing. | `react`, `next`, `vue`, `svelte`, `tailwindcss` |
+| `modern-web-guidance` | **Modern Web Guidance (Baseline & Native Primitives)** | Google Chrome's 200+ native HTML, CSS, CWV, and client JS guides with Baseline verification, offline fallback, and strict TS adaptation. | `react`, `next`, `vinext`, `vue`, `svelte`, `astro`, `tailwindcss`, `vite` |
 | `react-core` | **React Core Fundamentals** | Modern React fundamentals: strictly no `React.FC`, pure components, immutable state, core hooks, and form domain hooks. | `react` in `package.json` |
 | `react-advanced` | **React 19 Advanced & Compiler** | React Compiler auto-memoization, concurrent rendering, `use()`, Actions, and RSC boundaries. | `react` in `package.json` |
 | `react-create-page` | **React Page & View Architecture** | Declarative page coordinators (`<50` lines), custom domain hooks, and Valibot + Formisch forms (pure React SPAs only). | `react` in `package.json` (no Next.js / Wails) |
 | `nextjs-architecture` | **Next.js & Vinext Server Architecture** | Server-first Next.js & Vinext (Cloudflare): 100% server pages, initial data via Server Actions, loading skeletons, and URL state. | `next`, `vinext` in `package.json` |
 | `wails-architecture` | **Wails v3 Desktop Architecture (Go 1.27 + React)** | Pure Wails v3 desktop architecture: thin Go bound services, `Pipeline` + atomic Actions, sanitized IPC errors, `@wailsio/runtime` events, and GroovePack bridge. | `wails/v3` in `go.mod` or `@wailsio/runtime` |
+| `flutter-architecture` | **Flutter Clean Architecture & Riverpod** | Layered Flutter architecture with Riverpod (`Notifier`/`AsyncNotifier`), pure atomic Actions (1 HTTP/DB call), `go_router`, `l10n`, and async mounted safety. | `sdk: flutter` in `pubspec.yaml` |
+| `flutter-ui-layout` | **Flutter UI, Adaptive Layouts & Accessibility** | Constraint-driven layouts, responsive breakpoints, widget performance (`const`, lazy builders, previews), and WCAG `Semantics` (`>=48dp` targets). | `sdk: flutter` in `pubspec.yaml` |
 
 ---
 

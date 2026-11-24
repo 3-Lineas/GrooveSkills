@@ -5,6 +5,8 @@ description: Use when building or modifying React components, JSX, props, local 
 
 # React Core Fundamentals & Opinionated Standards
 
+> **Modern Web Primitives**: Before implementing `<dialog>`, `popover`, container queries, anchor positioning, view transitions, native form validation/autofill, or Core Web Vitals optimizations in React, consult `modern-web-guidance` for Baseline-verified native APIs and zero-`any` TypeScript adaptation.
+
 Canonical reference for React fundamentals in GrooveSkills projects: function components, JSX, props and immutable state, core hooks, composition, conditional and list rendering, and controlled inputs.
 
 ---

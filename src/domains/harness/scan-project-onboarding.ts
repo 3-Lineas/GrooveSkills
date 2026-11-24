@@ -1,6 +1,11 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import {
+  detectDartOrFlutterCommands,
+  detectDartOrFlutterProjectName,
+  isFlutterProject,
+} from "@/domains/harness/detect-dart-onboarding";
+import {
   detectGoOrWailsCommands,
   detectGoOrWailsProjectName,
 } from "@/domains/harness/detect-go-onboarding";
@@ -58,33 +63,25 @@ function detectProjectName(targetPath: string): string {
     return goOrWailsName;
   }
 
+  const dartOrFlutterName = detectDartOrFlutterProjectName(targetPath);
+  if (dartOrFlutterName) {
+    return dartOrFlutterName;
+  }
+
   return basename(targetPath) || "project";
 }
 
 function detectPackageManager(targetPath: string): string {
-  if (existsSync(join(targetPath, "pnpm-lock.yaml"))) {
-    return "pnpm";
-  }
-  if (existsSync(join(targetPath, "bun.lockb")) || existsSync(join(targetPath, "bun.lock"))) {
-    return "bun";
-  }
-  if (existsSync(join(targetPath, "yarn.lock"))) {
-    return "yarn";
-  }
-  if (existsSync(join(targetPath, "package-lock.json"))) {
-    return "npm";
-  }
-  if (existsSync(join(targetPath, "Cargo.lock")) || existsSync(join(targetPath, "Cargo.toml"))) {
-    return "cargo";
-  }
-  if (existsSync(join(targetPath, "uv.lock"))) {
-    return "uv";
-  }
-  if (existsSync(join(targetPath, "poetry.lock"))) {
-    return "poetry";
-  }
-  if (existsSync(join(targetPath, "go.mod"))) {
-    return "go";
+  if (existsSync(join(targetPath, "pnpm-lock.yaml"))) return "pnpm";
+  if (existsSync(join(targetPath, "bun.lockb")) || existsSync(join(targetPath, "bun.lock"))) return "bun";
+  if (existsSync(join(targetPath, "yarn.lock"))) return "yarn";
+  if (existsSync(join(targetPath, "package-lock.json"))) return "npm";
+  if (existsSync(join(targetPath, "Cargo.lock")) || existsSync(join(targetPath, "Cargo.toml"))) return "cargo";
+  if (existsSync(join(targetPath, "uv.lock"))) return "uv";
+  if (existsSync(join(targetPath, "poetry.lock"))) return "poetry";
+  if (existsSync(join(targetPath, "go.mod"))) return "go";
+  if (existsSync(join(targetPath, "pubspec.yaml"))) {
+    return isFlutterProject(targetPath) ? "flutter" : "dart";
   }
   return "npm";
 }
@@ -92,6 +89,10 @@ function detectPackageManager(targetPath: string): string {
 function detectCommands(targetPath: string, packageManager: string): Record<string, string> {
   const packageJsonPath = join(targetPath, "package.json");
   if (!existsSync(packageJsonPath)) {
+    const dartCommands = detectDartOrFlutterCommands(targetPath);
+    if (Object.keys(dartCommands).length > 0) {
+      return dartCommands;
+    }
     return detectGoOrWailsCommands(targetPath);
   }
 
@@ -164,7 +165,12 @@ function detectPathAliases(targetPath: string): Record<string, string> {
 
 function detectSourceDirectories(targetPath: string): string[] {
   const srcPath = join(targetPath, "src");
-  const scanTarget = existsSync(srcPath) ? srcPath : targetPath;
+  const libPath = join(targetPath, "lib");
+  const scanTarget = existsSync(srcPath)
+    ? srcPath
+    : existsSync(libPath)
+      ? libPath
+      : targetPath;
 
   try {
     const entries = readdirSync(scanTarget, { withFileTypes: true });

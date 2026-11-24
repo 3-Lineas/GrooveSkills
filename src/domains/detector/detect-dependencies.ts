@@ -67,6 +67,20 @@ export function detectDependencies(targetPath: string): PackageJsonDetection {
     }
   }
 
+  const pubspecPath = join(targetPath, "pubspec.yaml");
+  if (existsSync(pubspecPath)) {
+    hasManifest = true;
+    detected.add("dart");
+    try {
+      const pubspecContent = readFileSync(pubspecPath, "utf-8");
+      if (/sdk:\s*flutter\b/.test(pubspecContent) || /^\s*flutter:\s*$/m.test(pubspecContent)) {
+        detected.add("flutter");
+      }
+    } catch {
+      // Ignore read errors gracefully
+    }
+  }
+
   const hasWailsConfig = existsSync(join(targetPath, "build", "config.yml"));
   const frontendPackageJsonPath = join(targetPath, "frontend", "package.json");
   if ((hasGoMod || hasWailsConfig) && existsSync(frontendPackageJsonPath)) {

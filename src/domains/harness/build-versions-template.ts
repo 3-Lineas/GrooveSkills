@@ -5,6 +5,18 @@ This document provides a concise, structured changelog of recent GrooveSkills re
 
 ---
 
+## [v1.27.0]
+- **Modern Web Guidance (\`modern-web-guidance\`)**: Added Google Chrome's \`modern-web-guidance\` skill under \`Frameworks & UI\` combining the live \`pnpx modern-web-guidance@latest\` catalog (200+ Baseline-verified HTML, CSS, CWV, and client JS guides) with 2 offline local references (\`modern-web-primitives-and-baseline.md\`, \`grooveskills-web-adaptation.md\`) enforcing zero \`as any\`, SSR guards, and \`useId()\`.
+- **Web Auto-Detection & Cross-References**: Auto-suggests \`modern-web-guidance\` for web frontend dependencies (\`react\`, \`next\`, \`vinext\`, \`vue\`, \`svelte\`, \`astro\`, \`tailwindcss\`, \`vite\`) and adds concise cross-references in \`frontend-design\` and \`react-core\`.
+
+---
+
+## [v1.26.0]
+- **Dart & Flutter Skills Suite (\`dart-clean\`, \`dart-testing\`, \`flutter-architecture\`, \`flutter-ui-layout\`)**: Added 4 cohesive skills with deep \`references/\` consolidating Google's official \`dart-lang/skills\` and \`flutter/agent-plugins\` patterns with GrooveSkills rules: strict \`dart analyze\`, \`sealed\` ADTs, \`extension type const\`, Primary Constructors, \`package:checks\`, Riverpod (\`Notifier\`/\`AsyncNotifier\`) with pure atomic Actions, \`go_router\`, \`l10n\`, adaptive layouts, and WCAG \`Semantics\`.
+- **Dart & Flutter Stack Detection & Onboarding**: Extended \`detect-dependencies.ts\`, \`detect-dart-onboarding.ts\`, and \`scan-project-onboarding.ts\` to auto-detect \`pubspec.yaml\` (\`dart\` and \`flutter\`), \`lib/\` source directories, and \`dart\` / \`flutter\` CLI commands.
+
+---
+
 ## [v1.25.0]
 - **Go 1.27 Skills Suite (\`go-clean\`, \`go-concurrency-safety\`, \`go-testing\`)**: Added 3 Go 1.27 skills under \`Languages & Testing\` covering atomic actions (1 DB query/file), generic \`Pipeline\`, \`encoding/json/v2\`, \`uuid.NewV7()\`, \`errors.AsType[*AppError]\`, \`log/slog\`, \`errgroup\` + \`SetLimit\`, goroutine leak profiling, and 4-tier testing (\`t.Context()\`, \`b.Loop()\`, \`-race\` + \`goleak\`).
 - **Wails v3 Desktop Architecture (\`wails-architecture\`)**: Added unified \`wails-architecture\` skill under \`Frameworks & UI\` (mutually exclusive with \`react-create-page\`) enforcing pure Wails v3 APIs, thin Go bound services, IPC error sanitization, \`@wailsio/runtime\` events, and the GroovePack frontend bridge.
