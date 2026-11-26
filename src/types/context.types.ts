@@ -6,11 +6,14 @@ export interface ProjectContext {
   detectedDependencies: string[];
   suggestedSkillIds: string[];
   installedSkillIds: string[];
+  suggestedAgentProfileIds?: string[];
+  installedAgentProfileIds?: string[];
   detectedAgents: AgentId[];
   packageJsonExists: boolean;
   harnessExists: boolean;
   configuredLanguage?: ProjectLanguage;
   configuredSkills?: string[];
+  configuredAgentProfiles?: string[];
   configuredAgents?: AgentId[];
   installedVersion?: string;
   configuredUpdatedAt?: string;

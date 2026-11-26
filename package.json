@@ -1,6 +1,6 @@
 {
   "name": "@3lineas/grooveskills",
-  "version": "1.27.1",
+  "version": "1.28.0",
   "description": "Multi-agent CLI to install opinionated AI coding skills and architectural standards (Hono, React, Next.js, and more)",
   "type": "module",
   "bin": {
@@ -11,7 +11,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "check-types": "tsc --noEmit",
-    "test": "tsup src/domains/fs/safe-fs.test.ts --format esm --out-dir dist-test && node dist-test/safe-fs.test.js && rm -rf dist-test",
+    "test": "tsup src/domains/fs/safe-fs.test.ts src/domains/installer/agent-profiles.test.ts --format esm --out-dir dist-test && node dist-test/fs/safe-fs.test.js && node dist-test/installer/agent-profiles.test.js && rm -rf dist-test",
     "prepublishOnly": "pnpm run check-types && pnpm run test && pnpm run build"
   },
   "publishConfig": {
@@ -49,6 +49,7 @@
   "files": [
     "dist",
     "skills",
+    "agents",
     "README.md"
   ]
 }

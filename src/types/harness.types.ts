@@ -8,6 +8,7 @@ export interface GrooveSkillsConfig {
   language?: ProjectLanguage;
   agents: AgentId[];
   skills: string[];
+  agentProfiles?: string[];
   updatedAt: string;
 }
 

@@ -2,6 +2,8 @@ import * as prompts from "@clack/prompts";
 import picocolors from "picocolors";
 import { renderBanner } from "@/domains/ui/banners";
 import { promptSkills } from "@/domains/ui/prompt-skills";
+import { promptAgentProfiles } from "@/domains/ui/prompt-agent-profiles";
+import { mergeProfileSkills } from "@/domains/registry/merge-profile-skills";
 import { promptAgents } from "@/domains/ui/prompt-agents";
 import { promptConfirmUninstall } from "@/domains/ui/prompt-confirm-uninstall";
 import {
@@ -67,8 +69,27 @@ export async function runInteractiveUi(
     prompts.note(environmentNote, "Project Environment");
   }
 
+  const selectedProfilesResult = await promptAgentProfiles(
+    context.suggestedAgentProfileIds ?? [],
+    context.installedAgentProfileIds ?? []
+  );
+  if (prompts.isCancel(selectedProfilesResult)) {
+    prompts.cancel("Installation cancelled. Have a wonderful day!");
+    process.exit(0);
+  }
+
+  const selectedAgentProfileIds = selectedProfilesResult as string[];
+  const agentProfilesToRemove = (context.installedAgentProfileIds ?? []).filter(
+    (profileId) => !selectedAgentProfileIds.includes(profileId)
+  );
+
+  const mergedSuggestedSkills = mergeProfileSkills(
+    selectedAgentProfileIds,
+    context.suggestedSkillIds
+  );
+
   const selectedSkills = await promptSkills(
-    context.suggestedSkillIds,
+    mergedSuggestedSkills,
     context.installedSkillIds
   );
   if (prompts.isCancel(selectedSkills)) {
@@ -125,6 +146,8 @@ export async function runInteractiveUi(
       language: selectedLanguage,
       forceOnboarding,
       skillsToRemove,
+      selectedAgentProfileIds,
+      agentProfilesToRemove,
     });
 
     installSpinner.stop(

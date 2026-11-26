@@ -12,6 +12,8 @@ export interface InstallOptions {
   language?: ProjectLanguage;
   forceOnboarding?: boolean;
   skillsToRemove?: string[];
+  selectedAgentProfileIds?: string[];
+  agentProfilesToRemove?: string[];
 }
 
 export interface InstallResult {
@@ -22,5 +24,7 @@ export interface InstallResult {
   language?: ProjectLanguage;
   replacedFiles?: ReplacedFileNotice[];
   removedSkills?: string[];
+  installedAgentProfiles?: string[];
+  removedAgentProfiles?: string[];
   installedVersion: string;
 }

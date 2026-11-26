@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { detectAgents } from "@/domains/detector/detect-agents";
 import { detectDependencies } from "@/domains/detector/detect-dependencies";
 import { detectInstalledSkills } from "@/domains/detector/detect-installed-skills";
+import { detectInstalledAgentProfiles } from "@/domains/detector/detect-installed-agent-profiles";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
 import type { AgentId } from "@/types/agent.types";
 import type { ProjectContext } from "@/types/context.types";
@@ -12,6 +13,7 @@ function readConfiguredState(targetPath: string): {
   language?: ProjectLanguage;
   agents?: AgentId[];
   skills?: string[];
+  agentProfiles?: string[];
   installedVersion?: string;
   configuredUpdatedAt?: string;
   hasLegacyConfigVersion?: boolean;
@@ -28,6 +30,9 @@ function readConfiguredState(targetPath: string): {
       typeof parsed.language === "string" ? (parsed.language as ProjectLanguage) : undefined;
     const agents = Array.isArray(parsed.agents) ? (parsed.agents as AgentId[]) : undefined;
     const skills = Array.isArray(parsed.skills) ? (parsed.skills as string[]) : undefined;
+    const agentProfiles = Array.isArray(parsed.agentProfiles)
+      ? (parsed.agentProfiles as string[])
+      : undefined;
     const configuredUpdatedAt =
       typeof parsed.updatedAt === "string" ? parsed.updatedAt : undefined;
 
@@ -44,6 +49,7 @@ function readConfiguredState(targetPath: string): {
       language,
       agents,
       skills,
+      agentProfiles,
       installedVersion,
       configuredUpdatedAt,
       hasLegacyConfigVersion,
@@ -98,6 +104,24 @@ export function detectProjectContext(targetPath: string): ProjectContext {
   const harnessExists = existsSync(join(targetPath, ".grooveskills", "memory", "context.md"));
   const configuredState = readConfiguredState(targetPath);
   const installedSkillIds = detectInstalledSkills(targetPath, configuredState.skills);
+  const installedAgentProfileIds = detectInstalledAgentProfiles(
+    targetPath,
+    configuredState.agentProfiles
+  );
+
+  const hasHono = dependencies.includes("hono");
+  const hasNextOrVinext =
+    dependencies.includes("next") || dependencies.includes("vinext");
+  const hasReact = dependencies.includes("react");
+
+  const suggestedAgentProfileIds: string[] = [];
+  if (hasHono && hasNextOrVinext) {
+    suggestedAgentProfileIds.push("cf-turbo-hono-next");
+  } else if (hasHono && hasReact) {
+    suggestedAgentProfileIds.push("cf-turbo-hono-react");
+  } else if (hasNextOrVinext) {
+    suggestedAgentProfileIds.push("cf-nextjs");
+  }
 
   const initialAgents =
     configuredState.agents && configuredState.agents.length > 0
@@ -114,11 +138,14 @@ export function detectProjectContext(targetPath: string): ProjectContext {
     detectedDependencies: dependencies,
     suggestedSkillIds: mergedSuggestedSkills,
     installedSkillIds,
+    suggestedAgentProfileIds,
+    installedAgentProfileIds,
     detectedAgents: initialAgents,
     packageJsonExists: exists,
     harnessExists,
     configuredLanguage: configuredState.language,
     configuredSkills: configuredState.skills,
+    configuredAgentProfiles: configuredState.agentProfiles,
     configuredAgents: configuredState.agents,
     installedVersion: configuredState.installedVersion,
     configuredUpdatedAt: configuredState.configuredUpdatedAt,

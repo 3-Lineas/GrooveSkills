@@ -8,6 +8,9 @@ import { getProjectSkillsDir } from "@/domains/project-store/project-paths";
 import { installHarness } from "@/domains/harness/install-harness";
 import { writeProjectConfig } from "@/domains/harness/write-project-config";
 import { removeSkillsFromProject } from "@/domains/installer/remove-skills";
+import { removeAgentProfiles } from "@/domains/installer/remove-agent-profiles";
+import { syncAgentProfilesStore } from "@/domains/project-store/sync-agent-profiles-store";
+import { AGENT_PROFILE_CATALOG } from "@/domains/registry/agent-profile-catalog";
 import { SKILL_CATALOG } from "@/domains/registry/skill-catalog";
 import { resolveGrooveSkillsVersion } from "@/domains/harness/resolve-grooveskills-version";
 import { InstallTransaction } from "@/domains/fs/install-transaction";
@@ -110,6 +113,49 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
     });
     createdFiles.push(...harnessResult.createdFiles);
 
+    const agentProfilesToRemove = options.agentProfilesToRemove ?? [];
+    const agentProfilesToInstall = (options.selectedAgentProfileIds ?? []).filter(
+      (profileId) => !agentProfilesToRemove.includes(profileId)
+    );
+
+    if (agentProfilesToRemove.length > 0) {
+      currentStage = "Removing deselected agent profiles";
+      removeAgentProfiles(options.targetPath, agentProfilesToRemove, transaction);
+    }
+
+    if (agentProfilesToInstall.length > 0) {
+      currentStage = "Syncing agent profiles (.grooveskills/agents)";
+      const syncedProfiles = syncAgentProfilesStore(
+        options.targetPath,
+        agentProfilesToInstall,
+        options.language ?? "es",
+        transaction
+      );
+      createdFiles.push(...syncedProfiles);
+
+      currentStage = "Linking agent profiles (.agents/agents, .claude/agents, .gemini/agents)";
+      for (const profileId of agentProfilesToInstall) {
+        const profileMeta = AGENT_PROFILE_CATALOG.find(
+          (catalogItem) => catalogItem.id === profileId
+        );
+        if (!profileMeta) {
+          continue;
+        }
+        for (const agentId of options.selectedAgents) {
+          const adapter = ADAPTER_REGISTRY[agentId];
+          if (!adapter?.installAgentProfile) {
+            continue;
+          }
+          const linkedFiles = await adapter.installAgentProfile(
+            options.targetPath,
+            profileMeta,
+            transaction
+          );
+          createdFiles.push(...linkedFiles);
+        }
+      }
+    }
+
     currentStage = "Persisting project configuration (.grooveskills/config.json)";
     const configPath = writeProjectConfig(
       options.targetPath,
@@ -118,7 +164,9 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
       true,
       options.language,
       transaction,
-      skillsToRemove
+      skillsToRemove,
+      agentProfilesToInstall,
+      agentProfilesToRemove
     );
     createdFiles.push(configPath);
 
@@ -130,6 +178,8 @@ export async function installSkills(options: InstallOptions): Promise<InstallRes
       language: options.language,
       replacedFiles: transaction.getReplacedFiles(),
       removedSkills: skillsToRemove,
+      installedAgentProfiles: agentProfilesToInstall,
+      removedAgentProfiles: agentProfilesToRemove,
       installedVersion: resolveGrooveSkillsVersion(),
     };
   } catch (cause) {

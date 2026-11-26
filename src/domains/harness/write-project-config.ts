@@ -9,6 +9,7 @@ import type { AgentId } from "@/types/agent.types";
 interface ParsedConfigState {
   skills: string[];
   agents: AgentId[];
+  agentProfiles: string[];
   harness: boolean;
   language?: ProjectLanguage;
 }
@@ -17,6 +18,7 @@ function readExistingConfig(configPath: string): ParsedConfigState {
   const fallback: ParsedConfigState = {
     skills: [],
     agents: [],
+    agentProfiles: [],
     harness: false,
   };
 
@@ -31,6 +33,7 @@ function readExistingConfig(configPath: string): ParsedConfigState {
     return {
       skills: Array.isArray(parsed.skills) ? parsed.skills : [],
       agents: Array.isArray(parsed.agents) ? parsed.agents : [],
+      agentProfiles: Array.isArray(parsed.agentProfiles) ? parsed.agentProfiles : [],
       harness: typeof parsed.harness === "boolean" ? parsed.harness : false,
       language: typeof parsed.language === "string" ? (parsed.language as ProjectLanguage) : undefined,
     };
@@ -46,7 +49,9 @@ export function writeProjectConfig(
   harnessEnabled: boolean,
   language?: ProjectLanguage,
   transaction?: InstallTransaction,
-  skillsToRemove: string[] = []
+  skillsToRemove: string[] = [],
+  newAgentProfiles: string[] = [],
+  agentProfilesToRemove: string[] = []
 ): string {
   const configPath = getProjectConfigPath(targetPath);
   if (transaction) {
@@ -55,11 +60,15 @@ export function writeProjectConfig(
 
   const existing = readExistingConfig(configPath);
   const removalSet = new Set(skillsToRemove);
+  const profileRemovalSet = new Set(agentProfilesToRemove);
 
   const mergedSkills = Array.from(new Set([...existing.skills, ...newSkills])).filter(
     (skillId) => !removalSet.has(skillId)
   );
   const mergedAgents = Array.from(new Set([...existing.agents, ...newAgents]));
+  const mergedAgentProfiles = Array.from(
+    new Set([...existing.agentProfiles, ...newAgentProfiles])
+  ).filter((profileId) => !profileRemovalSet.has(profileId));
   const resolvedLanguage = language ?? existing.language ?? "es";
   const isHarnessActive = existing.harness || harnessEnabled;
 
@@ -69,6 +78,7 @@ export function writeProjectConfig(
     ...(isHarnessActive ? { language: resolvedLanguage } : {}),
     agents: mergedAgents,
     skills: mergedSkills,
+    ...(mergedAgentProfiles.length > 0 ? { agentProfiles: mergedAgentProfiles } : {}),
     updatedAt: new Date().toISOString(),
   };
 

@@ -15,6 +15,7 @@ import type { ProjectLanguage } from "@/types/harness.types";
 export interface CliOptions {
   skills?: string[];
   agents?: AgentId[];
+  agentProfiles?: string[];
   yes?: boolean;
   harness?: boolean;
   language?: ProjectLanguage;

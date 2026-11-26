@@ -9,6 +9,7 @@ import type { ProjectLanguage } from "@/types/harness.types";
 interface CliRawOptions {
   skills?: string[];
   agents?: string[];
+  agentProfiles?: string[];
   yes?: boolean;
   language?: string;
   output?: string;
@@ -25,6 +26,7 @@ program
   .argument("[target]", "Target path (for status/audit commands, defaults to current directory)")
   .option("-s, --skills <skills...>", "Specific skill IDs to install (e.g. odd-ai best-practices hono)")
   .option("-a, --agents <agents...>", "Target AI agents (antigravity claude cursor gemini)")
+  .option("-p, --agent-profiles <profiles...>", "Specialized agent profiles to install (cf-turbo-hono-next cf-turbo-hono-react cf-nextjs)")
   .option("-y, --yes", "Automatically confirm overwrite of existing skills", false)
   .option("-l, --language <lang>", "Project user copy language (es, en, pt, it, fr)")
   .option("-o, --output <dir>", "Output directory for exported audit artifacts (coverage-ledger.json, findings.json, REPORT.md)")
@@ -38,6 +40,7 @@ program
       await runGrooveSkills({
         skills: options.skills,
         agents: options.agents as AgentId[] | undefined,
+        agentProfiles: options.agentProfiles,
         yes: options.yes,
         harness: true,
         language: options.language as ProjectLanguage | undefined,

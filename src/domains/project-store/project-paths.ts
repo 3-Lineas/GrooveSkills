@@ -8,6 +8,10 @@ export function getProjectSkillsDir(targetPath: string): string {
   return join(getProjectStoreDir(targetPath), "skills");
 }
 
+export function getProjectAgentsDir(targetPath: string): string {
+  return join(getProjectStoreDir(targetPath), "agents");
+}
+
 export function getProjectMemoryDir(targetPath: string): string {
   return join(getProjectStoreDir(targetPath), "memory");
 }
