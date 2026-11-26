@@ -1,8 +1,19 @@
 ---
 name: cf-nextjs
 description: Especialista en Next.js y Vinext standalone sobre Cloudflare Workers con GroovePack, protocolo GrooveSkills Harness y ODD obligatorio.
+tools:
+  - view_file
+  - write_to_file
+  - replace_file_content
+  - multi_replace_file_content
+  - grep_search
+  - find_by_name
+  - list_dir
+  - run_command
+  - search_web
 mainAgent: true
 subagent: true
+commandExecutionPolicy: auto
 ---
 
 # CF-Nextjs

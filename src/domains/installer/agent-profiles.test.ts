@@ -40,6 +40,10 @@ async function runAgentProfileTests(): Promise<void> {
     assert.ok(content.includes("name: cf-turbo-hono-next"), "Frontmatter name should be kebab-case");
     assert.ok(content.includes("mainAgent: true"), "Frontmatter should include mainAgent: true");
     assert.ok(content.includes("subagent: true"), "Frontmatter should include subagent: true");
+    assert.ok(content.includes("commandExecutionPolicy: auto"), "Frontmatter should include commandExecutionPolicy: auto");
+    assert.ok(content.includes("write_to_file"), "Frontmatter should include write_to_file tool");
+    assert.ok(content.includes("replace_file_content"), "Frontmatter should include replace_file_content tool");
+    assert.ok(content.includes("run_command"), "Frontmatter should include run_command tool");
     assert.ok(!content.includes("{{LANGUAGE_BLOCK}}"), "Language placeholder should be replaced");
 
     // 3. Verify relative symlinks in .agents/agents, .claude/agents, .gemini/agents

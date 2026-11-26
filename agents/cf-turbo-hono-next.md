@@ -1,8 +1,19 @@
 ---
 name: cf-turbo-hono-next
 description: Especialista Full-Stack en Cloudflare Workers, Turborepo, Hono API, Next.js/Vinext y GroovePack con protocolo GrooveSkills Harness y ODD obligatorio.
+tools:
+  - view_file
+  - write_to_file
+  - replace_file_content
+  - multi_replace_file_content
+  - grep_search
+  - find_by_name
+  - list_dir
+  - run_command
+  - search_web
 mainAgent: true
 subagent: true
+commandExecutionPolicy: auto
 ---
 
 # CF-Turbo-Hono-Next

@@ -20,7 +20,7 @@ export async function runHarnessVersionAndBitacoraTests(): Promise<void> {
   const resolvedVersion = resolveGrooveSkillsVersion();
   strictEqual(typeof resolvedVersion, "string");
   ok(resolvedVersion.length > 0, "Resolved version should not be empty");
-  strictEqual(resolvedVersion, "1.28.1", "Version should match bumped package.json");
+  strictEqual(resolvedVersion, "1.28.2", "Version should match bumped package.json");
 
   // 2. buildAgentHarnessBlock contains version and <= 10 compaction rule
   const harnessBlock = buildAgentHarnessBlock("es", "1.27.1");
@@ -87,14 +87,14 @@ export async function runHarnessVersionAndBitacoraTests(): Promise<void> {
 
     const rawUpdatedConfig = readFileSync(legacyConfigPath, "utf-8");
     const parsedUpdatedConfig = JSON.parse(rawUpdatedConfig) as { version: string; skills: string[] };
-    strictEqual(parsedUpdatedConfig.version, "1.28.1");
+    strictEqual(parsedUpdatedConfig.version, "1.28.2");
     ok(parsedUpdatedConfig.skills.includes("best-practices"));
 
     const updatedContext = detectProjectContext(testDirectory);
-    strictEqual(updatedContext.installedVersion, "1.28.1");
+    strictEqual(updatedContext.installedVersion, "1.28.2");
     strictEqual(updatedContext.hasLegacyConfigVersion, false);
 
-    const updatedReport = buildProjectStatusReport(updatedContext, "1.28.1");
+    const updatedReport = buildProjectStatusReport(updatedContext, "1.28.2");
     strictEqual(updatedReport.status, "up-to-date");
     strictEqual(updatedReport.updateAvailable, false);
 
@@ -106,7 +106,7 @@ export async function runHarnessVersionAndBitacoraTests(): Promise<void> {
       forceOverwrite: true,
       enableHarness: true,
     });
-    strictEqual(installResult.installedVersion, "1.28.1");
+    strictEqual(installResult.installedVersion, "1.28.2");
 
     // Verify .grooveskills/VERSIONS.md was created during installSkills
     const versionsFilePath = join(testDirectory, ".grooveskills", "VERSIONS.md");
