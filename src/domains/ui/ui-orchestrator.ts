@@ -78,7 +78,10 @@ export async function runInteractiveUi(
     process.exit(0);
   }
 
-  const selectedAgentProfileIds = selectedProfilesResult as string[];
+  const rawSelectedProfiles = selectedProfilesResult as string[];
+  const selectedAgentProfileIds = rawSelectedProfiles.includes("none")
+    ? []
+    : rawSelectedProfiles;
   const agentProfilesToRemove = (context.installedAgentProfileIds ?? []).filter(
     (profileId) => !selectedAgentProfileIds.includes(profileId)
   );

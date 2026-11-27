@@ -11,23 +11,30 @@ export async function promptAgentProfiles(
   return prompts.multiselect({
     message:
       "Select specialized agent profiles to install (Antigravity / Claude Code / Gemini)",
-    options: AGENT_PROFILE_CATALOG.map((profile) => {
-      const isInstalled = installedProfileIds.includes(profile.id);
-      const isSuggested = suggestedProfileIds.includes(profile.id);
+    options: [
+      ...AGENT_PROFILE_CATALOG.map((profile) => {
+        const isInstalled = installedProfileIds.includes(profile.id);
+        const isSuggested = suggestedProfileIds.includes(profile.id);
 
-      let hint = profile.description;
-      if (isInstalled) {
-        hint = "Installed";
-      } else if (isSuggested) {
-        hint = "Suggested for your stack";
-      }
+        let hint = profile.description;
+        if (isInstalled) {
+          hint = "Installed";
+        } else if (isSuggested) {
+          hint = "Suggested for your stack";
+        }
 
-      return {
-        value: profile.id,
-        label: profile.name,
-        hint,
-      };
-    }),
+        return {
+          value: profile.id,
+          label: profile.name,
+          hint,
+        };
+      }),
+      {
+        value: "none",
+        label: "None (skip specialized agent profiles)",
+        hint: "Install only skills and harness",
+      },
+    ],
     initialValues,
     required: false,
   });
