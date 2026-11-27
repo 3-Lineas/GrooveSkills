@@ -24,6 +24,7 @@ AI coding assistants perform at their highest potential when they share your tea
 | :--- | :--- | :--- |
 | **1. Core Project Harness (`.grooveskills/`)** | Built-in project onboarding, persistent memory, and an Organic & Outcome-Driven (ODD) 3-lane workflow installed automatically. | Every session starts oriented on your stack, real scripts, ADR records, outcome hypotheses, and verified checklists. |
 | **2. Curated Architectural Skills** | Battle-tested engineering standards covering Clean Code, TypeScript 5.5+, Rust, Python, Valibot, Hono RPC, React 19, Vitest, and UX Writing. | Your AI assistant writes clean, modular, strictly typed code matching your team's conventions. |
+| **3. Specialized Agent Profiles (`agents/`)** | Ready-to-use agent personas (`CF-Turbo-Hono-Next`, `CF-Turbo-Hono-React`, `CF-Nextjs`) with full read/write/terminal permissions, Golden Rules, and mandatory `.grooveskills/` + Bitacora workflow. | Selectable directly in Antigravity, Claude Code, and Gemini CLI (`.agents/agents/`, `.claude/agents/`, `.gemini/agents/`) and auto-preselects stack skills. |
 
 ---
 
@@ -142,6 +143,9 @@ my-project/
 
 For an in-depth changelog maintained automatically in every project, refer to `.grooveskills/VERSIONS.md`.
 
+- **v1.28.3**:
+  - **Specialized Agent Profiles (`CF-Turbo-Hono-Next`, `CF-Turbo-Hono-React`, `CF-Nextjs`)**: Added installable agent profiles in `agents/` with native Antigravity, Claude Code, and Gemini CLI frontmatter (`mainAgent: true`, `subagent: true`, full `tools:` allowlist, `commandExecutionPolicy: auto`), mandatory `.grooveskills/`-first + Bitacora workflow, 10 Golden Rules, and stack-specific folder architecture.
+  - **Canonical Agent Store, Symlinks & Pre-Selection**: Stored canonical profiles in `.grooveskills/agents/`, linked them via relative symlinks to `.agents/agents/`, `.claude/agents/`, and `.gemini/agents/`, added `--agent-profiles` CLI flag, and placed agent selection before `promptSkills` to auto-preselect recommended stack skills.
 - **v1.27.0**:
   - **Modern Web Guidance (`modern-web-guidance`)**: Added Google Chrome's `modern-web-guidance` skill under `Frameworks & UI` combining the live `pnpx modern-web-guidance@latest` catalog (200+ Baseline-verified HTML, CSS, CWV, and client JS guides) with 2 offline local references (`modern-web-primitives-and-baseline.md`, `grooveskills-web-adaptation.md`) enforcing zero `as any`, SSR guards, and `useId()`.
   - **Web Auto-Detection & Cross-References**: Auto-suggests `modern-web-guidance` for web frontend dependencies (`react`, `next`, `vinext`, `vue`, `svelte`, `astro`, `tailwindcss`, `vite`) and adds concise cross-references in `frontend-design` and `react-core`.
